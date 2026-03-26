@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: 'sedap-nnap.onrender.com/api/',
+    baseURL: 'https://sedap-nnap.onrender.com/api',
     headers: {
         'Content-Type': 'application/json',
     },
