@@ -20,16 +20,16 @@ export default function CardCat() {
 
   useEffect(() => { fetchProducts(); fetchCartItems(); }, []);
 
-  const fetchProducts = async () => {
+const fetchProducts = async () => {
     try {
-      const { data } = await api.get('/products');
-      setProducts(data);
+        const { data } = await api.get('/products');
+        setProducts(Array.isArray(data) ? data : data.products ?? []);
     } catch (err) {
-      alert(err.message || 'Failed to fetch products');
+        alert(err.message || 'Failed to fetch products');
     } finally {
-      setLoading(false);
+        setLoading(false);
     }
-  };
+};
 
   const fetchCartItems = async () => {
     try {
