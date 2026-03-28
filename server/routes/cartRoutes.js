@@ -28,6 +28,10 @@ export default function cartRoutes(Cart) {
     // POST add item to cart
     router.post("/invoice", async (req, res) => {
         try {
+            const { name, price } = req.body;
+            if (!name || price === undefined) {
+                return res.status(400).json({ message: "Missing required fields: name, price" });
+            }
             const item = new Cart(req.body);
             await item.save();
             return res.status(201).json({

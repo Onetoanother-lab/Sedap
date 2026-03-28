@@ -11,7 +11,7 @@ import User from "./models/User.js";
 
 dotenv.config();
 
-// Load db.json 
+// Load db.json
 const db = JSON.parse(readFileSync("./db.json", "utf-8"));
 
 const seed = async () => {

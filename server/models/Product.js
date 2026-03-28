@@ -32,4 +32,6 @@ const productSchema = new mongoose.Schema({
     }
 }, { timestamps: true });
 
+productSchema.index({ category: 1 });
+
 export default mongoose.model("Product", productSchema);

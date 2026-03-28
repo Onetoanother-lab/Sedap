@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom'
 import { signInWithPopup } from 'firebase/auth'
 import { auth, googleProvider, githubProvider } from '../firebase'
 import { useAuth } from '../context/AuthContext'
-import { GiKnifeFork } from 'react-icons/gi'
+import { MdDashboard } from 'react-icons/md'
 
 const EMAIL_RE = /\S+@\S+\.\S+/
 
@@ -20,11 +20,12 @@ export default function Register() {
     e.preventDefault()
     setError('')
     if (!form.name || !form.email || !form.password || !form.confirm) { setError('Please fill in all fields'); return }
+    // AUTH-D-05: email format validation
     if (!EMAIL_RE.test(form.email)) { setError('Please enter a valid email address'); return }
     if (form.password.length < 6) { setError('Password must be at least 6 characters'); return }
     if (form.password !== form.confirm) { setError('Passwords do not match'); return }
     setLoading(true)
-    try { await register(form.name, form.email, form.password); navigate('/menu') }
+    try { await register(form.name, form.email, form.password); navigate('/') }
     catch (err) { setError(err.message) }
     finally { setLoading(false) }
   }
@@ -35,7 +36,7 @@ export default function Register() {
     try {
       const result = await signInWithPopup(auth, provider)
       await fn(result.user)
-      navigate('/menu')
+      navigate('/')
     } catch (err) {
       const code = err.code || ''
       if (code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request') setError('Sign-in cancelled.')
@@ -47,37 +48,36 @@ export default function Register() {
   return (
     <div className="min-h-screen bg-base-300 flex">
 
-      {/* Left decorative panel */}
-      <div className="hidden lg:flex lg:w-5/12 bg-accent flex-col justify-between p-14">
+      {/* Left panel */}
+      <div className="hidden lg:flex lg:w-5/12 bg-primary flex-col justify-between p-14">
         <div className="flex items-center gap-3">
-          <div className="bg-neutral/20 rounded-2xl p-3">
-            <GiKnifeFork className="text-accent-content" size={26} />
+          <div className="bg-primary-content/20 rounded-2xl p-3">
+            <MdDashboard className="text-primary-content" size={26} />
           </div>
-          <span className="text-accent-content font-bold text-xl">Cashier Dashboard</span>
+          <span className="text-primary-content font-bold text-xl">Sedap Admin</span>
         </div>
         <div>
-          <p className="text-accent-content text-sm font-medium mb-2 uppercase tracking-widest">Get started</p>
-          <h1 className="text-neutral-content font-bold text-5xl leading-tight w-44">Create<br/>your<br/>account.</h1>
+          <p className="text-primary-content/70 text-sm font-medium mb-2 uppercase tracking-widest">Get started</p>
+          <h1 className="text-primary-content font-bold text-5xl leading-tight">Create<br/>your<br/>account.</h1>
         </div>
-        <p className="text-neutral/60 text-xs">Join your team and start managing orders from one place.</p>
+        <p className="text-primary-content/60 text-xs">Join your team and start managing your restaurant from one place.</p>
       </div>
 
-      {/* Right form panel */}
+      {/* Right form */}
       <div className="flex-1 flex items-center justify-center p-6">
         <div className="card bg-base-100 shadow-xl w-full max-w-sm">
           <div className="card-body gap-4">
 
-            {/* Mobile brand */}
             <div className="flex items-center gap-3 lg:hidden mb-2">
-              <div className="bg-accent rounded-xl p-2.5">
-                <GiKnifeFork className="text-neutral-content" size={20} />
+              <div className="bg-primary rounded-xl p-2.5">
+                <MdDashboard className="text-primary-content" size={20} />
               </div>
-              <span className="font-bold text-base-content">Cashier Dashboard</span>
+              <span className="font-bold text-base-content">Sedap Admin</span>
             </div>
 
             <div className="mb-1">
-              <h2 className="text-2xl font-bold text-accent">New account</h2>
-              <p className="text-sm text-accent-content/50 mt-1">Sign up to get started</p>
+              <h2 className="text-2xl font-bold text-primary">New account</h2>
+              <p className="text-sm text-base-content/50 mt-1">Sign up to get started</p>
             </div>
 
             {error && (
@@ -120,7 +120,6 @@ export default function Register() {
 
             <div className="divider text-xs text-base-content/40 my-0">OR</div>
 
-            {/* Email form */}
             <form onSubmit={handleEmail} className="flex flex-col gap-3" noValidate>
               <input type="text" placeholder="Full name" className="input input-bordered w-full"
                 value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} autoComplete="name" />
@@ -131,7 +130,7 @@ export default function Register() {
               <input type="password" placeholder="Confirm password" className="input input-bordered w-full"
                 value={form.confirm} onChange={e => setForm(p => ({ ...p, confirm: e.target.value }))} autoComplete="new-password" />
               <button type="submit" disabled={loading}
-                className="btn bg-accent border-none text-neutral-content w-full mt-1">
+                className="btn btn-primary w-full mt-1">
                 {loading ? <span className="loading loading-spinner loading-sm" /> : null}
                 {loading ? 'Creating account…' : 'Create Account'}
               </button>
@@ -139,7 +138,7 @@ export default function Register() {
 
             <p className="text-center text-sm text-base-content/60">
               Already have an account?{' '}
-              <Link to="/login" className="text-accent font-semibold hover:underline">Sign in</Link>
+              <Link to="/login" className="text-primary font-semibold hover:underline">Sign in</Link>
             </p>
           </div>
         </div>

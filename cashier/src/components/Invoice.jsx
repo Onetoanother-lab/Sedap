@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function Invoice({ groupedItems, subTotal, TAX, DISCOUNT, TIPS, total, customerName, setCustomerName, address, setAddress, onCheckout, onSubmitOrder }) {
+export default function Invoice({ groupedItems, subTotal, TAX, DISCOUNT, TIPS, total, customerName, setCustomerName, address, setAddress, onCheckout, onSubmitOrder, isSubmitting }) {
   return (
     <div className="bg-base-100 shadow-2xl flex flex-col shrink-0 w-96 h-full overflow-y-auto">
       <div className="flex flex-col p-6 h-full">
@@ -60,7 +60,7 @@ export default function Invoice({ groupedItems, subTotal, TAX, DISCOUNT, TIPS, t
           </div>
         </div>
 
-        <button className="btn bg-accent border-none text-neutral w-full" onClick={onCheckout}>
+        <button className="btn bg-accent border-none text-neutral w-full" onClick={onCheckout} disabled={isSubmitting}>
           Checkout
         </button>
 
@@ -72,8 +72,8 @@ export default function Invoice({ groupedItems, subTotal, TAX, DISCOUNT, TIPS, t
                 value={customerName} onChange={e => setCustomerName(e.target.value)} />
               <input type="text" className="input input-bordered w-full rounded-xl" placeholder="Enter delivery address…"
                 value={address} onChange={e => setAddress(e.target.value)} />
-              <button className="btn bg-accent border-none text-neutral w-full rounded-xl mt-2" onClick={onSubmitOrder}>
-                Submit Order
+              <button className="btn bg-accent border-none text-neutral w-full rounded-xl mt-2" onClick={onSubmitOrder} disabled={isSubmitting}>
+                {isSubmitting ? <span className="loading loading-spinner loading-sm" /> : 'Submit Order'}
               </button>
             </div>
           </div>

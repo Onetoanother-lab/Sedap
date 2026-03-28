@@ -1,13 +1,17 @@
 
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+
+const API = import.meta.env.VITE_API_URL || 'https://sedap-nnap.onrender.com/api';
 
 export default function CustomerTable() {
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    fetch('https://sedap-nnap.onrender.com/api/customers')
+    fetch(`${API}/customers`)
       .then((res) => {
         if (!res.ok) throw new Error('Failed to fetch customers');
         return res.json();
@@ -25,9 +29,8 @@ export default function CustomerTable() {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
-<div className="flex items-center justify-center h-[60vh]">
-      <span className="loading loading-spinner text-success w-12"></span>
-    </div>      </div>
+        <span className="loading loading-spinner text-success w-12"></span>
+      </div>
     );
   }
 
@@ -84,7 +87,7 @@ export default function CustomerTable() {
                   </span>
                 </td>
                 <td className="whitespace-nowrap px-6 py-4 text-slate-500">
-                  {customer.joinDate}
+                  {customer.joinDate ? new Date(customer.joinDate).toLocaleDateString() : '—'}
                 </td>
                 <td className="whitespace-nowrap px-6 py-4 font-medium text-slate-500">
                   {customer.name}
@@ -93,16 +96,19 @@ export default function CustomerTable() {
                   {customer.location}
                 </td>
                 <td className="whitespace-nowrap px-6 py-4 font-bold text-slate-500">
-                  {customer.totalSpent}
+                  ${typeof customer.totalSpent === 'number' ? customer.totalSpent.toFixed(2) : customer.totalSpent}
                 </td>
                 <td className="whitespace-nowrap px-6 py-4">
                   <span className="inline-flex items-center rounded-full bg-green-50 px-3 py-1 text-sm font-medium text-success ring-1 ring-inset ring-green-600/20">
-                    {customer.lastOrder}
+                    {customer.lastOrder ? new Date(customer.lastOrder).toLocaleDateString() : '—'}
                   </span>
                 </td>
                 <td className="whitespace-nowrap px-6 py-4 text-sm">
                   <div className="flex gap-3">
-                    <button className="rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-700 transition-colors">
+                    <button
+                      onClick={() => navigate(`/customersDetail?id=${customer.id}`)}
+                      className="rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-700 transition-colors"
+                    >
                       View Detail
                     </button>
                     <button className="rounded-md bg-error px-3 py-1.5 text-xs font-medium text-white hover:bg-orange-700 transition-colors">

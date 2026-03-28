@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 // ─── Theme Cycle Hook ─────────────────────────────────────────────────────────
 const THEMES = ['light', 'dark', 'system'];
@@ -125,8 +127,16 @@ function ThemeButton() {
   );
 }
 
-// ─── Original Navbar (zero changes below this line) ───────────────────────────
+// ─── Navbar ───────────────────────────────────────────────────────────────────
 const Navbar = () => {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
+
   return (
     <div className="flex items-center  justify-between  max-h-[10%] p-4 w-full font-sans">
 
@@ -177,18 +187,27 @@ const Navbar = () => {
         <div className="h-10 w-[1.5px] bg-gray-200 mx-2"></div>
 
         {/* Профиль */}
-        <div className="flex items-center space-x-3 cursor-pointer">
+        <div className="flex items-center space-x-3">
           <div className="text-right">
-            <p className="text-gray-400 text-[13px] leading-tight">LoveStore,</p>
-            <p className="text-gray-700 font-bold text-[15px] leading-tight">Karom + Mirjoja = Love</p>
+            <p className="text-gray-400 text-[13px] leading-tight">Admin</p>
+            <p className="text-gray-700 font-bold text-[15px] leading-tight">{user?.name || 'Dashboard'}</p>
           </div>
           <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-white shadow-sm">
             <img
-              src="https://randomuser.me/api/portraits/women/44.jpg"
+              src={user?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || 'A')}&background=random`}
               alt="Profile"
               className="w-full h-full object-cover"
             />
           </div>
+          <button
+            onClick={handleLogout}
+            className="btn btn-ghost btn-sm text-error"
+            title="Sign out"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor" className="w-5 h-5">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75" />
+            </svg>
+          </button>
         </div>
       </div>
     </div>

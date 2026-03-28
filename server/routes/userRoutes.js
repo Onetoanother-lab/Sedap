@@ -46,26 +46,33 @@ export default function userRoutes(User) {
     // POST /api/users  — register (email+password) OR create OAuth user
     router.post("/users", async (req, res) => {
         try {
-            const { name, email, password, avatar = null, uid = "" } = req.body;
-
-            // Duplicate email check (skip if email is null — OAuth with no public email)
-            if (email) {
-                const existing = await User.findOne({ email });
-                if (existing) {
-                    return res.status(400).json({ message: "Email already registered" });
-                }
+            const { name, email, password, avatar = null, uid = null } = req.body;
+            if (!name?.trim()) {
+                return res.status(400).json({ message: "Name is required" });
             }
 
-            const hashedPassword = password ? await bcrypt.hash(password, 10) : null;
+            const hashedPassword = password ? await bcrypt.hash(password, 10) : undefined;
 
-            const user = new User({ name, email: email || null, password: hashedPassword, avatar, uid });
+            // Only include email/uid when they have actual values —
+            // sparse unique indexes index null, but skip ABSENT fields.
+            const user = new User({
+                name,
+                ...(email    ? { email }              : {}),
+                ...(hashedPassword ? { password: hashedPassword } : {}),
+                ...(avatar   ? { avatar }             : {}),
+                ...(uid      ? { uid }                : {}),
+            });
             await user.save();  // pre-save hook sets user.id = _id.toString()
- user.id = user._id.toString();
-        await user.save();
+
             return res.status(201).json(safeUser(user));
         } catch (e) {
             if (e.code === 11000) {
-                return res.status(400).json({ message: "Email already registered" });
+                const field = e.keyPattern?.email ? "Email" : e.keyPattern?.uid ? "Account" : "User";
+                return res.status(400).json({ message: `${field} already registered` });
+            }
+            if (e.name === 'ValidationError') {
+                const msg = Object.values(e.errors).map(v => v.message).join(', ');
+                return res.status(400).json({ message: msg });
             }
             console.error(e);
             return res.status(500).json({ message: "Internal Server Error" });

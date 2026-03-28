@@ -4,8 +4,9 @@ import { v4 as uuidv4 } from "uuid";
 export default function orderListRoutes(OrderList) {
     const router = express.Router();
 
+    // GET all orders
     router.get("/orderlist", async (req, res) => {
-        try {
+        try { 
             const orders = await OrderList.find().sort({ createdAt: -1 });
             return res.status(200).json(orders);
         } catch (e) {
@@ -14,6 +15,7 @@ export default function orderListRoutes(OrderList) {
         }
     });
 
+    // GET single order by id
     router.get("/orderlist/:id", async (req, res) => {
         try {
             const order = await OrderList.findOne({ id: req.params.id });
@@ -25,10 +27,15 @@ export default function orderListRoutes(OrderList) {
         }
     });
 
+    // POST create new order
     router.post("/orderlist", async (req, res) => {
         try {
+            const { customerName, address, items, total } = req.body;
+            if (!customerName || !address || !items?.length || total === undefined) {
+                return res.status(400).json({ message: "Missing required fields: customerName, address, items, total" });
+            }
             const order = new OrderList({
-                id: uuidv4().slice(0, 4), 
+                id: uuidv4(),
                 ...req.body,
             });
             await order.save();
@@ -39,6 +46,7 @@ export default function orderListRoutes(OrderList) {
         }
     });
 
+    // DELETE order by id
     router.delete("/orderlist/:id", async (req, res) => {
         try {
             const deleted = await OrderList.findOneAndDelete({ id: req.params.id });

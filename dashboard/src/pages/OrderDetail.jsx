@@ -1,18 +1,23 @@
 import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import { LuTruck } from "react-icons/lu";
 import { FiPhone } from "react-icons/fi";
 import { TbTruckDelivery } from "react-icons/tb";
 
 const OrderDetail = () => {
+  const { id } = useParams();
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchOrder = async () => {
       try {
-        const res = await fetch("https://sedap-nnap.onrender.com/api/orderlist");
+        const url = id
+          ? `https://sedap-nnap.onrender.com/api/orderlist/${id}`
+          : "https://sedap-nnap.onrender.com/api/orderlist";
+        const res = await fetch(url);
         const data = await res.json();
-        setOrder(data[0]);
+        setOrder(id ? data : data[0]);
       } catch (err) {
         console.error(err);
       } finally {
@@ -20,7 +25,7 @@ const OrderDetail = () => {
       }
     };
     fetchOrder();
-  }, []);
+  }, [id]);
 
   if (loading) {
     return (

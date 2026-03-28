@@ -14,10 +14,12 @@ const invoiceSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    items: {
-        type: Array,
-        default: []
-    },
+    items: [{
+        id:    { type: String },
+        name:  { type: String },
+        price: { type: Number },
+        qty:   { type: Number },
+    }],
     subTotal: {
         type: Number,
         default: 0
