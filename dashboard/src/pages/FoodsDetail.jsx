@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import {
   LineChart,
   Line,
@@ -12,6 +13,7 @@ import {
   import { ToastContainer, toast } from 'react-toastify';
 
 const FoodsDetail = () => {
+  const { id } = useParams();
   const [product, setProduct] = useState(null);
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -30,12 +32,12 @@ const FoodsDetail = () => {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [id]);
 
   const fetchData = async () => {
     try {
-      const productRes = await fetch("https://sedap-nnap.onrender.com/api/products/1");
-      const ordersRes = await fetch("https://sedap-nnap.onrender.com/api/orders");
+      const productRes = await fetch(`https://sedap-nnap.onrender.com/api/products/${id}`);
+      const ordersRes = await fetch("https://sedap-nnap.onrender.com/api/orderlist");
 
       if (!productRes.ok || !ordersRes.ok) throw new Error("API xatosi");
 
@@ -45,17 +47,20 @@ const FoodsDetail = () => {
       setProduct(productData);
 
       const productOrders = ordersData.filter(
-        (o) => o.productId === parseInt(productData.id)
+        (o) => (o.items || []).some((item) => item.id === productData.id)
       );
 
       const monthlyMap = {};
       productOrders.forEach((order) => {
-        const date = new Date(order.date);
+        const date = new Date(order.createdAt);
         const month = date.toLocaleString("en", { month: "short" });
         if (!monthlyMap[month]) {
           monthlyMap[month] = { name: month, value: 0 };
         }
-        monthlyMap[month].value += Number(order.total) || 0;
+        const rev = (order.items || [])
+          .filter((item) => item.id === productData.id)
+          .reduce((s, item) => s + (item.price * (item.qty || 1)), 0);
+        monthlyMap[month].value += rev;
       });
 
       // ✅ filledData to'g'ri aniqlandi

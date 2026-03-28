@@ -30,8 +30,12 @@ export default function orderListRoutes(OrderList) {
     // POST create new order
     router.post("/orderlist", async (req, res) => {
         try {
+            const { customerName, address, items, total } = req.body;
+            if (!customerName || !address || !items?.length || total === undefined) {
+                return res.status(400).json({ message: "Missing required fields: customerName, address, items, total" });
+            }
             const order = new OrderList({
-                id: uuidv4().slice(0, 4), // short 4-char id to match existing data
+                id: uuidv4(),
                 ...req.body,
             });
             await order.save();

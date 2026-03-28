@@ -29,6 +29,10 @@ export default function productRoutes(Product) {
     // POST create product
     router.post("/products", async (req, res) => {
         try {
+            const { id, name, description, price, category } = req.body;
+            if (!id || !name || !description || price === undefined || !category) {
+                return res.status(400).json({ message: "Missing required fields: id, name, description, price, category" });
+            }
             const product = new Product(req.body);
             await product.save();
             return res.status(201).json(product);

@@ -35,10 +35,13 @@ const fetchProducts = async () => {
     try {
       const { data } = await api.get('/invoice');
       setItems(Array.isArray(data) ? data : []);
-    } catch { setItems([]); }
+    } catch (err) {
+      setItems([]);
+      alert(err.message || 'Failed to load cart');
+    }
   };
 
-  const categories = ['All', ...new Set(products.map(p => p.category))];
+  const categories = ['All', ...new Set(products.filter(p => p.category).map(p => p.category))];
 
   const filteredProducts = useMemo(() => products.filter(p => {
     const matchCat    = category === 'All' || p.category === category;
@@ -60,13 +63,17 @@ const fetchProducts = async () => {
   // Fix: no negative total when cart is empty
   const total = subTotal > 0 ? Math.max(0, subTotal + TAX + TIPS - DISCOUNT) : 0;
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const addToCart = async (product) => {
     try { await api.post('/invoice', product); fetchCartItems(); }
-    catch (err) { console.error('Failed to add to cart:', err); }
+    catch (err) { alert(err.message || 'Failed to add to cart'); }
   };
 
   const handleOrderSubmit = async () => {
+    if (isSubmitting) return;
     if (!customerName || !address) { alert('Please enter name and address'); return; }
+    setIsSubmitting(true);
     const orderData = { customerName, address, items: groupedItems, subTotal, tax: TAX, discount: DISCOUNT, tips: TIPS, total, createdAt: new Date().toISOString() };
     try {
       await api.post('/orderlist', orderData);
@@ -74,7 +81,11 @@ const fetchProducts = async () => {
       setItems([]); setCustomerName(''); setAddress('');
       document.getElementById('my_modal_2').close();
       alert('Purchase completed');
-    } catch (err) { alert(err.message || 'Error during purchase'); }
+    } catch (err) {
+      alert(err.message || 'Error during purchase');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (loading) return (
@@ -123,6 +134,7 @@ const fetchProducts = async () => {
         address={address} setAddress={setAddress}
         onCheckout={() => document.getElementById('my_modal_2').showModal()}
         onSubmitOrder={handleOrderSubmit}
+        isSubmitting={isSubmitting}
       />
     </div>
   );

@@ -3,7 +3,7 @@ import { ChevronDown, X } from 'lucide-react';
 
 const EventCalendar = () => {
   
-  const [currentDate, setCurrentDate] = useState(new Date(2021, 3, 1));
+  const [currentDate, setCurrentDate] = useState(new Date());
   const [view, setView] = useState('Month');
   const [selectedDay, setSelectedDay] = useState(null);
   const [showModal, setShowModal] = useState(false);
@@ -52,20 +52,18 @@ const EventCalendar = () => {
   };
 
   const getWeekDays = () => {
-    const weekStart = new Date(2021, 3, 18); // April 18, 2021 (Sunday)
-    const days = [];
-    
-    for (let i = 0; i < 7; i++) {
+    const weekStart = new Date(currentDate);
+    weekStart.setDate(currentDate.getDate() - currentDate.getDay());
+    const today = new Date();
+    return Array.from({ length: 7 }, (_, i) => {
       const date = new Date(weekStart);
       date.setDate(weekStart.getDate() + i);
-      days.push({
+      return {
         date: date.getDate(),
         dayName: daysOfWeek[i],
-        isToday: date.getDate() === 18
-      });
-    }
-    
-    return days;
+        isToday: date.toDateString() === today.toDateString()
+      };
+    });
   };
    
   const handleDayClick = (day) => {

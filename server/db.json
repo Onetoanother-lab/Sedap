@@ -1,0 +1,720 @@
+{
+  "products": [
+    {
+      "id": "1",
+      "name": "Grilled Salmon",
+      "description": "Fresh grilled salmon with lemon butter sauce",
+      "price": 45000,
+      "discount": 0,
+      "category": "Dinner",
+      "image": "https://static.vecteezy.com/system/resources/previews/048/093/831/non_2x/close-up-fresh-beef-burger-isolated-on-transparent-background-png.png"
+    },
+    {
+      "id": "2",
+      "name": "Caesar Salad",
+      "description": "Classic caesar salad with croutons and parmesan",
+      "price": 22000,
+      "discount": 0,
+      "category": "Lunch",
+      "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQGh76pwKWG38tNeGBNSFPKhlpSOAIQlFVYyQ&s"
+    },
+    {
+      "id": "3",
+      "name": "Healthy Lunch Bento Box",
+      "description": "Balanced healthy lunch box",
+      "price": 8000,
+      "discount": 0.1,
+      "category": "Lunch",
+      "image": "https://www.eatingwell.com/thmb/EiePi_W4B9tETnCWk8irHyK9AYY=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/NMD-Cucumber-Hummus-Pita-Bento-Box-Lunch-1x1-1-2000-666fd1a2f7b842a997e80c5c5645490f.jpg"
+    },
+    {
+      "id": "4",
+      "name": "Classic Boiled Eggs",
+      "description": "Three boiled farm eggs",
+      "price": 12000,
+      "discount": 0,
+      "category": "Lunch",
+      "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTrLCOdi6WKx5X4rW7WLzOgnJ3txGoR-9g52g&s"
+    },
+    {
+      "id": "5",
+      "name": "Farm Boiled Eggs",
+      "description": "Three boiled farm eggs",
+      "price": 7000,
+      "discount": 0.1,
+      "category": "Lunch",
+      "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSva6hoXynKr9mqM8eA63acsVN7o-2jFjLLWA&s"
+    },
+    {
+      "id": "6",
+      "name": "Simple Boiled Eggs",
+      "description": "Three boiled farm eggs",
+      "price": 2000,
+      "discount": 0.1,
+      "category": "Lunch",
+      "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTbnduFiQqqys8hQKVIyAPEvx-fGLy_dfMACQ&s"
+    },
+    {
+      "id": "7",
+      "name": "Soft Boiled Eggs",
+      "description": "Soft cooked eggs",
+      "price": 1500,
+      "discount": 0.1,
+      "category": "Lunch",
+      "image": "https://www.evesleep.co.uk/cdn/shop/articles/559668789422_article-hero-large.jpg?v=1711468118"
+    },
+    {
+      "id": "8",
+      "name": "Fresh Boiled Eggs",
+      "description": "Three boiled farm eggs",
+      "price": 2000,
+      "discount": 0.1,
+      "category": "Lunch",
+      "image": "https://www.eatingwell.com/thmb/bQWREDrtiQWrEhlLayU3v7Us9a4=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/45259671-97112006e572444a996dbbacfd4b8bed.jpg"
+    },
+    {
+      "id": "9",
+      "name": "Premium Boiled Eggs Plate",
+      "description": "Premium quality boiled eggs",
+      "price": 62000,
+      "discount": 0.3,
+      "category": "Lunch",
+      "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRrIQAXFHMpTMmhHYkb2Ks13xB3mdF97sigbQ&s"
+    },
+    {
+      "id": "10",
+      "name": "Milk Porridge",
+      "description": "Creamy porridge prepared with milk and grains",
+      "price": 15000,
+      "discount": 0,
+      "category": "Breakfast",
+      "image": "https://static.vecteezy.com/system/resources/previews/054/656/106/non_2x/bowl-of-creamy-porridge-with-milk-free-png.png"
+    },
+    {
+      "id": "11",
+      "name": "Cheese Sandwich",
+      "description": "Toasted sandwich with melted cheese",
+      "price": 20000,
+      "discount": 0,
+      "category": "Breakfast",
+      "image": "https://potatorolls.com/wp-content/uploads/Lumberjack-Breakfast2.jpg"
+    },
+    {
+      "id": "12",
+      "name": "Bread with Honey",
+      "description": "Fresh bread served with natural honey",
+      "price": 14000,
+      "discount": 0,
+      "category": "Breakfast",
+      "image": "https://images.immediate.co.uk/production/volatile/sites/2/2015/05/8684.jpg?quality=90&resize=708,643"
+    },
+    {
+      "id": "13",
+      "name": "Croissant",
+      "description": "Freshly baked buttery croissant",
+      "price": 16000,
+      "discount": 0,
+      "category": "Breakfast",
+      "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSwM01Y6zKM7RUpH_WLE076Wlrd8JtOp2y2fA&s"
+    },
+    {
+      "id": "14",
+      "name": "Classic Waffles",
+      "description": "Freshly made breakfast waffles",
+      "price": 17000,
+      "discount": 0,
+      "category": "Breakfast",
+      "image": "https://images.immediate.co.uk/production/volatile/sites/30/2022/09/Classic-Waffles-0ae28b2.jpg?resize=900%2C471"
+    },
+    {
+      "id": "15",
+      "name": "Americano Coffee",
+      "description": "Hot brewed Americano coffee",
+      "price": 13000,
+      "discount": 0,
+      "category": "Breakfast",
+      "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRwqHoPiYCynaEcPt_5s9JXQORnxXuFuQy3qg&s"
+    },
+    {
+      "id": "16",
+      "name": "Veggie Breakfast Plate",
+      "description": "Vegetarian breakfast fry-up",
+      "price": 8000,
+      "discount": 0,
+      "category": "Breakfast",
+      "image": "https://ichef.bbci.co.uk/food/ic/food_16x9_1600/recipes/veggie_breakfast_fry_up_66913_16x9.jpg"
+    },
+    {
+      "id": "17",
+      "name": "Orange Juice",
+      "description": "Freshly squeezed orange juice",
+      "price": 18000,
+      "discount": 0,
+      "category": "Breakfast",
+      "image": "https://www.allrecipes.com/thmb/qCb3wPhtuvhDwkdV8l_jv-DCTW4=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/9220994-e01afcac0e5a49f4bd5fcccfd2e5730a.jpg"
+    },
+    {
+      "id": "18",
+      "name": "Milk Porridge for Two",
+      "description": "Creamy milk porridge served for two",
+      "price": 15000,
+      "discount": 0,
+      "category": "Breakfast",
+      "image": "https://www.tasteofhome.com/wp-content/uploads/2025/04/38-Breakfast-for-Two-Recipes-to-Enjoy-Together_JMZ18_224489_B03_08_7b_01_FT.jpg"
+    },
+    {
+      "id": "19",
+      "name": "Classic Milk Porridge",
+      "description": "Traditional creamy milk porridge",
+      "price": 15000,
+      "discount": 0,
+      "category": "Breakfast",
+      "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQwgl94nyDD_YC-3VGDTFYyvlUdpp08Kth9Lg&s"
+    },
+    {
+      "id": "20",
+      "name": "White Rice",
+      "description": "High quality white rice",
+      "price": 12000,
+      "discount": 0.15,
+      "category": "Main Dish",
+      "image": "https://images.rawpixel.com/image_png_800/cHJpdmF0ZS9sci9pbWFnZXMvd2Vic2l0ZS8yMDI0LTA4L3Jhd3BpeGVsb2ZmaWNlMl9waG90b19vZl9leHBsb2RpbmdfYmFjb25fZnJpZWRfcmljZV9faW5fc3R5bGVfb18xYjllOWMyOC00ZDFiLTRiNDQtYmNjMy0yMGQ3ZjY2NWMzMmMucG5n.png"
+    },
+    {
+      "id": "21",
+      "name": "Fresh Milk",
+      "description": "Fresh cow milk",
+      "price": 8000,
+      "discount": 0,
+      "category": "Breakfast",
+      "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSph7KkV8WkmWuc6b4DDO-mVc6-Lx8eN-CTuQ&s"
+    },
+    {
+      "id": "22",
+      "name": "White Bread",
+      "description": "Soft and fresh bread",
+      "price": 4000,
+      "discount": 0,
+      "category": "Breakfast",
+      "image": "https://png.pngtree.com/png-clipart/20240312/original/pngtree-bakery-bread-milky-plain-white-bread-png-image_14566757.png"
+    },
+    {
+      "id": "23",
+      "name": "Farm Eggs",
+      "description": "Farm fresh eggs (10 pieces)",
+      "price": 14000,
+      "discount": 0,
+      "category": "Breakfast",
+      "image": "https://png.pngtree.com/png-vector/20250606/ourmid/pngtree-chicken-eggs-isolated-on-transparent-background-png-image_16464753.png"
+    },
+    {
+      "id": "24",
+      "name": "Raw Chicken Meat",
+      "description": "Fresh raw chicken meat",
+      "price": 32000,
+      "discount": 0.15,
+      "category": "Main Dish",
+      "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQHKvzkPXdkG67VOZ-KPR9rvASI816J0E_G-Q&s"
+    },
+    {
+      "id": "25",
+      "name": "Uzbek Plov",
+      "description": "Traditional rice dish with meat and carrots",
+      "price": 35000,
+      "discount": 0.1,
+      "category": "Main Dish",
+      "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT5Qnr5jQasGuYewUx2UsIaj_B3BrY68UgSFQ&s"
+    },
+    {
+      "id": "26",
+      "name": "Homemade Soup",
+      "description": "Hot homemade soup",
+      "price": 25000,
+      "discount": 0.15,
+      "category": "Main Dish",
+      "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQE8GVsrmELu1iqhRZ6kXcEXH-xmjJ5SwFR6w&s"
+    },
+    {
+      "id": "27",
+      "name": "Lagman Noodles",
+      "description": "Noodles with meat and vegetables",
+      "price": 30000,
+      "discount": 0.15,
+      "category": "Main Dish",
+      "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRybQFdqdsHv0V0qw-82-shFlEg_sm7aghPSQ&s"
+    },
+    {
+      "id": "28",
+      "name": "Manti Dumplings",
+      "description": "Steamed dumplings filled with meat",
+      "price": 32000,
+      "discount": 0.15,
+      "category": "Main Dish",
+      "image": "https://i.ytimg.com/vi/Xb1ligyvUSA/sddefault.jpg"
+    },
+    {
+      "id": "29",
+      "name": "Chuchvara Dumplings",
+      "description": "Small dumplings served with broth",
+      "price": 28000,
+      "discount": 0.15,
+      "category": "Main Dish",
+      "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR-eHKZVMOq1dFuP-i3XmRc0QWswrYlDJl2nw&s"
+    },
+    {
+      "id": "30",
+      "name": "Fried Lagman",
+      "description": "Stir-fried noodles with meat",
+      "price": 33000,
+      "discount": 0.1,
+      "category": "Noodles",
+      "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSn9NKiziqkVL3QW6V8RMwfg_-GcepSCfyjyw&s"
+    },
+    {
+      "id": "31",
+      "name": "Cutlet with Garnish",
+      "description": "Meat cutlet served with side dish",
+      "price": 30000,
+      "discount": 0.15,
+      "category": "Main Dish",
+      "image": "https://png.pngtree.com/png-clipart/20250701/original/pngtree-cooked-meat-patties-with-parsley-garnish-png-image_21225866.png"
+    },
+    {
+      "id": "32",
+      "name": "Dimlama",
+      "description": "Slow cooked meat and vegetables stew",
+      "price": 34000,
+      "discount": 0.2,
+      "category": "Stew",
+      "image": "https://static.vecteezy.com/system/resources/previews/048/038/603/non_2x/beef-stew-with-potatoes-and-carrots-in-a-casserole-dish-png.png"
+    },
+    {
+      "id": "33",
+      "name": "Pasta with Meat",
+      "description": "Pasta cooked with meat sauce",
+      "price": 27000,
+      "discount": 0.1,
+      "category": "Pasta",
+      "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRQ38zDZISHMKPQHHC7w29QRSYNjh56WuLKig&s"
+    },
+    {
+      "id": "34",
+      "name": "Fried Chicken",
+      "description": "Golden fried chicken pieces",
+      "price": 31000,
+      "discount": 0.15,
+      "category": "Chicken",
+      "image": "https://png.pngtree.com/png-clipart/20240306/original/pngtree-fried-chicken-png-png-image_14516402.png"
+    },
+    {
+      "id": "35",
+      "name": "Beef Steak",
+      "description": "Grilled beef steak with spices",
+      "price": 42000,
+      "discount": 0,
+      "category": "Dinner",
+      "image": "https://static.vecteezy.com/system/resources/thumbnails/047/598/224/small/beef-steak-served-in-plate-on-white-background-grilled-steak-medium-rare-png.png"
+    },
+    {
+      "id": "36",
+      "name": "Grilled Chicken",
+      "description": "Juicy grilled chicken with herbs",
+      "price": 35000,
+      "discount": 0.2,
+      "category": "Dinner",
+      "image": "https://png.pngtree.com/png-clipart/20250209/original/pngtree-grilled-whole-chicken-png-image_20397109.png"
+    },
+    {
+      "id": "37",
+      "name": "Fried Fish",
+      "description": "Crispy fried fish with lemon",
+      "price": 38000,
+      "discount": 0,
+      "category": "Dinner",
+      "image": "https://png.pngtree.com/png-clipart/20231030/original/pngtree-dorado-baked-with-raspberry-marinade-and-brocooli-fish-for-the-christmas-png-image_13458354.png"
+    },
+    {
+      "id": "38",
+      "name": "Meat Kebab",
+      "description": "Grilled meat kebab on skewers",
+      "price": 36000,
+      "discount": 0.15,
+      "category": "Dinner",
+      "image": "https://png.pngtree.com/png-vector/20240129/ourmid/pngtree-traditional-turkish-kebab-shawarma-bread-filled-with-savory-meat-and-fresh-png-image_11559993.png"
+    },
+    {
+      "id": "39",
+      "name": "Light Uzbek Plov",
+      "description": "Light rice dish with less oil",
+      "price": 33000,
+      "discount": 0,
+      "category": "Dinner",
+      "image": "https://png.pngtree.com/png-vector/20251001/ourmid/pngtree-delicious-uzbek-plov-a-hearty-rice-dish-with-tender-meat-and-png-image_17626425.webp"
+    },
+    {
+      "id": "40",
+      "name": "Vegetable Stew",
+      "description": "Stewed vegetables with spices",
+      "price": 26000,
+      "discount": 0,
+      "category": "Dinner",
+      "image": "https://png.pngtree.com/png-vector/20240822/ourmid/pngtree-vegetable-soup-mastery-tips-and-tricks-for-a-perfectly-balanced-png-image_13581187.png"
+    },
+    {
+      "id": "41",
+      "name": "Creamy Pasta",
+      "description": "Pasta cooked in creamy sauce",
+      "price": 29000,
+      "discount": 0,
+      "category": "Dinner",
+      "image": "https://png.pngtree.com/png-vector/20240828/ourmid/pngtree-creamy-fettuccine-alfredo-pasta-in-a-bowl-on-transparent-background-png-image_13651827.png"
+    },
+    {
+      "id": "42",
+      "name": "Rice with Chicken",
+      "description": "Steamed rice served with chicken",
+      "price": 31000,
+      "discount": 0,
+      "category": "Dinner",
+      "image": "https://png.pngtree.com/png-vector/20240124/ourmid/pngtree-fried-rice-and-fried-chicken-png-image_11477086.png"
+    },
+    {
+      "id": "43",
+      "name": "Greek Salad",
+      "description": "Fresh vegetables mixed with cheese",
+      "price": 20000,
+      "discount": 0,
+      "category": "Dinner",
+      "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQGh76pwKWG38tNeGBNSFPKhlpSOAIQlFVYyQ&s"
+    },
+    {
+      "id": "44",
+      "name": "Light Soup",
+      "description": "Warm light soup for evening",
+      "price": 23000,
+      "discount": 0,
+      "category": "Dinner",
+      "image": "https://png.pngtree.com/png-vector/20250228/ourmid/pngtree-light-and-delicious-prawn-thai-soup-png-image_15632220.png"
+    },
+    {
+      "id": "45",
+      "name": "Tomato Omelette",
+      "description": "Egg omelette with tomatoes",
+      "price": 19000,
+      "discount": 0,
+      "category": "Dinner",
+      "image": "https://images.rawpixel.com/image_png_800/cHJpdmF0ZS9sci9pbWFnZXMvd2Vic2l0ZS8yMDI0LTA4L3Jhd3BpeGVsX29mZmljZV8zNF9waG90b19vZl9jbGFzc2ljX29tZWxldHRlX29uX3BsYXRlX3dpdGhfa2V0Y18yMzdhZGUyMC01ZTQzLTQzYzUtODM1Ni01YmY1MDdiMmNlYjIucG5n.png"
+    },
+    {
+      "id": "46",
+      "name": "Beef Burger",
+      "description": "Burger with beef patty and cheese",
+      "price": 34000,
+      "discount": 0.1,
+      "category": "Dinner",
+      "image": "https://static.vecteezy.com/system/resources/previews/048/093/831/non_2x/close-up-fresh-beef-burger-isolated-on-transparent-background-png.png"
+    },
+    {
+      "id": "47",
+      "name": "Mini Pizza",
+      "description": "Small pizza with cheese and meat",
+      "price": 32000,
+      "discount": 0.1,
+      "category": "Dinner",
+      "image": "https://png.pngtree.com/png-clipart/20240314/original/pngtree-pile-of-mini-pizzas-png-image_14581841.png"
+    },
+    {
+      "id": "48",
+      "name": "Chicken Wrap",
+      "description": "Wrap with chicken and vegetables",
+      "price": 28000,
+      "discount": 0,
+      "category": "Dinner",
+      "image": "https://static.vecteezy.com/system/resources/thumbnails/039/651/892/small/ai-generated-chicken-shawarma-wrap-isolated-on-transparent-background-png.png"
+    },
+    {
+      "id": "49",
+      "name": "Tea Set",
+      "description": "Green tea served with light snacks",
+      "price": 15000,
+      "discount": 0.05,
+      "category": "Drink",
+      "image": "https://static.vecteezy.com/system/resources/previews/049/099/920/non_2x/traditional-chinese-tea-set-with-brown-teapot-six-cups-transparent-background-png.png"
+    },
+    {
+      "id": "50",
+      "name": "Lemonade",
+      "description": "Fresh homemade lemonade",
+      "price": 14000,
+      "discount": 0.05,
+      "category": "Drink",
+      "image": "https://png.pngtree.com/png-clipart/20240418/original/pngtree-summer-healthy-lemonade-png-image_14879000.png"
+    }
+  ],
+  "invoice": [],
+  "orderlist": [
+    {
+      "id": "e81c9055-9057-4c7d-931a-349b77bfefc6",
+      "customerName": "dwadawd",
+      "address": "dwadad",
+      "items": [
+        {
+          "id": "3",
+          "name": "Healthy Lunch Bento Box",
+          "description": "Balanced healthy lunch box",
+          "price": 8000,
+          "discount": 0.7,
+          "category": "Lunch",
+          "image": "https://www.eatingwell.com/thmb/EiePi_W4B9tETnCWk8irHyK9AYY=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/NMD-Cucumber-Hummus-Pita-Bento-Box-Lunch-1x1-1-2000-666fd1a2f7b842a997e80c5c5645490f.jpg",
+          "qty": 1
+        },
+        {
+          "id": "4",
+          "name": "Classic Boiled Eggs",
+          "description": "Three boiled farm eggs",
+          "price": 12000,
+          "discount": 0.5,
+          "category": "Lunch",
+          "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTrLCOdi6WKx5X4rW7WLzOgnJ3txGoR-9g52g&s",
+          "qty": 1
+        }
+      ],
+      "subTotal": 20000,
+      "tax": 2000,
+      "discount": 5000,
+      "tips": 1000,
+      "total": 18000,
+      "createdAt": "2026-01-17T06:48:56.387Z"
+    },
+    {
+      "id": "655e4303-a0e3-41be-83ba-9c48b9d378e4",
+      "customerName": "d",
+      "address": "d",
+      "items": [
+        {
+          "id": "32",
+          "name": "Dimlama",
+          "description": "Slow cooked meat and vegetables stew",
+          "price": 34000,
+          "discount": 0.5,
+          "category": "Stew",
+          "image": "https://static.vecteezy.com/system/resources/previews/048/038/603/non_2x/beef-stew-with-potatoes-and-carrots-in-a-casserole-dish-png.png",
+          "qty": 1
+        }
+      ],
+      "subTotal": 34000,
+      "tax": 2000,
+      "discount": 5000,
+      "tips": 1000,
+      "total": 32000,
+      "createdAt": "2026-03-15T10:29:14.517Z"
+    },
+    {
+      "id": "40321e53-1677-4ca1-8cc6-8c529d47940c",
+      "customerName": "e",
+      "address": "e",
+      "items": [
+        {
+          "id": "5",
+          "name": "Farm Boiled Eggs",
+          "description": "Three boiled farm eggs",
+          "price": 7000,
+          "discount": 0.5,
+          "category": "Lunch",
+          "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSva6hoXynKr9mqM8eA63acsVN7o-2jFjLLWA&s",
+          "qty": 1
+        },
+        {
+          "id": "6",
+          "name": "Simple Boiled Eggs",
+          "description": "Three boiled farm eggs",
+          "price": 2000,
+          "discount": 0.5,
+          "category": "Lunch",
+          "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTbnduFiQqqys8hQKVIyAPEvx-fGLy_dfMACQ&s",
+          "qty": 2
+        },
+        {
+          "id": "7",
+          "name": "Soft Boiled Eggs",
+          "description": "Soft cooked eggs",
+          "price": 1500,
+          "discount": 0.5,
+          "category": "Lunch",
+          "image": "https://www.evesleep.co.uk/cdn/shop/articles/559668789422_article-hero-large.jpg?v=1711468118",
+          "qty": 1
+        },
+        {
+          "id": "8",
+          "name": "Fresh Boiled Eggs",
+          "description": "Three boiled farm eggs",
+          "price": 2000,
+          "discount": 0.5,
+          "category": "Lunch",
+          "image": "https://www.eatingwell.com/thmb/bQWREDrtiQWrEhlLayU3v7Us9a4=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/45259671-97112006e572444a996dbbacfd4b8bed.jpg",
+          "qty": 1
+        },
+        {
+          "id": "10",
+          "name": "Milk Porridge",
+          "description": "Creamy porridge prepared with milk and grains",
+          "price": 15000,
+          "discount": 0.5,
+          "category": "Breakfast",
+          "image": "https://static.vecteezy.com/system/resources/previews/054/656/106/non_2x/bowl-of-creamy-porridge-with-milk-free-png.png",
+          "qty": 1
+        },
+        {
+          "id": "12",
+          "name": "Bread with Honey",
+          "description": "Fresh bread served with natural honey",
+          "price": 14000,
+          "discount": 0.5,
+          "category": "Breakfast",
+          "image": "https://images.immediate.co.uk/production/volatile/sites/2/2015/05/8684.jpg?quality=90&resize=708,643",
+          "qty": 1
+        }
+      ],
+      "subTotal": 43500,
+      "tax": 2000,
+      "discount": 5000,
+      "tips": 1000,
+      "total": 41500,
+      "createdAt": "2026-03-15T10:39:15.675Z"
+    },
+    {
+      "id": "2bdc4afd-c9e4-4b53-99e1-ea0218f8ed33",
+      "customerName": "x",
+      "address": "x",
+      "items": [
+        {
+          "id": "5",
+          "name": "Farm Boiled Eggs",
+          "description": "Three boiled farm eggs",
+          "price": 7000,
+          "discount": 0.5,
+          "category": "Lunch",
+          "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSva6hoXynKr9mqM8eA63acsVN7o-2jFjLLWA&s",
+          "qty": 1
+        },
+        {
+          "id": "6",
+          "name": "Simple Boiled Eggs",
+          "description": "Three boiled farm eggs",
+          "price": 2000,
+          "discount": 0.5,
+          "category": "Lunch",
+          "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTbnduFiQqqys8hQKVIyAPEvx-fGLy_dfMACQ&s",
+          "qty": 1
+        },
+        {
+          "id": "7",
+          "name": "Soft Boiled Eggs",
+          "description": "Soft cooked eggs",
+          "price": 1500,
+          "discount": 0.5,
+          "category": "Lunch",
+          "image": "https://www.evesleep.co.uk/cdn/shop/articles/559668789422_article-hero-large.jpg?v=1711468118",
+          "qty": 1
+        }
+      ],
+      "subTotal": 10500,
+      "tax": 2000,
+      "discount": 5000,
+      "tips": 1000,
+      "total": 8500,
+      "createdAt": "2026-03-15T12:09:39.969Z"
+    },
+    {
+      "id": "9c5fe2b6-87f8-4987-9292-172488631615",
+      "customerName": "d",
+      "address": "d",
+      "items": [
+        {
+          "id": "11",
+          "name": "Cheese Sandwich",
+          "description": "Toasted sandwich with melted cheese",
+          "price": 20000,
+          "discount": 0.5,
+          "category": "Breakfast",
+          "image": "https://potatorolls.com/wp-content/uploads/Lumberjack-Breakfast2.jpg",
+          "qty": 1
+        }
+      ],
+      "subTotal": 20000,
+      "tax": 2000,
+      "discount": 5000,
+      "tips": 1000,
+      "total": 18000,
+      "createdAt": "2026-03-15T12:09:44.073Z"
+    }
+  ],
+  "customers": [
+    {
+      "id": "C-004560",
+      "joinDate": "2020-03-27T00:42:00.000Z",
+      "name": "Veronica",
+      "location": "Corner Street 5th, London",
+      "totalSpent": 78.92,
+      "lastOrder": "2026-01-15T10:00:00.000Z"
+    },
+    {
+      "id": "C-004561",
+      "joinDate": "2020-03-28T00:42:00.000Z",
+      "name": "Rio Da Luca",
+      "location": "Emerald Tower 6th, London",
+      "totalSpent": 8.9,
+      "lastOrder": "2026-02-10T09:30:00.000Z"
+    },
+    {
+      "id": "C-004562",
+      "joinDate": "2020-03-29T00:42:00.000Z",
+      "name": "Fernando",
+      "location": "Blessing Hills 1st, London",
+      "totalSpent": 16.87,
+      "lastOrder": "2026-02-20T14:00:00.000Z"
+    },
+    {
+      "id": "C-004563",
+      "joinDate": "2020-03-30T00:42:00.000Z",
+      "name": "Yenni Tan",
+      "location": "Greensand 2nd, London",
+      "totalSpent": 18.8,
+      "lastOrder": "2026-03-01T11:15:00.000Z"
+    },
+    {
+      "id": "C-004564",
+      "joinDate": "2020-04-05T00:42:00.000Z",
+      "name": "Denny Chang",
+      "location": "St. Bakerfield 3rd, London",
+      "totalSpent": 38.92,
+      "lastOrder": "2026-03-10T16:45:00.000Z"
+    },
+    {
+      "id": "C-004565",
+      "joinDate": "2020-04-08T00:42:00.000Z",
+      "name": "Andrea Liaw",
+      "location": "Kingsroad 45th, London",
+      "totalSpent": 74.92,
+      "lastOrder": "2026-03-15T08:20:00.000Z"
+    },
+    {
+      "id": "C-004568",
+      "joinDate": "2020-04-15T00:42:00.000Z",
+      "name": "Natasyia Romanoff",
+      "location": "13 Boulevard Dreams",
+      "totalSpent": 98.92,
+      "lastOrder": "2026-03-20T13:00:00.000Z"
+    }
+  ],
+  "users": [
+    {
+      "id": "1",
+      "name": "Demo Cashier",
+      "email": "cashier@demo.com",
+      "password": "$2b$10$/78MPhObferdOQbuMPvpAuScUbOXqqwU3RkpqqVNuxLlhhKa4Fi02",
+      "avatar": null,
+      "uid": null
+    }
+  ]
+}

@@ -41,7 +41,7 @@ const router = createBrowserRouter([
         element: <Customer />, 
       },
        {
-        path: "ordersDetail",
+        path: "ordersDetail/:id?",
         element: <OrderDetail />, 
       },
         
@@ -53,12 +53,8 @@ const router = createBrowserRouter([
         path: "reviews",
         element: <Rewievs />, 
       },
-         {
-        path: "foods",
-        element: <Foods />, 
-      },
           {
-        path: "foodsDetail",
+        path: "foodsDetail/:id",
         element: <FoodsDetail />, 
       },
           {
@@ -70,7 +66,7 @@ const router = createBrowserRouter([
         element: < FinancialDashboard/>, 
       },
           {
-        path: "Calentar",
+        path: "calendar",
         element: <Calendar />, 
       },
             {

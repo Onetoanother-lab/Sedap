@@ -11,7 +11,8 @@ const Foods = () => {
   const [loading, setLoading] = useState(true);
 
   const [form, setForm] = useState({
-    title: "",
+    name: "",
+    description: "",
     category: "",
     price: "",
     image: "",
@@ -37,14 +38,15 @@ const Foods = () => {
   /* ================= DELETE ================= */
   const deleteFood = async (id) => {
     if (!confirm("Delete this product?")) return;
-    await fetch(`${API}/${id}`, { method: "DELETE" });
+    const res = await fetch(`${API}/${id}`, { method: "DELETE" });
+    if (!res.ok) { alert("Failed to delete product"); return; }
     getFoods();
   };
 
   /* ================= ADD ================= */
   const openAdd = () => {
     setEditing(null);
-    setForm({ title: "", category: "", price: "", image: "" });
+    setForm({ name: "", description: "", category: "", price: "", image: "" });
     setModal(true);
   };
 
@@ -52,7 +54,8 @@ const Foods = () => {
   const openEdit = (food) => {
     setEditing(food);
     setForm({
-      title: food?.title || "",
+      name: food?.name || "",
+      description: food?.description || "",
       category: food?.category || "",
       price: food?.price || "",
       image: food?.image || "",
@@ -62,36 +65,34 @@ const Foods = () => {
 
   /* ================= SAVE ================= */
   const saveFood = async () => {
-    if (!form.title || !form.category || !form.price) return;
+    if (!form.name || !form.category || !form.price) return;
 
-    if (editing) {
-      await fetch(`${API}/${editing.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          id: editing.id,
-          ...form,
-          price: Number(form.price),
-        }),
-      });
-    } else {
-      await fetch(API, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...form,
-          price: Number(form.price),
-        }),
-      });
+    try {
+      let res;
+      if (editing) {
+        res = await fetch(`${API}/${editing.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: editing.id, ...form, price: Number(form.price) }),
+        });
+      } else {
+        res = await fetch(API, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: crypto.randomUUID(), ...form, price: Number(form.price) }),
+        });
+      }
+      if (!res.ok) { alert("Failed to save product"); return; }
+      setModal(false);
+      getFoods();
+    } catch {
+      alert("Error saving product");
     }
-
-    setModal(false);
-    getFoods();
   };
 
   /* ================= SEARCH ================= */
   const filteredFoods = foods.filter((f) =>
-    `${f?.title ?? ""} ${f?.category ?? ""}`
+    `${f?.name ?? ""} ${f?.category ?? ""}`
       .toLowerCase()
       .includes(search.toLowerCase())
   );
@@ -192,9 +193,15 @@ const Foods = () => {
             </h2>
 
             <input
-              placeholder="Title"
-              value={form.title}
-              onChange={(e) => setForm({ ...form, title: e.target.value })}
+              placeholder="Name"
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              className="input input-bordered w-full mb-3"
+            />
+            <input
+              placeholder="Description"
+              value={form.description}
+              onChange={(e) => setForm({ ...form, description: e.target.value })}
               className="input input-bordered w-full mb-3"
             />
             <input

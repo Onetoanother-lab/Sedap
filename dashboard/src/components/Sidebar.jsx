@@ -74,7 +74,7 @@ const Sidebar = () => {
                             <span className="text-md font-bold">Foods</span>
                         </NavLink>
 
-                        <NavLink to="/foodsDetail" className={linkClass}>
+                        <NavLink to="/foods" className={linkClass}>
                             <FilePen className="w-5 h-5" />
 
                             <span className="text-md font-bold">Foods Detail</span>
@@ -85,7 +85,7 @@ const Sidebar = () => {
 
                             <span className="text-md font-bold">Customer Detail</span>
                         </NavLink>
-                        <NavLink to="/calentar" className={linkClass}>
+                        <NavLink to="/calendar" className={linkClass}>
                             <Calendar className="w-5 h-5" />
 
 

@@ -250,13 +250,9 @@ const CustomerDetail = () => {
             <div className="flex-1 bg-base-100 rounded-2xl shadow-sm px-8 py-7 flex gap-6 items-center min-w-0">
               <div className="flex-shrink-0 w-28 h-36 rounded-2xl overflow-hidden bg-base-200">
                 <img
-                  src="customer.jpg"
+                  src="https://ui-avatars.com/api/?name=Eren+Yeager&size=200&background=e5e7eb&color=6b7280&bold=true"
                   alt="Eren Yeager"
-                  className="w-full h-full object-cover grayscale"
-                  onError={(e) => {
-                    e.currentTarget.src = "https://ui-avatars.com/api/?name=Eren+Yeager&size=200&background=e5e7eb&color=6b7280&bold=true";
-                    e.currentTarget.classList.remove("grayscale");
-                  }}
+                  className="w-full h-full object-cover"
                 />
               </div>
 

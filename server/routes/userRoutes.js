@@ -47,13 +47,8 @@ export default function userRoutes(User) {
     router.post("/users", async (req, res) => {
         try {
             const { name, email, password, avatar = null, uid = "" } = req.body;
-
-            // Duplicate email check (skip if email is null — OAuth with no public email)
-            if (email) {
-                const existing = await User.findOne({ email });
-                if (existing) {
-                    return res.status(400).json({ message: "Email already registered" });
-                }
+            if (!name?.trim()) {
+                return res.status(400).json({ message: "Name is required" });
             }
 
             const hashedPassword = password ? await bcrypt.hash(password, 10) : null;
@@ -64,7 +59,8 @@ export default function userRoutes(User) {
             return res.status(201).json(safeUser(user));
         } catch (e) {
             if (e.code === 11000) {
-                return res.status(400).json({ message: "Email already registered" });
+                const field = e.keyPattern?.email ? "Email" : e.keyPattern?.uid ? "Account" : "User";
+                return res.status(400).json({ message: `${field} already registered` });
             }
             console.error(e);
             return res.status(500).json({ message: "Internal Server Error" });

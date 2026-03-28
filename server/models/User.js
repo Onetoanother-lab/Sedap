@@ -24,16 +24,17 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: null,
     },
-    // Firebase UID — empty string for plain email/password accounts
+    // Firebase UID — null for plain email/password accounts
     uid: {
         type: String,
-        default: "",
+        default: null,
     },
 }, { timestamps: true });
 
 // Sparse unique indexes — only enforce uniqueness on non-null values
 userSchema.index({ email: 1 }, { unique: true, sparse: true });
 userSchema.index({ id: 1 },    { unique: true, sparse: true });
+userSchema.index({ uid: 1 },   { unique: true, sparse: true });
 
 // Auto-assign id = _id.toString() so the frontend always receives a stable string id
 userSchema.pre("save", function (next) {

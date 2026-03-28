@@ -7,7 +7,7 @@ const customerSchema = new mongoose.Schema({
         unique: true
     },
     joinDate: {
-        type: String,
+        type: Date,
         required: true
     },
     name: {
@@ -19,12 +19,12 @@ const customerSchema = new mongoose.Schema({
         required: true
     },
     totalSpent: {
-        type: String,
-        default: "$0"
+        type: Number,
+        default: 0
     },
     lastOrder: {
-        type: String,
-        default: "$0"
+        type: Date,
+        default: null
     }
 }, { timestamps: true });
 
