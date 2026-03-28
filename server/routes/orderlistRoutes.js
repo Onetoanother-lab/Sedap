@@ -6,7 +6,7 @@ export default function orderListRoutes(OrderList) {
 
     // GET all orders
     router.get("/orderlist", async (req, res) => {
-        try {
+        try { 
             const orders = await OrderList.find().sort({ createdAt: -1 });
             return res.status(200).json(orders);
         } catch (e) {
