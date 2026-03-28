@@ -24,7 +24,7 @@ export default function Login() {
     if (!EMAIL_RE.test(form.email)) { setError('Please enter a valid email address'); return }
     setLoading(true)
     try { await login(form.email, form.password); navigate('/') }
-    catch (err) { setError(err.response?.data?.message || err.message) }
+    catch (err) { setError(err.message) }
     finally { setLoading(false) }
   }
 

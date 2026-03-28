@@ -553,6 +553,53 @@ useEffect(() => {
 
 ---
 
+### [x] AUTH-C-06 🟠 `cashier/src/context/AuthContext.jsx` — `logout()` Firebase sessiyasini yopmaydidi
+**Fayl:** `cashier/src/context/AuthContext.jsx` — 130-133-qatorlar
+**Muammo:** Cashier `logout()` faqat React state va localStorage ni tozalaydi. `signOut(auth)` chaqirilmaydi → Firebase `auth.currentUser` aktiv qoladi. Biror foydalanuvchi chiqib ketgach, keyingi OAuth kirish urinishi eski Firebase sessioniga ulanib ketishi mumkin — noto'g'ri akkaunt bilan bog'lanishi yoki sessiya aralashuvi yuz beradi.
+**Tuzatish:** `signOut` import qilib, logout da chaqirish:
+```js
+import { getRedirectResult, signOut } from 'firebase/auth'
+const logout = useCallback(() => {
+    signOut(auth).catch(() => {})
+    setUser(null)
+    localStorage.removeItem('cashier_user')
+}, [])
+```
+
+---
+
+### [x] AUTH-C-07 🟡 `cashier/src/context/AuthContext.jsx` — `register()` gereksiz GET + race condition
+**Fayl:** `cashier/src/context/AuthContext.jsx` — 102-107-qatorlar
+**Muammo:** Cashier `register()` avval `GET /users?email=...` qilib email mavjudligini tekshiradi, keyin `POST /users` yuboradi. Bu ikki muammo tug'diradi:
+1. **Race condition:** Bir vaqtda ikki so'rov bir xil email bilan GET ni o'tkazib yuborishi mumkin → ikkala POST ham muvaffaqiyatli bo'lib ikkita hisob yaratiladi
+2. **Ortiqcha so'rov:** Server allaqachon unique index va `11000 duplicate key → 400 "Email already registered"` qaytaradi — client-side GET keraksiz
+**Tuzatish:** GET ni olib tashlash, server xatosiga ishonish:
+```js
+const register = useCallback(async (name, email, password) => {
+    const { data } = await api.post('/users', { name, email, password })
+    return persist(setUser, data)
+}, [])
+```
+
+---
+
+### [x] AUTH-C-08 🟡 `cashier/src/pages/Register.jsx` — email format tekshiruvi yo'q
+**Fayl:** `cashier/src/pages/Register.jsx` — 20-21-qatorlar
+**Muammo:** Cashier Register da `EMAIL_RE` regex tekshiruvi yo'q. Foydalanuvchi `"abc"` yoki `"test@"` kabi yaroqsiz email kiritsa, server ga yuboriladi va server xatosi qaytaradi. Dashboard Register.jsx da bu tekshiruv bor (AUTH-D-05 da tuzatilgan) — nomuvofiqlik.
+**Tuzatish:** `const EMAIL_RE = /\S+@\S+\.\S+/` qo'shib, validatsiyadan oldin tekshirish:
+```js
+if (!EMAIL_RE.test(form.email)) { setError('Please enter a valid email address'); return }
+```
+
+---
+
+### [x] AUTH-D-06 🟡 `dashboard/src/api/axios.js` — response interceptor yo'q → xato xabarlari noto'g'ri
+**Fayl:** `dashboard/src/api/axios.js`
+**Muammo:** Cashier `axios.js` da `response.interceptors` orqali xato xabarlari avtomatik `err.message` ga o'rnatiladi. Dashboard `axios.js` da interceptor yo'q. Shuning uchun dashboard Login/Register da xato `err.response?.data?.message || err.message` bilan qo'lda olinadi — bu ortiqcha va aralash. Agar bir joyda `err.message` ishlatilsa (AuthContext), xato ko'rinmaydi.
+**Tuzatish:** Dashboard axios ga ham interceptor qo'shish (cashier bilan bir xil).
+
+---
+
 ## DEVOPS-AGENT — Deployment (Render.com)
 
 ### [x] DEPL-01 🔴 Server o'zgarishlari commit/push qilinmagan — production eski kod bilan ishlayapti

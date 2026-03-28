@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useCallback, useEffect } from 'react'
-import { getRedirectResult } from 'firebase/auth'
+import { getRedirectResult, signOut } from 'firebase/auth'
 import { auth } from '../firebase'
 import api from '../api/axios'
 
@@ -100,8 +100,6 @@ export function AuthProvider({ children }) {
 
     // Email + password register
     const register = useCallback(async (name, email, password) => {
-        const { data: existing } = await api.get(`/users?email=${encodeURIComponent(email)}`)
-        if (existing.length > 0) throw new Error('Email already registered')
         const { data } = await api.post('/users', { name, email, password })
         return persist(setUser, data)
     }, [])
@@ -128,6 +126,7 @@ export function AuthProvider({ children }) {
     }, [])
 
     const logout = useCallback(() => {
+        signOut(auth).catch(() => {})
         setUser(null)
         localStorage.removeItem('cashier_user')
     }, [])
