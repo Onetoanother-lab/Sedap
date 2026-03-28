@@ -3,7 +3,6 @@ import { useNavigate, Link } from 'react-router-dom'
 import { signInWithPopup } from 'firebase/auth'
 import { auth, googleProvider, githubProvider } from '../firebase'
 import { useAuth } from '../context/AuthContext'
-import '../auth.css'
 
 function ForkKnifeIcon() {
   return (
