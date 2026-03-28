@@ -1,22 +1,27 @@
 import { useState, useEffect, useRef } from "react";
 
-const USERS = [
-  { id: "diyor",        name: "Diyor",        color: "oklch(var(--p))"  },
-  { id: "kamron",       name: "Kamron",        color: "oklch(var(--wa))" },
-  { id: "sharof",       name: "Sharof",        color: "oklch(var(--in))" },
-  { id: "muhammadamin", name: "Muhammadamin",  color: "oklch(var(--er))" },
-  { id: "ismoil",       name: "Ismoil",        color: "oklch(var(--s))"  },
-  { id: "ibrohim",      name: "Ibrohim",       color: "oklch(var(--su))" },
-  { id: "sarvar",       name: "Sarvar",        color: "oklch(var(--a))"  },
-  { id: "miraziz",      name: "Miraziz",       color: "oklch(var(--pc))" },
-  { id: "soliha",       name: "Soliha",        color: "oklch(var(--sc))" },
+const API_BASE = import.meta.env.VITE_API_URL || "https://sedap-nnap.onrender.com/api";
+
+const CHAT_COLORS = [
+  "oklch(var(--p))", "oklch(var(--wa))", "oklch(var(--in))", "oklch(var(--er))",
+  "oklch(var(--s))", "oklch(var(--su))", "oklch(var(--a))",  "oklch(var(--pc))",
+  "oklch(var(--sc))",
+];
+
+const FALLBACK_USERS = [
+  { id: "diyor",        name: "Diyor",        color: CHAT_COLORS[0] },
+  { id: "kamron",       name: "Kamron",        color: CHAT_COLORS[1] },
+  { id: "sharof",       name: "Sharof",        color: CHAT_COLORS[2] },
+  { id: "muhammadamin", name: "Muhammadamin",  color: CHAT_COLORS[3] },
+  { id: "ismoil",       name: "Ismoil",        color: CHAT_COLORS[4] },
+  { id: "ibrohim",      name: "Ibrohim",       color: CHAT_COLORS[5] },
+  { id: "sarvar",       name: "Sarvar",        color: CHAT_COLORS[6] },
+  { id: "miraziz",      name: "Miraziz",       color: CHAT_COLORS[7] },
+  { id: "soliha",       name: "Soliha",        color: CHAT_COLORS[8] },
 ];
 
 const MSGS_KEY   = "gchat_msgs_v5";
 const PASSWD_KEY = "gchat_passwords_v5";
-
-// Default passwords: same as username id
-const DEFAULT_PASSWORDS = Object.fromEntries(USERS.map(u => [u.id, u.id]));
 
 function initials(name) {
   return name.split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2);
@@ -111,7 +116,7 @@ function SideItem({ active, color, label, icon, badge, onClick }) {
 }
 
 // ── Card wrapper for auth screens ───────────────────────────────────
-function AuthCard({ children }) {
+function AuthCard({ children, users }) {
   return (
     <div style={{
       minHeight: "100vh", background: "var(--color-background-tertiary)",
@@ -139,9 +144,9 @@ function AuthCard({ children }) {
             </div>
           </div>
           <div>
-            <div style={{ fontSize: 11, color: "rgba(255,255,255,0.45)", marginBottom: 10, letterSpacing: 0.8 }}>{USERS.length} A'ZO</div>
+            <div style={{ fontSize: 11, color: "rgba(255,255,255,0.45)", marginBottom: 10, letterSpacing: 0.8 }}>{users.length} A'ZO</div>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-              {USERS.map(u => (
+              {users.map(u => (
                 <div key={u.id} title={u.name} style={{
                   width: 32, height: 32, borderRadius: "50%",
                   background: "rgba(255,255,255,0.15)", border: "1.5px solid rgba(255,255,255,0.25)",
@@ -170,6 +175,9 @@ function AuthCard({ children }) {
 // MAIN APP
 // ══════════════════════════════════════════════════════════════════
 export default function App() {
+  // users list (loaded from API, fallback to FALLBACK_USERS)
+  const [users, setUsers] = useState(FALLBACK_USERS);
+
   // auth state
   const [screen, setScreen] = useState("login"); // login | changePassword
   const [me, setMe] = useState(null);
@@ -198,13 +206,30 @@ export default function App() {
   const inputRef  = useRef(null);
   const dropRef   = useRef(null);
 
+  // Load users from API on mount, fall back to FALLBACK_USERS
+  useEffect(() => {
+    fetch(`${API_BASE}/users`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (!Array.isArray(data) || data.length === 0) return;
+        const mapped = data.map((u, i) => {
+          const id = (u.name || u.email || u.id || `user${i}`)
+            .toLowerCase().replace(/\s+/g, "");
+          return { id, name: u.name || id, color: CHAT_COLORS[i % CHAT_COLORS.length] };
+        });
+        setUsers(mapped);
+      })
+      .catch(() => {}); // keep FALLBACK_USERS on error
+  }, []);
+
   // Load passwords on mount
   useEffect(() => {
     (async () => {
       const stored = await storageGet(PASSWD_KEY);
-      setPasswords(stored || { ...DEFAULT_PASSWORDS });
+      const defaultPwds = Object.fromEntries(users.map(u => [u.id, u.id]));
+      setPasswords(stored || defaultPwds);
     })();
-  }, []);
+  }, [users]);
 
   // Poll messages when logged in
   useEffect(() => {
@@ -226,9 +251,9 @@ export default function App() {
   const handleLogin = () => {
     if (!selUser) { setLoginError("Foydalanuvchi tanlang."); return; }
     if (!passInput) { setLoginError("Parol kiriting."); return; }
-    const correct = passwords?.[selUser] ?? DEFAULT_PASSWORDS[selUser];
+    const correct = passwords?.[selUser] ?? selUser;
     if (passInput !== correct) { setLoginError("Parol noto'g'ri."); return; }
-    const user = USERS.find(u => u.id === selUser);
+    const user = users.find(u => u.id === selUser);
     setMe(user);
     setLoginError("");
     setPassInput("");
@@ -246,7 +271,7 @@ export default function App() {
 
   const handleChangePassword = async () => {
     setCpError(""); setCpSuccess("");
-    const correct = passwords?.[me.id] ?? DEFAULT_PASSWORDS[me.id];
+    const correct = passwords?.[me.id] ?? me.id;
     if (oldPass !== correct) { setCpError("Joriy parol noto'g'ri."); return; }
     if (newPass.length < 3)  { setCpError("Yangi parol kamida 3 ta belgi bo'lsin."); return; }
     if (newPass !== newPass2) { setCpError("Yangi parollar mos emas."); return; }
@@ -277,8 +302,8 @@ export default function App() {
     return (m.from === me?.id && m.to === activeTab) || (m.from === activeTab && m.to === me?.id);
   });
   const unreadFrom = uid => messages.filter(m => m.from === uid && m.to === me?.id).length;
-  const otherUsers = USERS.filter(u => u.id !== me?.id);
-  const activePerson = activeTab !== "all" ? USERS.find(u => u.id === activeTab) : null;
+  const otherUsers = users.filter(u => u.id !== me?.id);
+  const activePerson = activeTab !== "all" ? users.find(u => u.id === activeTab) : null;
 
   // ══════════════════════════════════════════════════════════════
   // SCREENS
@@ -287,7 +312,7 @@ export default function App() {
   // ── LOGIN ────────────────────────────────────────────────────
   if (!me && screen === "login") {
     return (
-      <AuthCard>
+      <AuthCard users={users}>
         <div style={{ fontSize: 22, fontWeight: 700, color: "var(--color-text-primary)", marginBottom: 4 }}>Kirish</div>
         <div style={{ fontSize: 13, color: "var(--color-text-secondary)", marginBottom: 28 }}>Akkauntingizga kiring</div>
 
@@ -295,7 +320,7 @@ export default function App() {
         <div style={{ marginBottom: 16 }}>
           <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "var(--color-text-secondary)", letterSpacing: 0.6, textTransform: "uppercase", marginBottom: 6 }}>Foydalanuvchi</label>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 7 }}>
-            {USERS.map(u => (
+            {users.map(u => (
               <button key={u.id} onClick={() => { setSelUser(u.id); setLoginError(""); }} style={{
                 display: "flex", flexDirection: "column", alignItems: "center", gap: 5,
                 padding: "10px 6px", borderRadius: 12,
@@ -325,7 +350,7 @@ export default function App() {
           error={loginError}
         />
 
-        <Btn onClick={handleLogin} color={selUser ? USERS.find(u => u.id === selUser)?.color || "oklch(var(--p))" : "oklch(var(--p))"} >
+        <Btn onClick={handleLogin} color={selUser ? users.find(u => u.id === selUser)?.color || "oklch(var(--p))" : "oklch(var(--p))"} >
           Kirish
         </Btn>
 
@@ -353,7 +378,7 @@ export default function App() {
   // ── CHANGE PASSWORD (from within chat) ───────────────────────
   if (me && screen === "changePassword") {
     return (
-      <AuthCard>
+      <AuthCard users={users}>
         <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 28 }}>
           <Avatar user={me} size={40} />
           <div>
@@ -444,7 +469,7 @@ export default function App() {
                 <div style={{ width: 30, height: 30, borderRadius: "50%", background: "oklch(var(--p) / 0.13)", border: "1.5px solid oklch(var(--p) / 0.27)", display: "flex", alignItems: "center", justifyContent: "center", color: "oklch(var(--p))", fontWeight: 700, fontSize: 11 }}>G</div>
                 <div>
                   <div style={{ fontWeight: 600, fontSize: 14, color: "var(--color-text-primary)" }}>Umumiy guruh</div>
-                  <div style={{ fontSize: 11, color: "var(--color-text-tertiary)" }}>{USERS.length} a'zo</div>
+                  <div style={{ fontSize: 11, color: "var(--color-text-tertiary)" }}>{users.length} a'zo</div>
                 </div>
               </>
             ) : (
@@ -467,9 +492,9 @@ export default function App() {
               </div>
             )}
             {visibleMessages.map(m => {
-              const sender = USERS.find(u => u.id === m.from);
+              const sender = users.find(u => u.id === m.from);
               const isMe = m.from === me.id;
-              const toP = m.to !== "all" ? USERS.find(u => u.id === m.to) : null;
+              const toP = m.to !== "all" ? users.find(u => u.id === m.to) : null;
               return (
                 <div key={m.id} style={{ display: "flex", flexDirection: isMe ? "row-reverse" : "row", alignItems: "flex-end", gap: 7 }}>
                   {!isMe && <Avatar user={sender} size={24} />}
@@ -509,7 +534,7 @@ export default function App() {
                   {toUser === "all" ? (
                     <><div style={{ width: 8, height: 8, borderRadius: "50%", background: "oklch(var(--p))", flexShrink: 0 }} />Hammaga</>
                   ) : (
-                    <><div style={{ width: 8, height: 8, borderRadius: "50%", background: USERS.find(u => u.id === toUser)?.color, flexShrink: 0 }} />{USERS.find(u => u.id === toUser)?.name}</>
+                    <><div style={{ width: 8, height: 8, borderRadius: "50%", background: users.find(u => u.id === toUser)?.color, flexShrink: 0 }} />{users.find(u => u.id === toUser)?.name}</>
                   )}
                   <span style={{ fontSize: 9, color: "var(--color-text-tertiary)", marginLeft: 2 }}>{dropOpen ? "▲" : "▼"}</span>
                 </button>
@@ -544,7 +569,7 @@ export default function App() {
               value={input}
               onChange={e => setInput(e.target.value)}
               onKeyDown={e => e.key === "Enter" && !sending && sendMessage()}
-              placeholder={activeTab !== "all" ? `${activePerson?.name}ga yoz...` : toUser === "all" ? "Hammaga xabar yoz..." : `${USERS.find(u => u.id === toUser)?.name}ga shaxsiy...`}
+              placeholder={activeTab !== "all" ? `${activePerson?.name}ga yoz...` : toUser === "all" ? "Hammaga xabar yoz..." : `${users.find(u => u.id === toUser)?.name}ga shaxsiy...`}
               style={{
                 flex: 1, padding: "9px 13px", borderRadius: 10,
                 border: "0.5px solid var(--color-border-secondary)", fontSize: 14,

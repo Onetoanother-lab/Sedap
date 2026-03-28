@@ -131,10 +131,27 @@ function ThemeButton() {
 const Navbar = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const [search, setSearch] = useState('');
 
   const handleLogout = () => {
     logout();
     navigate('/login');
+  };
+
+  const handleSearch = (e) => {
+    if (e.key === 'Enter' && search.trim()) {
+      const q = search.trim().toLowerCase();
+      if (q.includes('order')) navigate('/orders');
+      else if (q.includes('customer')) navigate('/customers');
+      else if (q.includes('food') || q.includes('product')) navigate('/foods');
+      else if (q.includes('review')) navigate('/reviews');
+      else if (q.includes('analytic') || q.includes('stat')) navigate('/analytics');
+      else if (q.includes('wallet') || q.includes('payment')) navigate('/walet');
+      else if (q.includes('calendar') || q.includes('event')) navigate('/calendar');
+      else if (q.includes('chat')) navigate('/chat');
+      else navigate(`/foods`);
+      setSearch('');
+    }
   };
 
   return (
@@ -144,11 +161,14 @@ const Navbar = () => {
       <div className="relative flex-grow max-w-2xl">
         <input
           type="search"
-          placeholder="Search here"
-          className="w-full bg-base-100 py-3 px-6 rounded-xl border-none shadow-[0_2px_10px_rgba(0,0,0,0.05)] focus:outline-none  "
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          onKeyDown={handleSearch}
+          placeholder="Search here (press Enter)"
+          className="w-full bg-base-100 py-3 px-6 rounded-xl border-none shadow-[0_2px_10px_rgba(0,0,0,0.05)] focus:outline-none"
         />
         <div className="absolute right-4 top-1/2 -translate-y-1/2">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 text-gray-300">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 text-base-content/40">
             <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
           </svg>
         </div>
@@ -220,7 +240,7 @@ const IconButton = ({ children, count, color, bgColor, badgeColor }) => (
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor" className="w-6 h-6">
       {children}
     </svg>
-    <span className={`absolute -top-1.5 -right-1.5 ${badgeColor} text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full border-2 border-white shadow-sm`}>
+    <span className={`absolute -top-1.5 -right-1.5 ${badgeColor} text-base-100 text-[10px] font-bold px-1.5 py-0.5 rounded-full border-2 border-base-100 shadow-sm`}>
       {count}
     </span>
   </div>

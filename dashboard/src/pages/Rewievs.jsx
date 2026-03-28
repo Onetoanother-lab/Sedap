@@ -1,13 +1,25 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Star, Calendar, ChevronLeft, ChevronRight } from "lucide-react";
 
 const API = import.meta.env.VITE_API_URL || "https://sedap-nnap.onrender.com/api";
 
 const ReviewsDashboard = () => {
-  const [filterPeriod] = useState("17 April 2020 - 21 May 2020");
+  const [from, setFrom] = useState("");
+  const [to, setTo] = useState("");
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const carouselRef = useRef(null);
   const [loading, setLoading] = useState(true);
   const [featuredReviews, setFeaturedReviews] = useState([]);
   const [otherReviews, setOtherReviews] = useState([]);
+
+  const filterPeriod =
+    from && to
+      ? `${from} → ${to}`
+      : from
+      ? `From ${from}`
+      : to
+      ? `Until ${to}`
+      : "All time";
 
   const StarRating = ({ rating }) => (
     <div className="flex gap-1">
@@ -37,7 +49,11 @@ const ReviewsDashboard = () => {
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
-    fetch(`${API}/reviews`)
+    const params = new URLSearchParams();
+    if (from) params.set("from", from);
+    if (to) params.set("to", to);
+    const qs = params.toString();
+    fetch(`${API}/reviews${qs ? `?${qs}` : ""}`)
       .then((res) => res.json())
       .then((data) => {
         if (cancelled) return;
@@ -81,7 +97,7 @@ const ReviewsDashboard = () => {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [from, to]);
 
   return (
     <div className="relative">
@@ -118,18 +134,60 @@ const ReviewsDashboard = () => {
               <span className="text-primary font-semibold">Dashboard</span> /
               Customer Reviews
             </p>
-            <div className="flex items-center gap-3 bg-base-100 px-4 py-2 rounded-lg shadow">
-              <Calendar className="w-5 h-5 text-primary" />
-              <div>
-                <p className="text-xs font-semibold">Filter Period</p>
-                <p className="text-xs text-base-content/60">{filterPeriod}</p>
-              </div>
+            <div className="relative">
+              <button
+                onClick={() => setShowDatePicker((v) => !v)}
+                className="flex items-center gap-3 bg-base-100 px-4 py-2 rounded-lg shadow hover:shadow-md transition"
+              >
+                <Calendar className="w-5 h-5 text-primary" />
+                <div className="text-left">
+                  <p className="text-xs font-semibold">Filter Period</p>
+                  <p className="text-xs text-base-content/60">{filterPeriod}</p>
+                </div>
+              </button>
+              {showDatePicker && (
+                <div className="absolute right-0 top-12 z-50 bg-base-100 shadow-xl rounded-xl p-4 flex flex-col gap-3 w-64">
+                  <div>
+                    <label className="text-xs font-semibold text-base-content/60 block mb-1">From</label>
+                    <input
+                      type="date"
+                      value={from}
+                      onChange={(e) => setFrom(e.target.value)}
+                      className="input input-bordered input-sm w-full"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-base-content/60 block mb-1">To</label>
+                    <input
+                      type="date"
+                      value={to}
+                      onChange={(e) => setTo(e.target.value)}
+                      className="input input-bordered input-sm w-full"
+                    />
+                  </div>
+                  <div className="flex gap-2 justify-end">
+                    <button
+                      onClick={() => { setFrom(""); setTo(""); }}
+                      className="btn btn-ghost btn-xs"
+                    >
+                      Clear
+                    </button>
+                    <button
+                      onClick={() => setShowDatePicker(false)}
+                      className="btn btn-primary btn-xs"
+                    >
+                      Apply
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
 
         {/* Featured */}
-        <div className="flex gap-4 mb-4 overflow-x-auto pb-4">
+        <div ref={carouselRef} className="flex gap-4 mb-4 overflow-x-auto pb-4 scroll-smooth"
+          style={{ scrollbarWidth: "none" }}>
           {featuredReviews.map((item) => (
             <div
               key={item.id}
@@ -176,10 +234,16 @@ const ReviewsDashboard = () => {
 
         {/* Arrows */}
         <div className="flex justify-end gap-2 mb-6">
-          <button className="btn btn-circle btn-primary btn-sm">
+          <button
+            onClick={() => carouselRef.current?.scrollBy({ left: -320, behavior: "smooth" })}
+            className="btn btn-circle btn-primary btn-sm"
+          >
             <ChevronLeft />
           </button>
-          <button className="btn btn-circle btn-primary btn-sm">
+          <button
+            onClick={() => carouselRef.current?.scrollBy({ left: 320, behavior: "smooth" })}
+            className="btn btn-circle btn-primary btn-sm"
+          >
             <ChevronRight />
           </button>
         </div>

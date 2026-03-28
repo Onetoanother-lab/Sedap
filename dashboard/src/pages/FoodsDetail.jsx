@@ -169,11 +169,11 @@ const FoodsDetail = () => {
   const CustomTooltip = ({ active, payload }) => {
     if (active && payload?.length) {
       return (
-        <div className="bg-white p-3 rounded-lg shadow-lg border border-gray-200 min-w-[140px]">
-          <p className="font-semibold text-green-700">
+        <div className="bg-base-100 p-3 rounded-lg shadow-lg border border-base-300 min-w-[140px]">
+          <p className="font-semibold text-success">
             {formatPrice(payload[0].value)}
           </p>
-          <p className="text-sm text-gray-500">{payload[0].payload.name}</p>
+          <p className="text-sm text-base-content/60">{payload[0].payload.name}</p>
         </div>
       );
     }
@@ -200,7 +200,7 @@ const FoodsDetail = () => {
   if (!product) {
     return (
       <div className="min-h-screen flex items-center justify-center p-6">
-        <p className="text-gray-600 text-lg">Mahsulot topilmadi</p>
+        <p className="text-base-content/60 text-lg">Mahsulot topilmadi</p>
       </div>
     );
   }
@@ -244,7 +244,7 @@ const FoodsDetail = () => {
               src={product.image}
               alt={product.name}
               className="w-full sm:w-56 h-56 object-cover rounded-xl shadow-md"
-              onError={(e) => (e.target.src = "https://via.placeholder.com/300?text=Rasm+yuklanmadi")}
+              onError={(e) => (e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(product?.name || 'Food')}&size=300&background=e5e7eb&color=6b7280&bold=true`)}
             />
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-3">
@@ -367,7 +367,7 @@ const FoodsDetail = () => {
                   type="monotone"
                   dataKey="value"
                   name="Daromad (so'm)"
-                  stroke="#10b981"
+                  stroke="oklch(var(--su))"
                   strokeWidth={3}
                   dot={{ r: 5 }}
                   activeDot={{ r: 8 }}

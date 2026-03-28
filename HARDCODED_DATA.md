@@ -217,3 +217,4 @@
 Run `cd server && node seed.js` to push all data.
 
 Collections seeded: products (50), customers (7), orderlist (5), users (1), reviews (7), transactions (6), events (8).
+Do 

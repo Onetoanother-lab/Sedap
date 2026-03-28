@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Eye, Pencil, Trash2, Plus, Search } from "lucide-react";
 
 const API = `${import.meta.env.VITE_API_URL || "https://sedap-nnap.onrender.com/api"}/products`;
 
 const Foods = () => {
+  const navigate = useNavigate();
   const [foods, setFoods] = useState([]);
   const [search, setSearch] = useState("");
   const [modal, setModal] = useState(false);
@@ -152,7 +154,7 @@ const Foods = () => {
               {/* IMAGE */}
               <div className="absolute -top-12">
                 <img
-                  src={food.image || "https://via.placeholder.com/150"}
+                  src={food.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(food.name || 'Food')}&size=150&background=e5e7eb&color=6b7280&bold=true`}
                   alt={food.title}
                   className="w-28 h-28 rounded-full object-cover shadow bg-base-100"
                 />
@@ -163,7 +165,10 @@ const Foods = () => {
               <p className="text-primary font-bold mb-6">{food.price} som</p>
 
               <div className="flex gap-4 mt-auto">
-                <button className="btn btn-ghost btn-sm text-primary">
+                <button
+                  onClick={() => navigate(`/foodsDetail/${food.id}`)}
+                  className="btn btn-ghost btn-sm text-primary"
+                >
                   <Eye size={18} />
                 </button>
                 <button

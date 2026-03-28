@@ -212,7 +212,7 @@ const Analitics = () => {
                 <Line
                   type="monotone"
                   dataKey="value"
-                  stroke="#10b981"
+                  stroke="oklch(var(--su))"
                   strokeWidth={3}
                   dot={{ r: 4 }}
                 />
@@ -312,7 +312,7 @@ const Analitics = () => {
                 <Line
                   type="monotone"
                   dataKey="value"
-                  stroke="#3b82f6"
+                  stroke="oklch(var(--p))"
                   strokeWidth={3}
                   dot={{ r: 4 }}
                 />

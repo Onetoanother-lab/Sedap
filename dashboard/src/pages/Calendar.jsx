@@ -9,6 +9,9 @@ const EventCalendar = () => {
   const [view, setView] = useState('Month');
   const [selectedDay, setSelectedDay] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [showNewModal, setShowNewModal] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [newEvent, setNewEvent] = useState({ title: "", description: "", date: "", time: "", color: "bg-primary" });
   const [loading, setLoading] = useState(true);
   const [allEvents, setAllEvents] = useState({});
 
@@ -77,6 +80,36 @@ const EventCalendar = () => {
     });
   };
    
+  const handleSaveNewEvent = async () => {
+    if (!newEvent.title || !newEvent.date) return;
+    setSaving(true);
+    try {
+      const res = await fetch(`${API}/events`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: crypto.randomUUID(), ...newEvent }),
+      });
+      if (!res.ok) throw new Error("Failed to save event");
+      setShowNewModal(false);
+      setNewEvent({ title: "", description: "", date: "", time: "", color: "bg-primary" });
+      // Refresh events for current month
+      const year = currentDate.getFullYear();
+      const month = currentDate.getMonth() + 1;
+      const data = await (await fetch(`${API}/events?year=${year}&month=${month}`)).json();
+      const grouped = {};
+      (Array.isArray(data) ? data : []).forEach((event) => {
+        const day = new Date(event.date).getDate();
+        if (!grouped[day]) grouped[day] = [];
+        grouped[day].push({ name: event.title, description: event.description, time: event.time, color: event.color });
+      });
+      setAllEvents(grouped);
+    } catch {
+      alert("Failed to save event");
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const handleDayClick = (day) => {
     if (allEvents[day]) {
       setSelectedDay(day);
@@ -126,7 +159,7 @@ const EventCalendar = () => {
             ))}
           </div>
           <button className="btn btn-outline btn-sm">Today ({getTodayCount()})</button>
-          <button className="btn btn-primary btn-sm flex items-center gap-2">+ New Schedule</button>
+          <button onClick={() => setShowNewModal(true)} className="btn btn-primary btn-sm flex items-center gap-2">+ New Schedule</button>
         </div>
       </div>
 
@@ -162,6 +195,67 @@ const EventCalendar = () => {
                 </div>
               );
             })}
+          </div>
+        </div>
+      )}
+
+      {/* New Schedule Modal */}
+      {showNewModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-base-100 rounded-2xl shadow-2xl w-full max-w-md">
+            <div className="bg-primary text-white p-5 rounded-t-2xl flex items-center justify-between">
+              <h2 className="text-xl font-bold">New Schedule</h2>
+              <button onClick={() => setShowNewModal(false)} className="btn btn-ghost btn-circle btn-sm text-white">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-6 space-y-3">
+              <input
+                placeholder="Title *"
+                value={newEvent.title}
+                onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })}
+                className="input input-bordered w-full"
+              />
+              <input
+                placeholder="Description"
+                value={newEvent.description}
+                onChange={(e) => setNewEvent({ ...newEvent, description: e.target.value })}
+                className="input input-bordered w-full"
+              />
+              <input
+                type="date"
+                value={newEvent.date}
+                onChange={(e) => setNewEvent({ ...newEvent, date: e.target.value })}
+                className="input input-bordered w-full"
+              />
+              <input
+                type="time"
+                value={newEvent.time}
+                onChange={(e) => setNewEvent({ ...newEvent, time: e.target.value })}
+                className="input input-bordered w-full"
+              />
+              <select
+                value={newEvent.color}
+                onChange={(e) => setNewEvent({ ...newEvent, color: e.target.value })}
+                className="select select-bordered w-full"
+              >
+                <option value="bg-primary">Blue (primary)</option>
+                <option value="bg-success">Green (success)</option>
+                <option value="bg-error">Red (error)</option>
+                <option value="bg-warning">Yellow (warning)</option>
+                <option value="bg-info">Cyan (info)</option>
+              </select>
+            </div>
+            <div className="flex justify-end gap-3 px-6 pb-6">
+              <button onClick={() => setShowNewModal(false)} className="btn btn-ghost">Cancel</button>
+              <button
+                onClick={handleSaveNewEvent}
+                disabled={saving || !newEvent.title || !newEvent.date}
+                className="btn btn-primary"
+              >
+                {saving ? <span className="loading loading-spinner loading-sm" /> : "Save"}
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -205,7 +299,7 @@ const EventCalendar = () => {
 
             <div className="border-t border-base-300 p-4 bg-base-200 flex justify-end gap-3">
               <button onClick={() => setShowModal(false)} className="btn btn-ghost">Close</button>
-              <button className="btn btn-primary">Add New Event</button>
+              <button onClick={() => { setShowModal(false); setShowNewModal(true); }} className="btn btn-primary">Add New Event</button>
             </div>
           </div>
         </div>

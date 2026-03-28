@@ -10,6 +10,7 @@ const OrderDetail = () => {
   const { id } = useParams();
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [canceling, setCanceling] = useState(false);
 
   useEffect(() => {
     const fetchOrder = async () => {
@@ -38,6 +39,24 @@ const OrderDetail = () => {
   }
 
   if (!order) return <p>Order not found</p>;
+
+  const cancelOrder = async () => {
+    if (!window.confirm("Cancel this order?")) return;
+    setCanceling(true);
+    try {
+      const res = await fetch(`${API}/orderlist/${order.id}/status`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "canceled" }),
+      });
+      if (!res.ok) throw new Error();
+      setOrder((prev) => ({ ...prev, status: "canceled" }));
+    } catch {
+      alert("Failed to cancel order");
+    } finally {
+      setCanceling(false);
+    }
+  };
 
   const statusLabel = { new: "New Order", on_delivery: "On Delivery", delivered: "Delivered", canceled: "Canceled" };
 
@@ -73,8 +92,12 @@ const OrderDetail = () => {
           </p>
         </div>
         <div className="flex gap-3 items-center">
-          <button className="btn btn-outline btn-error btn-sm rounded-lg px-5 font-semibold">
-            Cancel Order
+          <button
+            onClick={cancelOrder}
+            disabled={canceling || order?.status === "canceled"}
+            className="btn btn-outline btn-error btn-sm rounded-lg px-5 font-semibold"
+          >
+            {canceling ? <span className="loading loading-spinner loading-xs" /> : "Cancel Order"}
           </button>
           <button className="btn btn-success btn-sm rounded-lg px-5 gap-2 font-semibold text-white shadow">
             <LuTruck className="text-base" />
@@ -106,8 +129,7 @@ const OrderDetail = () => {
           <div className="bg-neutral rounded-2xl shadow-sm px-5 py-4 relative bottom-3">
             <h4 className="font-bold text-white text-sm mb-2 tracking-tight">Note Order</h4>
             <p className="text-[12px] text-white/60 leading-[1.6]">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
-              incididunt ut labore et dolore magna aliqua.
+              {order.note || "No note provided."}
             </p>
             {/* Address pill inside note card, matching screenshot */}
             <div className="mt-4 flex items-center gap-2 bg-white/10 rounded-xl px-3 py-2.5">
@@ -276,7 +298,7 @@ const OrderDetail = () => {
               {/* Track Orders label */}
               <div className="absolute top-3 right-4 text-right">
                 <p className="text-xs font-semibold text-base-content">Track Orders</p>
-                <p className="text-[10px] text-base-content/40 mt-0.5">Lorem ipsum dolor sit</p>
+                <p className="text-[10px] text-base-content/40 mt-0.5">Live order tracking</p>
               </div>
 
               {/* Expand icon */}

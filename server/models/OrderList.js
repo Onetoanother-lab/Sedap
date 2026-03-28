@@ -77,6 +77,10 @@ const orderListSchema = new mongoose.Schema({
         type: [statusHistorySchema],
         default: []
     },
+    note: {
+        type: String,
+        default: ""
+    },
     createdAt: {
         type: Date,
         default: Date.now

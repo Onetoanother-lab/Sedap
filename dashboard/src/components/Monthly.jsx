@@ -14,9 +14,9 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
 const API = import.meta.env.VITE_API_URL || "https://sedap-nnap.onrender.com/api";
 
 const COLORS = [
-  "#ff6384", "#36a2eb", "#ffce56", "#4bc0c0",
-  "#9966ff", "#ff9f40", "#c9cbcf", "#2ecc71",
-  "#e74c3c", "#3498db", "#f39c12", "#1abc9c",
+  "oklch(var(--er))",  "oklch(var(--in))",  "oklch(var(--wa))",  "oklch(var(--su))",
+  "oklch(var(--p))",   "oklch(var(--a))",   "oklch(var(--b3))",  "oklch(var(--s))",
+  "oklch(var(--er) / 0.7)", "oklch(var(--in) / 0.7)", "oklch(var(--wa) / 0.7)", "oklch(var(--su) / 0.7)",
 ];
 
 const Monthly = () => {

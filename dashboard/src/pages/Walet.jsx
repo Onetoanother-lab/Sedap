@@ -64,6 +64,9 @@ const FinancialDashboard = () => {
   const [selectedTransaction, setSelectedTransaction] = useState(null);
   const [loading, setLoading] = useState(true);
   const [transactions, setTransactions] = useState([]);
+  const [txModal, setTxModal] = useState(null); // 'topup' | 'withdraw' | null
+  const [txForm, setTxForm] = useState({ name: "", amount: "", note: "" });
+  const [txSaving, setTxSaving] = useState(false);
 
   useEffect(() => {
     let timerDone = false;
@@ -119,6 +122,41 @@ const FinancialDashboard = () => {
   const expenseDash = (expensePercent / 100) * circ;
   const unknownDash = (unknownPercent / 100) * circ;
 
+  // Derived card holder name from first completed transaction
+  const cardHolder = transactions.find((t) => t.status === 'Completed')?.name || "Card Holder";
+
+  const saveTx = async () => {
+    if (!txForm.name || !txForm.amount) return;
+    setTxSaving(true);
+    try {
+      const amount = txModal === 'withdraw'
+        ? -Math.abs(Number(txForm.amount))
+        : Math.abs(Number(txForm.amount));
+      const res = await fetch(`${API}/transactions`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: crypto.randomUUID(),
+          name: txForm.name,
+          type: txModal === 'withdraw' ? 'expense' : 'income',
+          amount,
+          status: 'Completed',
+          note: txForm.note,
+          datePaid: new Date().toISOString(),
+        }),
+      });
+      if (!res.ok) throw new Error();
+      const newTx = await res.json();
+      setTransactions((prev) => [newTx, ...prev]);
+      setTxModal(null);
+      setTxForm({ name: "", amount: "", note: "" });
+    } catch {
+      alert("Failed to save transaction");
+    } finally {
+      setTxSaving(false);
+    }
+  };
+
   // Invoices: same transactions data displayed as invoices
   const invoices = transactions.slice(0, 5);
 
@@ -166,7 +204,7 @@ const FinancialDashboard = () => {
                 </div>
                 <div>
                   <p className="text-xs text-base-content/50 mb-1 tracking-wide font-medium">CARD HOLDER</p>
-                  <p className="font-semibold text-base-content text-sm">Samantha Anderson</p>
+                  <p className="font-semibold text-base-content text-sm">{cardHolder}</p>
                 </div>
                 <div className="text-right">
                   <p className="font-semibold text-sbase-content text-sm">**** **** **** 1234</p>
@@ -241,7 +279,7 @@ const FinancialDashboard = () => {
               <div className="flex items-start justify-between mb-5">
                 <div>
                   <h3 className="text-lg font-bold text-base-content mb-1">Payment History</h3>
-                  <p className="text-xs text-base-content/40">Lorem ipsum dolor sit amet, consectetur</p>
+                  <p className="text-xs text-base-content/40">Recent transaction history</p>
                 </div>
                 <div className="flex gap-5">
                   {['Monthly', 'Weekly', 'Today'].map((view) => (
@@ -362,13 +400,13 @@ const FinancialDashboard = () => {
               </div>
 
               <div className="grid grid-cols-2 gap-3">
-                <button className="bg-base-100/5 backdrop-blur-sm text-white rounded-xl p-5 hover:bg-base-100/10 transition-all">
+                <button onClick={() => { setTxForm({ name: "", amount: "", note: "" }); setTxModal('topup'); }} className="bg-base-100/5 backdrop-blur-sm text-white rounded-xl p-5 hover:bg-base-100/10 transition-all">
                   <div className="w-10 h-10 bg-error/15 rounded-xl mx-auto mb-2 flex items-center justify-center">
                     <span className="text-2xl">💳</span>
                   </div>
                   <p className="text-base-content/40 font-bold text-xs">Top Up</p>
                 </button>
-                <button className="bg-base-100/5 backdrop-blur-sm text-white rounded-xl p-5 hover:bg-base-100/10 transition-all">
+                <button onClick={() => { setTxForm({ name: "", amount: "", note: "" }); setTxModal('withdraw'); }} className="bg-base-100/5 backdrop-blur-sm text-white rounded-xl p-5 hover:bg-base-100/10 transition-all">
                   <div className="w-10 h-10 bg-success/15 rounded-xl mx-auto mb-2 flex items-center justify-center">
                     <span className="text-2xl">💰</span>
                   </div>
@@ -380,7 +418,7 @@ const FinancialDashboard = () => {
             <div className="bg-base-100 rounded-2xl shadow-sm p-7">
               <div className="mb-5">
                 <h3 className="text-lg font-bold text-base-content mb-1">Invoices Sent</h3>
-                <p className="text-xs text-base-content/50">Lorem ipsum dolor sit amet, consectetur</p>
+                <p className="text-xs text-base-content/50">Billing records sent to customers</p>
               </div>
 
               <div className="space-y-3 mb-5">
@@ -411,6 +449,44 @@ const FinancialDashboard = () => {
           </div>
         </div>
       </div>
+
+      {/* Top Up / Withdraw Modal */}
+      {txModal && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-base-100 rounded-2xl shadow-xl w-full max-w-sm p-6">
+            <h2 className="font-bold text-lg mb-4 capitalize">{txModal === 'topup' ? 'Top Up' : 'Withdraw'}</h2>
+            <input
+              placeholder="Name / Description *"
+              value={txForm.name}
+              onChange={(e) => setTxForm({ ...txForm, name: e.target.value })}
+              className="input input-bordered w-full mb-3"
+            />
+            <input
+              type="number"
+              placeholder="Amount *"
+              value={txForm.amount}
+              onChange={(e) => setTxForm({ ...txForm, amount: e.target.value })}
+              className="input input-bordered w-full mb-3"
+            />
+            <input
+              placeholder="Note (optional)"
+              value={txForm.note}
+              onChange={(e) => setTxForm({ ...txForm, note: e.target.value })}
+              className="input input-bordered w-full mb-4"
+            />
+            <div className="flex justify-end gap-3">
+              <button onClick={() => setTxModal(null)} className="btn btn-ghost">Cancel</button>
+              <button
+                onClick={saveTx}
+                disabled={txSaving || !txForm.name || !txForm.amount}
+                className="btn btn-primary"
+              >
+                {txSaving ? <span className="loading loading-spinner loading-sm" /> : 'Confirm'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -9,7 +9,6 @@ import {
     Coffee,
     ChartColumn,
     FileChartPie,
-    FilePen,
     User,
     Calendar,
     MessageCircleMore,
@@ -21,7 +20,7 @@ import {
 
 const linkClass = ({ isActive }) =>
     `px-3 py-3 w-[90%] rounded-xl font-semibold flex items-center gap-3 ml-3
-   ${isActive ? " bg-emerald-200 text-emerald-600 " : "<bg-netural-50></bg-netural-50> text-slate-500 "}`;
+   ${isActive ? " bg-primary/10 text-primary " : " text-base-content/60 "}`;
 
 const Sidebar = () => {
     return (
@@ -33,7 +32,7 @@ const Sidebar = () => {
 
                 <ul className=" bg-base-100 min-h-full w-70 p-4 ">
                     <div className="mb-6 text-base-content flex flex-col ml-3">
-                        <h1 className="text-3xl font-bold pb-3 ">Sedap<span className="text-emerald-600">.</span></h1>
+                        <h1 className="text-3xl font-bold pb-3 ">Sedap<span className="text-primary">.</span></h1>
                         <p className="text-sm opacity-80 font-semibold">Modern Admin Dashboard</p>
                     </div>
 
@@ -74,11 +73,6 @@ const Sidebar = () => {
                             <span className="text-md font-bold">Foods</span>
                         </NavLink>
 
-                        <NavLink to="/foods" className={linkClass}>
-                            <FilePen className="w-5 h-5" />
-
-                            <span className="text-md font-bold">Foods Detail</span>
-                        </NavLink>
                         <NavLink to="/customersDetail" className={linkClass}>
                             <User className="w-5 h-5" />
 

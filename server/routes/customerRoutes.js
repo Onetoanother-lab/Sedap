@@ -26,5 +26,21 @@ export default function customerRoutes(Customer) {
         }
     });
 
+    // PATCH update customer by id
+    router.patch("/customers/:id", async (req, res) => {
+        try {
+            const updated = await Customer.findOneAndUpdate(
+                { id: req.params.id },
+                req.body,
+                { new: true }
+            );
+            if (!updated) return res.status(404).json({ message: "Customer not found" });
+            return res.status(200).json(updated);
+        } catch (e) {
+            console.error(e);
+            return res.status(500).json({ message: "Internal Server Error" });
+        }
+    });
+
     return router;
 }

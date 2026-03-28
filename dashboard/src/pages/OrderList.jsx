@@ -6,13 +6,28 @@ import {
   XCircle,
 } from "lucide-react";
 
+const STATUS_OPTIONS = ["All Status", "new", "on_delivery", "delivered", "canceled"];
+const DATE_OPTIONS   = ["All Time", "Today", "This Week", "This Month"];
+
+const STATUS_LABELS = {
+  new: "New Order",
+  on_delivery: "On Delivery",
+  delivered: "Delivered",
+  canceled: "Canceled",
+};
+
+const API = import.meta.env.VITE_API_URL || "https://sedap-nnap.onrender.com/api";
+
 export default function OrderList() {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [statusFilter, setStatusFilter] = useState("All Status");
+  const [dateFilter, setDateFilter] = useState("All Time");
+  const [statusOpen, setStatusOpen] = useState(false);
+  const [dateOpen, setDateOpen] = useState(false);
 
   useEffect(() => {
-    const API = import.meta.env.VITE_API_URL || "https://sedap-nnap.onrender.com/api";
     const fetchOrders = async () => {
       try {
         setLoading(true);
@@ -34,7 +49,8 @@ export default function OrderList() {
           customer: order.customerName || "—",
           location: order.address || "—",
           amount: `${(order.total || 0).toLocaleString()} UZS`,
-          status: order.status || "New Order",
+          status: order.status || "new",
+          rawDate: order.createdAt || null,
         }));
 
         setOrders(transformed);
@@ -50,30 +66,64 @@ export default function OrderList() {
 
   const getStatusColor = (status) => {
     switch (status) {
-      case "New Order":
-        return "bg-warning/20 text-warning";
-      case "On Delivery":
-        return "bg-info/20 text-info";
-      case "Delivered":
-        return "bg-success/20 text-success";
-      default:
-        return "bg-base-200 text-base-content";
+      case "new":        return "bg-warning/20 text-warning";
+      case "on_delivery": return "bg-info/20 text-info";
+      case "delivered":  return "bg-success/20 text-success";
+      case "canceled":   return "bg-error/20 text-error";
+      default:           return "bg-base-200 text-base-content";
     }
   };
 
-  const handleAcceptOrder = (id) => {
-    setOrders((prev) =>
-      prev.map((o) =>
-        o.id === id ? { ...o, status: "On Delivery" } : o
-      )
-    );
+  const handleAcceptOrder = async (id) => {
+    const rawId = id.replace(/^#/, "");
+    try {
+      await fetch(`${API}/orderlist/${rawId}/status`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "on_delivery" }),
+      });
+      setOrders((prev) =>
+        prev.map((o) => o.id === id ? { ...o, status: "on_delivery" } : o)
+      );
+    } catch {
+      alert("Failed to update order status");
+    }
     setSelectedOrder(null);
   };
 
-  const handleRejectOrder = (id) => {
-    setOrders((prev) => prev.filter((o) => o.id !== id));
+  const handleRejectOrder = async (id) => {
+    const rawId = id.replace(/^#/, "");
+    try {
+      await fetch(`${API}/orderlist/${rawId}/status`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "canceled" }),
+      });
+      setOrders((prev) =>
+        prev.map((o) => o.id === id ? { ...o, status: "canceled" } : o)
+      );
+    } catch {
+      alert("Failed to update order status");
+    }
     setSelectedOrder(null);
   };
+
+  const filteredOrders = orders.filter((o) => {
+    if (statusFilter !== "All Status" && o.status !== statusFilter) return false;
+    if (dateFilter !== "All Time") {
+      const now = new Date();
+      const orderDate = new Date(o.rawDate);
+      if (dateFilter === "Today") {
+        if (orderDate.toDateString() !== now.toDateString()) return false;
+      } else if (dateFilter === "This Week") {
+        const weekAgo = new Date(now); weekAgo.setDate(now.getDate() - 7);
+        if (orderDate < weekAgo) return false;
+      } else if (dateFilter === "This Month") {
+        if (orderDate.getMonth() !== now.getMonth() || orderDate.getFullYear() !== now.getFullYear()) return false;
+      }
+    }
+    return true;
+  });
 
   if (loading) {
     return (
@@ -91,17 +141,57 @@ export default function OrderList() {
               Your Orders
             </h1>
             <p className="text-sm text-base-content/60">
-              Live data ({orders.length})
+              Live data ({filteredOrders.length})
             </p>
           </div>
 
           <div className="flex gap-4">
-            <button className="btn btn-outline btn-sm">
-              All Status <ChevronDown size={16} />
-            </button>
-            <button className="btn btn-outline btn-sm">
-              Today <ChevronDown size={16} />
-            </button>
+            {/* Status filter */}
+            <div className="relative">
+              <button
+                onClick={() => { setStatusOpen((v) => !v); setDateOpen(false); }}
+                className="btn btn-outline btn-sm"
+              >
+                {statusFilter === "All Status" ? "All Status" : STATUS_LABELS[statusFilter] || statusFilter}
+                <ChevronDown size={16} />
+              </button>
+              {statusOpen && (
+                <div className="absolute right-0 mt-2 w-44 bg-base-100 border border-base-300 rounded-lg shadow z-20">
+                  {STATUS_OPTIONS.map((s) => (
+                    <button
+                      key={s}
+                      onClick={() => { setStatusFilter(s); setStatusOpen(false); }}
+                      className={`block w-full text-left px-4 py-2 text-sm hover:bg-base-200 ${statusFilter === s ? "font-semibold text-primary" : ""}`}
+                    >
+                      {s === "All Status" ? "All Status" : STATUS_LABELS[s] || s}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Date filter */}
+            <div className="relative">
+              <button
+                onClick={() => { setDateOpen((v) => !v); setStatusOpen(false); }}
+                className="btn btn-outline btn-sm"
+              >
+                {dateFilter} <ChevronDown size={16} />
+              </button>
+              {dateOpen && (
+                <div className="absolute right-0 mt-2 w-40 bg-base-100 border border-base-300 rounded-lg shadow z-20">
+                  {DATE_OPTIONS.map((d) => (
+                    <button
+                      key={d}
+                      onClick={() => { setDateFilter(d); setDateOpen(false); }}
+                      className={`block w-full text-left px-4 py-2 text-sm hover:bg-base-200 ${dateFilter === d ? "font-semibold text-primary" : ""}`}
+                    >
+                      {d}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
@@ -117,7 +207,7 @@ export default function OrderList() {
             </div>
           </div>
 
-          {orders.map((order, i) => (
+          {filteredOrders.map((order, i) => (
             <div
               key={order.id}
               className={`px-6 py-5 ${
@@ -147,7 +237,7 @@ export default function OrderList() {
                       order.status
                     )}`}
                   >
-                    {order.status}
+                    {STATUS_LABELS[order.status] || order.status}
                   </span>
 
                   <div className="relative">

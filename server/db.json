@@ -9,7 +9,12 @@
       "category": "Dinner",
       "image": "https://static.vecteezy.com/system/resources/previews/048/093/831/non_2x/close-up-fresh-beef-burger-isolated-on-transparent-background-png.png",
       "ingredients": "Salmon fillet, lemon, butter, garlic, dill, salt, black pepper, olive oil",
-      "nutrition": { "kcal": 367, "protein": 34, "fat": 24, "carbs": 2 }
+      "nutrition": {
+        "kcal": 367,
+        "protein": 34,
+        "fat": 24,
+        "carbs": 2
+      }
     },
     {
       "id": "2",
@@ -20,7 +25,12 @@
       "category": "Lunch",
       "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQGh76pwKWG38tNeGBNSFPKhlpSOAIQlFVYyQ&s",
       "ingredients": "Romaine lettuce, croutons, parmesan cheese, Caesar dressing, lemon juice, garlic, anchovy paste",
-      "nutrition": { "kcal": 290, "protein": 12, "fat": 18, "carbs": 20 }
+      "nutrition": {
+        "kcal": 290,
+        "protein": 12,
+        "fat": 18,
+        "carbs": 20
+      }
     },
     {
       "id": "3",
@@ -31,7 +41,12 @@
       "category": "Lunch",
       "image": "https://www.eatingwell.com/thmb/EiePi_W4B9tETnCWk8irHyK9AYY=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/NMD-Cucumber-Hummus-Pita-Bento-Box-Lunch-1x1-1-2000-666fd1a2f7b842a997e80c5c5645490f.jpg",
       "ingredients": "Brown rice, grilled chicken, cucumber, hummus, pita bread, cherry tomatoes, mixed greens",
-      "nutrition": { "kcal": 420, "protein": 28, "fat": 12, "carbs": 48 }
+      "nutrition": {
+        "kcal": 420,
+        "protein": 28,
+        "fat": 12,
+        "carbs": 48
+      }
     },
     {
       "id": "4",
@@ -42,7 +57,12 @@
       "category": "Lunch",
       "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTrLCOdi6WKx5X4rW7WLzOgnJ3txGoR-9g52g&s",
       "ingredients": "Farm eggs, salt, water",
-      "nutrition": { "kcal": 210, "protein": 18, "fat": 14, "carbs": 2 }
+      "nutrition": {
+        "kcal": 210,
+        "protein": 18,
+        "fat": 14,
+        "carbs": 2
+      }
     },
     {
       "id": "5",
@@ -53,7 +73,12 @@
       "category": "Lunch",
       "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSva6hoXynKr9mqM8eA63acsVN7o-2jFjLLWA&s",
       "ingredients": "Organic farm eggs, salt, water",
-      "nutrition": { "kcal": 210, "protein": 18, "fat": 14, "carbs": 2 }
+      "nutrition": {
+        "kcal": 210,
+        "protein": 18,
+        "fat": 14,
+        "carbs": 2
+      }
     },
     {
       "id": "6",
@@ -64,7 +89,12 @@
       "category": "Lunch",
       "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTbnduFiQqqys8hQKVIyAPEvx-fGLy_dfMACQ&s",
       "ingredients": "Eggs, salt, water",
-      "nutrition": { "kcal": 210, "protein": 18, "fat": 14, "carbs": 2 }
+      "nutrition": {
+        "kcal": 210,
+        "protein": 18,
+        "fat": 14,
+        "carbs": 2
+      }
     },
     {
       "id": "7",
@@ -75,7 +105,12 @@
       "category": "Lunch",
       "image": "https://www.evesleep.co.uk/cdn/shop/articles/559668789422_article-hero-large.jpg?v=1711468118",
       "ingredients": "Eggs, salt, water",
-      "nutrition": { "kcal": 195, "protein": 17, "fat": 13, "carbs": 1 }
+      "nutrition": {
+        "kcal": 195,
+        "protein": 17,
+        "fat": 13,
+        "carbs": 1
+      }
     },
     {
       "id": "8",
@@ -86,7 +121,12 @@
       "category": "Lunch",
       "image": "https://www.eatingwell.com/thmb/bQWREDrtiQWrEhlLayU3v7Us9a4=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/45259671-97112006e572444a996dbbacfd4b8bed.jpg",
       "ingredients": "Fresh eggs, salt, water",
-      "nutrition": { "kcal": 210, "protein": 18, "fat": 14, "carbs": 2 }
+      "nutrition": {
+        "kcal": 210,
+        "protein": 18,
+        "fat": 14,
+        "carbs": 2
+      }
     },
     {
       "id": "9",
@@ -97,7 +137,12 @@
       "category": "Lunch",
       "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRrIQAXFHMpTMmhHYkb2Ks13xB3mdF97sigbQ&s",
       "ingredients": "Premium farm eggs, Himalayan salt, water, mixed greens, cherry tomatoes",
-      "nutrition": { "kcal": 280, "protein": 22, "fat": 18, "carbs": 5 }
+      "nutrition": {
+        "kcal": 280,
+        "protein": 22,
+        "fat": 18,
+        "carbs": 5
+      }
     },
     {
       "id": "10",
@@ -108,7 +153,12 @@
       "category": "Breakfast",
       "image": "https://static.vecteezy.com/system/resources/previews/054/656/106/non_2x/bowl-of-creamy-porridge-with-milk-free-png.png",
       "ingredients": "Oats, whole milk, butter, sugar, salt, vanilla extract",
-      "nutrition": { "kcal": 310, "protein": 10, "fat": 8, "carbs": 50 }
+      "nutrition": {
+        "kcal": 310,
+        "protein": 10,
+        "fat": 8,
+        "carbs": 50
+      }
     },
     {
       "id": "11",
@@ -118,8 +168,13 @@
       "discount": 0,
       "category": "Breakfast",
       "image": "https://potatorolls.com/wp-content/uploads/Lumberjack-Breakfast2.jpg",
-      "ingredients": "",
-      "nutrition": { "kcal": 0, "protein": 0, "fat": 0, "carbs": 0 }
+      "ingredients": "White bread, cheddar cheese, butter, mustard, salt",
+      "nutrition": {
+        "kcal": 380,
+        "protein": 16,
+        "fat": 18,
+        "carbs": 38
+      }
     },
     {
       "id": "12",
@@ -129,8 +184,13 @@
       "discount": 0,
       "category": "Breakfast",
       "image": "https://images.immediate.co.uk/production/volatile/sites/2/2015/05/8684.jpg?quality=90&resize=708,643",
-      "ingredients": "",
-      "nutrition": { "kcal": 0, "protein": 0, "fat": 0, "carbs": 0 }
+      "ingredients": "White bread, natural honey, butter",
+      "nutrition": {
+        "kcal": 320,
+        "protein": 7,
+        "fat": 5,
+        "carbs": 64
+      }
     },
     {
       "id": "13",
@@ -140,8 +200,13 @@
       "discount": 0,
       "category": "Breakfast",
       "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSwM01Y6zKM7RUpH_WLE076Wlrd8JtOp2y2fA&s",
-      "ingredients": "",
-      "nutrition": { "kcal": 0, "protein": 0, "fat": 0, "carbs": 0 }
+      "ingredients": "Flour, butter, whole milk, eggs, sugar, salt, yeast",
+      "nutrition": {
+        "kcal": 406,
+        "protein": 8,
+        "fat": 21,
+        "carbs": 46
+      }
     },
     {
       "id": "14",
@@ -151,8 +216,13 @@
       "discount": 0,
       "category": "Breakfast",
       "image": "https://images.immediate.co.uk/production/volatile/sites/30/2022/09/Classic-Waffles-0ae28b2.jpg?resize=900%2C471",
-      "ingredients": "",
-      "nutrition": { "kcal": 0, "protein": 0, "fat": 0, "carbs": 0 }
+      "ingredients": "Flour, eggs, whole milk, butter, sugar, baking powder, vanilla extract, salt",
+      "nutrition": {
+        "kcal": 360,
+        "protein": 10,
+        "fat": 14,
+        "carbs": 48
+      }
     },
     {
       "id": "15",
@@ -162,8 +232,13 @@
       "discount": 0,
       "category": "Breakfast",
       "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRwqHoPiYCynaEcPt_5s9JXQORnxXuFuQy3qg&s",
-      "ingredients": "",
-      "nutrition": { "kcal": 0, "protein": 0, "fat": 0, "carbs": 0 }
+      "ingredients": "Espresso shots, hot water",
+      "nutrition": {
+        "kcal": 5,
+        "protein": 0,
+        "fat": 0,
+        "carbs": 1
+      }
     },
     {
       "id": "16",
@@ -173,8 +248,13 @@
       "discount": 0,
       "category": "Breakfast",
       "image": "https://ichef.bbci.co.uk/food/ic/food_16x9_1600/recipes/veggie_breakfast_fry_up_66913_16x9.jpg",
-      "ingredients": "",
-      "nutrition": { "kcal": 0, "protein": 0, "fat": 0, "carbs": 0 }
+      "ingredients": "Mushrooms, cherry tomatoes, spinach, bell pepper, beans, olive oil, garlic, salt, pepper",
+      "nutrition": {
+        "kcal": 220,
+        "protein": 8,
+        "fat": 12,
+        "carbs": 22
+      }
     },
     {
       "id": "17",
@@ -184,8 +264,13 @@
       "discount": 0,
       "category": "Breakfast",
       "image": "https://www.allrecipes.com/thmb/qCb3wPhtuvhDwkdV8l_jv-DCTW4=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/9220994-e01afcac0e5a49f4bd5fcccfd2e5730a.jpg",
-      "ingredients": "",
-      "nutrition": { "kcal": 0, "protein": 0, "fat": 0, "carbs": 0 }
+      "ingredients": "Fresh oranges",
+      "nutrition": {
+        "kcal": 112,
+        "protein": 2,
+        "fat": 0,
+        "carbs": 26
+      }
     },
     {
       "id": "18",
@@ -195,8 +280,13 @@
       "discount": 0,
       "category": "Breakfast",
       "image": "https://www.tasteofhome.com/wp-content/uploads/2025/04/38-Breakfast-for-Two-Recipes-to-Enjoy-Together_JMZ18_224489_B03_08_7b_01_FT.jpg",
-      "ingredients": "",
-      "nutrition": { "kcal": 0, "protein": 0, "fat": 0, "carbs": 0 }
+      "ingredients": "Oats, whole milk, butter, sugar, salt, vanilla extract",
+      "nutrition": {
+        "kcal": 480,
+        "protein": 16,
+        "fat": 14,
+        "carbs": 74
+      }
     },
     {
       "id": "19",
@@ -206,8 +296,13 @@
       "discount": 0,
       "category": "Breakfast",
       "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQwgl94nyDD_YC-3VGDTFYyvlUdpp08Kth9Lg&s",
-      "ingredients": "",
-      "nutrition": { "kcal": 0, "protein": 0, "fat": 0, "carbs": 0 }
+      "ingredients": "Oats, whole milk, butter, sugar, salt",
+      "nutrition": {
+        "kcal": 240,
+        "protein": 8,
+        "fat": 7,
+        "carbs": 37
+      }
     },
     {
       "id": "20",
@@ -217,8 +312,13 @@
       "discount": 0.15,
       "category": "Main Dish",
       "image": "https://images.rawpixel.com/image_png_800/cHJpdmF0ZS9sci9pbWFnZXMvd2Vic2l0ZS8yMDI0LTA4L3Jhd3BpeGVsb2ZmaWNlMl9waG90b19vZl9leHBsb2RpbmdfYmFjb25fZnJpZWRfcmljZV9faW5fc3R5bGVfb18xYjllOWMyOC00ZDFiLTRiNDQtYmNjMy0yMGQ3ZjY2NWMzMmMucG5n.png",
-      "ingredients": "",
-      "nutrition": { "kcal": 0, "protein": 0, "fat": 0, "carbs": 0 }
+      "ingredients": "White rice, water, salt",
+      "nutrition": {
+        "kcal": 205,
+        "protein": 4,
+        "fat": 0,
+        "carbs": 45
+      }
     },
     {
       "id": "21",
@@ -228,8 +328,13 @@
       "discount": 0,
       "category": "Breakfast",
       "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSph7KkV8WkmWuc6b4DDO-mVc6-Lx8eN-CTuQ&s",
-      "ingredients": "",
-      "nutrition": { "kcal": 0, "protein": 0, "fat": 0, "carbs": 0 }
+      "ingredients": "Whole cow milk",
+      "nutrition": {
+        "kcal": 150,
+        "protein": 8,
+        "fat": 8,
+        "carbs": 12
+      }
     },
     {
       "id": "22",
@@ -239,8 +344,13 @@
       "discount": 0,
       "category": "Breakfast",
       "image": "https://png.pngtree.com/png-clipart/20240312/original/pngtree-bakery-bread-milky-plain-white-bread-png-image_14566757.png",
-      "ingredients": "",
-      "nutrition": { "kcal": 0, "protein": 0, "fat": 0, "carbs": 0 }
+      "ingredients": "Flour, water, yeast, salt, sugar, butter",
+      "nutrition": {
+        "kcal": 265,
+        "protein": 9,
+        "fat": 3,
+        "carbs": 50
+      }
     },
     {
       "id": "23",
@@ -250,8 +360,13 @@
       "discount": 0,
       "category": "Breakfast",
       "image": "https://png.pngtree.com/png-vector/20250606/ourmid/pngtree-chicken-eggs-isolated-on-transparent-background-png-image_16464753.png",
-      "ingredients": "",
-      "nutrition": { "kcal": 0, "protein": 0, "fat": 0, "carbs": 0 }
+      "ingredients": "Farm-fresh chicken eggs",
+      "nutrition": {
+        "kcal": 715,
+        "protein": 60,
+        "fat": 50,
+        "carbs": 4
+      }
     },
     {
       "id": "24",
@@ -261,8 +376,13 @@
       "discount": 0.15,
       "category": "Main Dish",
       "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQHKvzkPXdkG67VOZ-KPR9rvASI816J0E_G-Q&s",
-      "ingredients": "",
-      "nutrition": { "kcal": 0, "protein": 0, "fat": 0, "carbs": 0 }
+      "ingredients": "Fresh chicken breast, salt",
+      "nutrition": {
+        "kcal": 165,
+        "protein": 31,
+        "fat": 4,
+        "carbs": 0
+      }
     },
     {
       "id": "25",
@@ -272,8 +392,13 @@
       "discount": 0.1,
       "category": "Main Dish",
       "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT5Qnr5jQasGuYewUx2UsIaj_B3BrY68UgSFQ&s",
-      "ingredients": "",
-      "nutrition": { "kcal": 0, "protein": 0, "fat": 0, "carbs": 0 }
+      "ingredients": "Rice, lamb, carrots, onions, cottonseed oil, garlic, cumin, salt, black pepper",
+      "nutrition": {
+        "kcal": 530,
+        "protein": 22,
+        "fat": 18,
+        "carbs": 72
+      }
     },
     {
       "id": "26",
@@ -283,8 +408,13 @@
       "discount": 0.15,
       "category": "Main Dish",
       "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQE8GVsrmELu1iqhRZ6kXcEXH-xmjJ5SwFR6w&s",
-      "ingredients": "",
-      "nutrition": { "kcal": 0, "protein": 0, "fat": 0, "carbs": 0 }
+      "ingredients": "Chicken, potatoes, carrots, onion, noodles, parsley, dill, salt, black pepper",
+      "nutrition": {
+        "kcal": 180,
+        "protein": 14,
+        "fat": 6,
+        "carbs": 18
+      }
     },
     {
       "id": "27",
@@ -294,8 +424,13 @@
       "discount": 0.15,
       "category": "Main Dish",
       "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRybQFdqdsHv0V0qw-82-shFlEg_sm7aghPSQ&s",
-      "ingredients": "",
-      "nutrition": { "kcal": 0, "protein": 0, "fat": 0, "carbs": 0 }
+      "ingredients": "Hand-pulled noodles, beef, bell pepper, tomatoes, onion, garlic, vegetable oil, cumin, spices",
+      "nutrition": {
+        "kcal": 450,
+        "protein": 24,
+        "fat": 14,
+        "carbs": 56
+      }
     },
     {
       "id": "28",
@@ -305,8 +440,13 @@
       "discount": 0.15,
       "category": "Main Dish",
       "image": "https://i.ytimg.com/vi/Xb1ligyvUSA/sddefault.jpg",
-      "ingredients": "",
-      "nutrition": { "kcal": 0, "protein": 0, "fat": 0, "carbs": 0 }
+      "ingredients": "Flour, water, salt, ground lamb, onion, black pepper, cumin",
+      "nutrition": {
+        "kcal": 420,
+        "protein": 22,
+        "fat": 16,
+        "carbs": 48
+      }
     },
     {
       "id": "29",
@@ -316,8 +456,13 @@
       "discount": 0.15,
       "category": "Main Dish",
       "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR-eHKZVMOq1dFuP-i3XmRc0QWswrYlDJl2nw&s",
-      "ingredients": "",
-      "nutrition": { "kcal": 0, "protein": 0, "fat": 0, "carbs": 0 }
+      "ingredients": "Flour, water, salt, ground beef, onion, garlic, dill, black pepper",
+      "nutrition": {
+        "kcal": 380,
+        "protein": 20,
+        "fat": 14,
+        "carbs": 44
+      }
     },
     {
       "id": "30",
@@ -327,8 +472,13 @@
       "discount": 0.1,
       "category": "Noodles",
       "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSn9NKiziqkVL3QW6V8RMwfg_-GcepSCfyjyw&s",
-      "ingredients": "",
-      "nutrition": { "kcal": 0, "protein": 0, "fat": 0, "carbs": 0 }
+      "ingredients": "Noodles, beef, cabbage, bell pepper, tomato, onion, garlic, soy sauce, sesame oil, spices",
+      "nutrition": {
+        "kcal": 490,
+        "protein": 22,
+        "fat": 18,
+        "carbs": 60
+      }
     },
     {
       "id": "31",
@@ -338,8 +488,13 @@
       "discount": 0.15,
       "category": "Main Dish",
       "image": "https://png.pngtree.com/png-clipart/20250701/original/pngtree-cooked-meat-patties-with-parsley-garnish-png-image_21225866.png",
-      "ingredients": "",
-      "nutrition": { "kcal": 0, "protein": 0, "fat": 0, "carbs": 0 }
+      "ingredients": "Ground beef, onion, breadcrumbs, egg, mashed potato, butter, salt, black pepper, parsley",
+      "nutrition": {
+        "kcal": 410,
+        "protein": 24,
+        "fat": 18,
+        "carbs": 38
+      }
     },
     {
       "id": "32",
@@ -349,8 +504,13 @@
       "discount": 0.2,
       "category": "Stew",
       "image": "https://static.vecteezy.com/system/resources/previews/048/038/603/non_2x/beef-stew-with-potatoes-and-carrots-in-a-casserole-dish-png.png",
-      "ingredients": "",
-      "nutrition": { "kcal": 0, "protein": 0, "fat": 0, "carbs": 0 }
+      "ingredients": "Lamb, potatoes, carrots, onions, tomatoes, bell peppers, cabbage, herbs, salt",
+      "nutrition": {
+        "kcal": 460,
+        "protein": 26,
+        "fat": 22,
+        "carbs": 36
+      }
     },
     {
       "id": "33",
@@ -360,8 +520,13 @@
       "discount": 0.1,
       "category": "Pasta",
       "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRQ38zDZISHMKPQHHC7w29QRSYNjh56WuLKig&s",
-      "ingredients": "",
-      "nutrition": { "kcal": 0, "protein": 0, "fat": 0, "carbs": 0 }
+      "ingredients": "Pasta, ground beef, tomato sauce, onion, garlic, olive oil, oregano, parmesan, salt, pepper",
+      "nutrition": {
+        "kcal": 480,
+        "protein": 26,
+        "fat": 16,
+        "carbs": 58
+      }
     },
     {
       "id": "34",
@@ -371,8 +536,13 @@
       "discount": 0.15,
       "category": "Chicken",
       "image": "https://png.pngtree.com/png-clipart/20240306/original/pngtree-fried-chicken-png-png-image_14516402.png",
-      "ingredients": "",
-      "nutrition": { "kcal": 0, "protein": 0, "fat": 0, "carbs": 0 }
+      "ingredients": "Chicken pieces, flour, eggs, breadcrumbs, paprika, garlic powder, salt, pepper, vegetable oil",
+      "nutrition": {
+        "kcal": 520,
+        "protein": 38,
+        "fat": 28,
+        "carbs": 28
+      }
     },
     {
       "id": "35",
@@ -382,8 +552,13 @@
       "discount": 0,
       "category": "Dinner",
       "image": "https://static.vecteezy.com/system/resources/thumbnails/047/598/224/small/beef-steak-served-in-plate-on-white-background-grilled-steak-medium-rare-png.png",
-      "ingredients": "",
-      "nutrition": { "kcal": 0, "protein": 0, "fat": 0, "carbs": 0 }
+      "ingredients": "Beef fillet, butter, garlic, rosemary, thyme, salt, black pepper",
+      "nutrition": {
+        "kcal": 550,
+        "protein": 46,
+        "fat": 38,
+        "carbs": 0
+      }
     },
     {
       "id": "36",
@@ -393,8 +568,13 @@
       "discount": 0.2,
       "category": "Dinner",
       "image": "https://png.pngtree.com/png-clipart/20250209/original/pngtree-grilled-whole-chicken-png-image_20397109.png",
-      "ingredients": "",
-      "nutrition": { "kcal": 0, "protein": 0, "fat": 0, "carbs": 0 }
+      "ingredients": "Whole chicken, lemon, olive oil, garlic, thyme, rosemary, salt, pepper",
+      "nutrition": {
+        "kcal": 340,
+        "protein": 42,
+        "fat": 18,
+        "carbs": 0
+      }
     },
     {
       "id": "37",
@@ -404,8 +584,13 @@
       "discount": 0,
       "category": "Dinner",
       "image": "https://png.pngtree.com/png-clipart/20231030/original/pngtree-dorado-baked-with-raspberry-marinade-and-brocooli-fish-for-the-christmas-png-image_13458354.png",
-      "ingredients": "",
-      "nutrition": { "kcal": 0, "protein": 0, "fat": 0, "carbs": 0 }
+      "ingredients": "White fish fillet, lemon, flour, egg, breadcrumbs, vegetable oil, salt, dill, parsley",
+      "nutrition": {
+        "kcal": 420,
+        "protein": 32,
+        "fat": 20,
+        "carbs": 26
+      }
     },
     {
       "id": "38",
@@ -415,8 +600,13 @@
       "discount": 0.15,
       "category": "Dinner",
       "image": "https://png.pngtree.com/png-vector/20240129/ourmid/pngtree-traditional-turkish-kebab-shawarma-bread-filled-with-savory-meat-and-fresh-png-image_11559993.png",
-      "ingredients": "",
-      "nutrition": { "kcal": 0, "protein": 0, "fat": 0, "carbs": 0 }
+      "ingredients": "Ground lamb, onion, garlic, parsley, cumin, coriander, chili flakes, salt",
+      "nutrition": {
+        "kcal": 480,
+        "protein": 34,
+        "fat": 28,
+        "carbs": 20
+      }
     },
     {
       "id": "39",
@@ -426,8 +616,13 @@
       "discount": 0,
       "category": "Dinner",
       "image": "https://png.pngtree.com/png-vector/20251001/ourmid/pngtree-delicious-uzbek-plov-a-hearty-rice-dish-with-tender-meat-and-png-image_17626425.webp",
-      "ingredients": "",
-      "nutrition": { "kcal": 0, "protein": 0, "fat": 0, "carbs": 0 }
+      "ingredients": "Rice, chicken, carrots, onions, olive oil, garlic, cumin, bay leaf, salt",
+      "nutrition": {
+        "kcal": 480,
+        "protein": 24,
+        "fat": 14,
+        "carbs": 65
+      }
     },
     {
       "id": "40",
@@ -437,8 +632,13 @@
       "discount": 0,
       "category": "Dinner",
       "image": "https://png.pngtree.com/png-vector/20240822/ourmid/pngtree-vegetable-soup-mastery-tips-and-tricks-for-a-perfectly-balanced-png-image_13581187.png",
-      "ingredients": "",
-      "nutrition": { "kcal": 0, "protein": 0, "fat": 0, "carbs": 0 }
+      "ingredients": "Zucchini, eggplant, tomatoes, bell peppers, onion, garlic, olive oil, herbs, salt",
+      "nutrition": {
+        "kcal": 180,
+        "protein": 6,
+        "fat": 8,
+        "carbs": 24
+      }
     },
     {
       "id": "41",
@@ -448,8 +648,13 @@
       "discount": 0,
       "category": "Dinner",
       "image": "https://png.pngtree.com/png-vector/20240828/ourmid/pngtree-creamy-fettuccine-alfredo-pasta-in-a-bowl-on-transparent-background-png-image_13651827.png",
-      "ingredients": "",
-      "nutrition": { "kcal": 0, "protein": 0, "fat": 0, "carbs": 0 }
+      "ingredients": "Fettuccine, heavy cream, parmesan cheese, butter, garlic, black pepper, salt",
+      "nutrition": {
+        "kcal": 540,
+        "protein": 18,
+        "fat": 26,
+        "carbs": 62
+      }
     },
     {
       "id": "42",
@@ -459,8 +664,13 @@
       "discount": 0,
       "category": "Dinner",
       "image": "https://png.pngtree.com/png-vector/20240124/ourmid/pngtree-fried-rice-and-fried-chicken-png-image_11477086.png",
-      "ingredients": "",
-      "nutrition": { "kcal": 0, "protein": 0, "fat": 0, "carbs": 0 }
+      "ingredients": "Steamed rice, chicken breast, soy sauce, garlic, ginger, sesame oil, spring onion",
+      "nutrition": {
+        "kcal": 420,
+        "protein": 28,
+        "fat": 8,
+        "carbs": 58
+      }
     },
     {
       "id": "43",
@@ -470,8 +680,13 @@
       "discount": 0,
       "category": "Dinner",
       "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQGh76pwKWG38tNeGBNSFPKhlpSOAIQlFVYyQ&s",
-      "ingredients": "",
-      "nutrition": { "kcal": 0, "protein": 0, "fat": 0, "carbs": 0 }
+      "ingredients": "Cucumber, tomatoes, kalamata olives, feta cheese, red onion, olive oil, oregano, salt",
+      "nutrition": {
+        "kcal": 250,
+        "protein": 8,
+        "fat": 18,
+        "carbs": 14
+      }
     },
     {
       "id": "44",
@@ -481,8 +696,13 @@
       "discount": 0,
       "category": "Dinner",
       "image": "https://png.pngtree.com/png-vector/20250228/ourmid/pngtree-light-and-delicious-prawn-thai-soup-png-image_15632220.png",
-      "ingredients": "",
-      "nutrition": { "kcal": 0, "protein": 0, "fat": 0, "carbs": 0 }
+      "ingredients": "Prawn, lemongrass, coconut milk, lime juice, chili, galangal, mushrooms, fish sauce",
+      "nutrition": {
+        "kcal": 160,
+        "protein": 12,
+        "fat": 6,
+        "carbs": 16
+      }
     },
     {
       "id": "45",
@@ -492,8 +712,13 @@
       "discount": 0,
       "category": "Dinner",
       "image": "https://images.rawpixel.com/image_png_800/cHJpdmF0ZS9sci9pbWFnZXMvd2Vic2l0ZS8yMDI0LTA4L3Jhd3BpeGVsX29mZmljZV8zNF9waG90b19vZl9jbGFzc2ljX29tZWxldHRlX29uX3BsYXRlX3dpdGhfa2V0Y18yMzdhZGUyMC01ZTQzLTQzYzUtODM1Ni01YmY1MDdiMmNlYjIucG5n.png",
-      "ingredients": "",
-      "nutrition": { "kcal": 0, "protein": 0, "fat": 0, "carbs": 0 }
+      "ingredients": "Eggs, tomatoes, onion, olive oil, salt, black pepper, fresh parsley",
+      "nutrition": {
+        "kcal": 240,
+        "protein": 18,
+        "fat": 16,
+        "carbs": 8
+      }
     },
     {
       "id": "46",
@@ -503,8 +728,13 @@
       "discount": 0.1,
       "category": "Dinner",
       "image": "https://static.vecteezy.com/system/resources/previews/048/093/831/non_2x/close-up-fresh-beef-burger-isolated-on-transparent-background-png.png",
-      "ingredients": "",
-      "nutrition": { "kcal": 0, "protein": 0, "fat": 0, "carbs": 0 }
+      "ingredients": "Beef patty, brioche bun, cheddar cheese, lettuce, tomato, pickles, mustard, ketchup, onion",
+      "nutrition": {
+        "kcal": 620,
+        "protein": 34,
+        "fat": 32,
+        "carbs": 52
+      }
     },
     {
       "id": "47",
@@ -514,8 +744,13 @@
       "discount": 0.1,
       "category": "Dinner",
       "image": "https://png.pngtree.com/png-clipart/20240314/original/pngtree-pile-of-mini-pizzas-png-image_14581841.png",
-      "ingredients": "",
-      "nutrition": { "kcal": 0, "protein": 0, "fat": 0, "carbs": 0 }
+      "ingredients": "Pizza dough, tomato sauce, mozzarella, pepperoni, bell pepper, olives, oregano",
+      "nutrition": {
+        "kcal": 580,
+        "protein": 24,
+        "fat": 24,
+        "carbs": 68
+      }
     },
     {
       "id": "48",
@@ -525,8 +760,13 @@
       "discount": 0,
       "category": "Dinner",
       "image": "https://static.vecteezy.com/system/resources/thumbnails/039/651/892/small/ai-generated-chicken-shawarma-wrap-isolated-on-transparent-background-png.png",
-      "ingredients": "",
-      "nutrition": { "kcal": 0, "protein": 0, "fat": 0, "carbs": 0 }
+      "ingredients": "Flatbread, grilled chicken, lettuce, tomato, cucumber, yogurt sauce, garlic, paprika, cumin",
+      "nutrition": {
+        "kcal": 460,
+        "protein": 30,
+        "fat": 14,
+        "carbs": 54
+      }
     },
     {
       "id": "49",
@@ -536,8 +776,13 @@
       "discount": 0.05,
       "category": "Drink",
       "image": "https://static.vecteezy.com/system/resources/previews/049/099/920/non_2x/traditional-chinese-tea-set-with-brown-teapot-six-cups-transparent-background-png.png",
-      "ingredients": "",
-      "nutrition": { "kcal": 0, "protein": 0, "fat": 0, "carbs": 0 }
+      "ingredients": "Green tea leaves, hot water, dried fruit, nuts",
+      "nutrition": {
+        "kcal": 60,
+        "protein": 2,
+        "fat": 0,
+        "carbs": 14
+      }
     },
     {
       "id": "50",
@@ -547,8 +792,13 @@
       "discount": 0.05,
       "category": "Drink",
       "image": "https://png.pngtree.com/png-clipart/20240418/original/pngtree-summer-healthy-lemonade-png-image_14879000.png",
-      "ingredients": "",
-      "nutrition": { "kcal": 0, "protein": 0, "fat": 0, "carbs": 0 }
+      "ingredients": "Fresh lemons, water, sugar, fresh mint, ice",
+      "nutrition": {
+        "kcal": 100,
+        "protein": 0,
+        "fat": 0,
+        "carbs": 26
+      }
     }
   ],
   "invoice": [],
@@ -587,12 +837,26 @@
       "createdAt": "2026-01-17T06:48:56.387Z",
       "status": "delivered",
       "branch": "Yunusobod",
-      "courier": { "name": "Akbar Toshmatov", "phone": "+998 90 123 45 67", "avatar": "https://i.pravatar.cc/150?img=11" },
+      "courier": {
+        "name": "Akbar Toshmatov",
+        "phone": "+998 90 123 45 67",
+        "avatar": "https://i.pravatar.cc/150?img=11"
+      },
       "statusHistory": [
-        { "status": "new", "changedAt": "2026-01-17T06:00:00.000Z" },
-        { "status": "on_delivery", "changedAt": "2026-01-17T07:00:00.000Z" },
-        { "status": "delivered", "changedAt": "2026-01-17T08:00:00.000Z" }
-      ]
+        {
+          "status": "new",
+          "changedAt": "2026-01-17T06:00:00.000Z"
+        },
+        {
+          "status": "on_delivery",
+          "changedAt": "2026-01-17T07:00:00.000Z"
+        },
+        {
+          "status": "delivered",
+          "changedAt": "2026-01-17T08:00:00.000Z"
+        }
+      ],
+      "note": "Please leave at the door, ring the bell twice."
     },
     {
       "id": "655e4303-a0e3-41be-83ba-9c48b9d378e4",
@@ -618,8 +882,13 @@
       "createdAt": "2026-03-15T10:29:14.517Z",
       "status": "on_delivery",
       "branch": "Chilonzor",
-      "courier": { "name": "Jasur Karimov", "phone": "+998 91 987 65 43", "avatar": "https://i.pravatar.cc/150?img=22" },
-      "statusHistory": []
+      "courier": {
+        "name": "Jasur Karimov",
+        "phone": "+998 91 987 65 43",
+        "avatar": "https://i.pravatar.cc/150?img=22"
+      },
+      "statusHistory": [],
+      "note": "Extra napkins requested. No onions on the burger."
     },
     {
       "id": "40321e53-1677-4ca1-8cc6-8c529d47940c",
@@ -695,8 +964,13 @@
       "createdAt": "2026-03-15T10:39:15.675Z",
       "status": "new",
       "branch": "Sergeli",
-      "courier": { "name": "", "phone": "", "avatar": "" },
-      "statusHistory": []
+      "courier": {
+        "name": "",
+        "phone": "",
+        "avatar": ""
+      },
+      "statusHistory": [],
+      "note": "Call upon arrival — gate code is 1234."
     },
     {
       "id": "2bdc4afd-c9e4-4b53-99e1-ea0218f8ed33",
@@ -742,8 +1016,13 @@
       "createdAt": "2026-03-15T12:09:39.969Z",
       "status": "canceled",
       "branch": "Tinchlik",
-      "courier": { "name": "", "phone": "", "avatar": "" },
-      "statusHistory": []
+      "courier": {
+        "name": "",
+        "phone": "",
+        "avatar": ""
+      },
+      "statusHistory": [],
+      "note": "Contactless delivery preferred."
     },
     {
       "id": "9c5fe2b6-87f8-4987-9292-172488631615",
@@ -769,12 +1048,26 @@
       "createdAt": "2026-03-15T12:09:44.073Z",
       "status": "delivered",
       "branch": "Yunusobod",
-      "courier": { "name": "", "phone": "", "avatar": "" },
+      "courier": {
+        "name": "",
+        "phone": "",
+        "avatar": ""
+      },
       "statusHistory": [
-        { "status": "new", "changedAt": "2026-01-17T06:00:00.000Z" },
-        { "status": "on_delivery", "changedAt": "2026-01-17T07:00:00.000Z" },
-        { "status": "delivered", "changedAt": "2026-01-17T08:00:00.000Z" }
-      ]
+        {
+          "status": "new",
+          "changedAt": "2026-01-17T06:00:00.000Z"
+        },
+        {
+          "status": "on_delivery",
+          "changedAt": "2026-01-17T07:00:00.000Z"
+        },
+        {
+          "status": "delivered",
+          "changedAt": "2026-01-17T08:00:00.000Z"
+        }
+      ],
+      "note": "Add extra sauce on the side please."
     }
   ],
   "customers": [
@@ -891,7 +1184,11 @@
       "reviewerRole": "Graphic Designer",
       "reviewerAvatar": "https://i.pravatar.cc/150?img=5",
       "rating": 4.5,
-      "tags": ["Delicious", "Good Services", "Excellent"],
+      "tags": [
+        "Delicious",
+        "Good Services",
+        "Excellent"
+      ],
       "isFeatured": true,
       "createdAt": "2025-11-12T09:30:00.000Z"
     },
@@ -905,7 +1202,11 @@
       "reviewerRole": "Financial Analyst",
       "reviewerAvatar": "https://i.pravatar.cc/150?img=9",
       "rating": 4.5,
-      "tags": ["Good Places", "Delicious", "Excellent"],
+      "tags": [
+        "Good Places",
+        "Delicious",
+        "Excellent"
+      ],
       "isFeatured": true,
       "createdAt": "2025-12-05T14:00:00.000Z"
     },
@@ -919,7 +1220,11 @@
       "reviewerRole": "Marketing Manager",
       "reviewerAvatar": "https://i.pravatar.cc/150?img=15",
       "rating": 4.5,
-      "tags": ["Excellent", "Delicious", "Good Services"],
+      "tags": [
+        "Excellent",
+        "Delicious",
+        "Good Services"
+      ],
       "isFeatured": true,
       "createdAt": "2026-01-18T11:15:00.000Z"
     },
@@ -933,7 +1238,10 @@
       "reviewerRole": "Software Engineer",
       "reviewerAvatar": "https://i.pravatar.cc/150?img=33",
       "rating": 3.5,
-      "tags": ["Good Services", "Fast Delivery"],
+      "tags": [
+        "Good Services",
+        "Fast Delivery"
+      ],
       "isFeatured": false,
       "createdAt": "2026-02-02T16:45:00.000Z"
     },
@@ -946,8 +1254,11 @@
       "reviewer": "Rio Da Luca",
       "reviewerRole": "UX Designer",
       "reviewerAvatar": "https://i.pravatar.cc/150?img=41",
-      "rating": 4.0,
-      "tags": ["Fast Delivery", "Delicious"],
+      "rating": 4,
+      "tags": [
+        "Fast Delivery",
+        "Delicious"
+      ],
       "isFeatured": false,
       "createdAt": "2026-02-20T10:00:00.000Z"
     },
@@ -960,8 +1271,11 @@
       "reviewer": "Veronica",
       "reviewerRole": "Product Manager",
       "reviewerAvatar": "https://i.pravatar.cc/150?img=47",
-      "rating": 4.0,
-      "tags": ["Good Places", "Delicious"],
+      "rating": 4,
+      "tags": [
+        "Good Places",
+        "Delicious"
+      ],
       "isFeatured": false,
       "createdAt": "2026-03-05T19:30:00.000Z"
     },
@@ -975,7 +1289,10 @@
       "reviewerRole": "Business Development Lead",
       "reviewerAvatar": "https://i.pravatar.cc/150?img=53",
       "rating": 3.5,
-      "tags": ["Fast Delivery", "Good Services"],
+      "tags": [
+        "Fast Delivery",
+        "Good Services"
+      ],
       "isFeatured": false,
       "createdAt": "2026-03-18T13:00:00.000Z"
     }

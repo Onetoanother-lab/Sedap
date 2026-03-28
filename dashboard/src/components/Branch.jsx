@@ -6,7 +6,14 @@ ChartJS.register(ArcElement, Tooltip, Legend);
 
 const API = import.meta.env.VITE_API_URL || "https://sedap-nnap.onrender.com/api";
 
-const BRANCH_COLORS = ["#ff7a90", "#9e9e9e", "#2ecc71", "#1e90ff", "#f9a800", "#793ef9"];
+const BRANCH_COLORS = [
+  "oklch(var(--er))",
+  "oklch(var(--b3))",
+  "oklch(var(--su))",
+  "oklch(var(--in))",
+  "oklch(var(--wa))",
+  "oklch(var(--p))",
+];
 
 const Branch = () => {
   const [chartData, setChartData] = useState({ labels: [], datasets: [] });

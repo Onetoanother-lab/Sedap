@@ -4,10 +4,20 @@ import { v4 as uuidv4 } from "uuid";
 export default function reviewRoutes(Review) {
     const router = express.Router();
 
-    // GET all reviews — featured first, then by newest
+    // GET all reviews — featured first, then by newest. Supports ?from=YYYY-MM-DD&to=YYYY-MM-DD
     router.get("/reviews", async (req, res) => {
         try {
-            const reviews = await Review.find().sort({ isFeatured: -1, createdAt: -1 });
+            const filter = {};
+            if (req.query.from || req.query.to) {
+                filter.createdAt = {};
+                if (req.query.from) filter.createdAt.$gte = new Date(req.query.from);
+                if (req.query.to) {
+                    const to = new Date(req.query.to);
+                    to.setDate(to.getDate() + 1);
+                    filter.createdAt.$lt = to;
+                }
+            }
+            const reviews = await Review.find(filter).sort({ isFeatured: -1, createdAt: -1 });
             return res.status(200).json(reviews);
         } catch (e) {
             console.error(e);

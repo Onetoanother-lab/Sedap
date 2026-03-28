@@ -48,7 +48,12 @@ const NAV_ITEMS = [
 
 const CHART_DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
-const BAR_COLORS = ["#4fc3f7", "#4caf50", "#ef5350", "#fdd835"];
+const BAR_COLORS = [
+  "oklch(var(--in))",
+  "oklch(var(--su))",
+  "oklch(var(--er))",
+  "oklch(var(--wa))",
+];
 
 /* ─────────────────────────────────────────
    SUB-COMPONENTS
@@ -62,7 +67,7 @@ function CustomerDetailTable({ items }) {
       <div className="flex items-start justify-between mb-1">
         <div>
           <h3 className="font-bold text-base-content text-base">Most Ordered Food</h3>
-          <p className="text-base-content/60 text-xs mt-0.5">Lorem ipsum dolor sit amet, consectetur</p>
+          <p className="text-base-content/60 text-xs mt-0.5">Top items ordered by this customer</p>
         </div>
         <div className="flex gap-1 bg-base-200 rounded-full p-1">
           {["Monthly", "Weekly", "Daily"].map((t) => (
@@ -70,7 +75,7 @@ function CustomerDetailTable({ items }) {
               key={t}
               onClick={() => setActive(t)}
               className={`px-3 py-1 rounded-full text-xs font-semibold transition-colors ${
-                active === t ? "bg-base-100 text-base-content shadow-sm" : "text-base-content/60 hover:text-gray-600"
+                active === t ? "bg-base-100 text-base-content shadow-sm" : "text-base-content/60 hover:text-base-content"
               }`}
             >
               {t}
@@ -99,7 +104,7 @@ function CustomerDetailTable({ items }) {
               </div>
               <div className="flex items-center gap-3 flex-shrink-0">
                 <span className="text-base-content font-bold text-sm">{item.price.toLocaleString()} UZS</span>
-                <button className="text-base-content/60 hover:text-gray-600">
+                <button className="text-base-content/60 hover:text-base-content">
                   <Ellipsis className="w-4 h-4" />
                 </button>
               </div>
@@ -124,7 +129,7 @@ function CustomerDetailChart({ chartData, legendData }) {
       <div className="flex items-start justify-between mb-1">
         <div>
           <h3 className="font-bold text-base-content text-base">Most Liked Food</h3>
-          <p className="text-base-content/60 text-xs mt-0.5">Lorem ipsum dolor sit amet, consectetur</p>
+          <p className="text-base-content/60 text-xs mt-0.5">Order frequency by day of week</p>
         </div>
         <div className="flex gap-1 bg-base-200 rounded-full p-1">
           {["Monthly", "Weekly", "Daily"].map((t) => (
@@ -132,7 +137,7 @@ function CustomerDetailChart({ chartData, legendData }) {
               key={t}
               onClick={() => setActive(t)}
               className={`px-3 py-1 rounded-full text-xs font-semibold transition-colors ${
-                active === t ? "bg-base-100 text-base-content shadow-sm" : "text-base-content/60 hover:text-gray-600"
+                active === t ? "bg-base-100 text-base-content shadow-sm" : "text-base-content/60 hover:text-base-content"
               }`}
             >
               {t}
@@ -175,7 +180,7 @@ function CustomerDetailChart({ chartData, legendData }) {
           <div key={label} className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: color }} />
-              <span className="text-gray-500 text-xs">{label}</span>
+              <span className="text-base-content/60 text-xs">{label}</span>
             </div>
             <span className="text-base-content font-bold text-sm">{value}</span>
           </div>
@@ -197,6 +202,9 @@ const CustomerDetail = () => {
   const [topItems, setTopItems] = useState([]);
   const [chartData, setChartData] = useState(Array(7).fill([0, 0, 0, 0]));
   const [legendData, setLegendData] = useState([]);
+  const [editOpen, setEditOpen] = useState(false);
+  const [editForm, setEditForm] = useState({});
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     const id = searchParams.get("id");
@@ -269,6 +277,38 @@ const CustomerDetail = () => {
       .finally(() => setLoading(false));
   }, [searchParams]);
 
+  const openEdit = () => {
+    setEditForm({
+      name: customer?.name || "",
+      email: customer?.email || "",
+      phone: customer?.phone || "",
+      company: customer?.company || "",
+      jobTitle: customer?.jobTitle || "",
+      location: customer?.location || "",
+    });
+    setEditOpen(true);
+  };
+
+  const saveEdit = async () => {
+    if (!customer?.id) return;
+    setSaving(true);
+    try {
+      const res = await fetch(`${API}/customers/${customer.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(editForm),
+      });
+      if (!res.ok) throw new Error("Failed to update customer");
+      const updated = await res.json();
+      setCustomer(updated);
+      setEditOpen(false);
+    } catch {
+      alert("Failed to save changes");
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <div className="">
       {/* Spinner — butun sahifa uchun */}
@@ -325,7 +365,7 @@ const CustomerDetail = () => {
                     <button className="w-9 h-9 flex items-center justify-center rounded-full bg-success/10 hover:bg-green-100 transition-colors">
                       <CircleAlert className="w-4 h-4 text-success" />
                     </button>
-                    <button className="w-9 h-9 flex items-center justify-center rounded-full bg-base-200 hover:bg-gray-200 transition-colors">
+                    <button onClick={openEdit} className="w-9 h-9 flex items-center justify-center rounded-full bg-base-200 hover:bg-base-300 transition-colors">
                       <Pencil className="w-4 h-4 text-base-content/60" />
                     </button>
                   </div>
@@ -336,26 +376,26 @@ const CustomerDetail = () => {
                 <div className="flex flex-wrap gap-6">
                   <div className="flex items-center gap-2.5">
                     <div className="w-7 h-7 flex items-center justify-center rounded-full bg-info/10">
-                      <Mail className="w-3.5 h-3.5 text-blue-400" />
+                      <Mail className="w-3.5 h-3.5 text-info" />
                     </div>
-                    <span className="text-gray-500 text-xs font-medium">
-                      Joined: {customer?.joinDate ? new Date(customer.joinDate).toLocaleDateString() : "—"}
+                    <span className="text-base-content/60 text-xs font-medium">
+                      {customer?.email || "—"}
                     </span>
                   </div>
                   <div className="flex items-center gap-2.5">
                     <div className="w-7 h-7 flex items-center justify-center rounded-full bg-success/10">
                       <Phone className="w-3.5 h-3.5 text-success" />
                     </div>
-                    <span className="text-gray-500 text-xs font-medium">
-                      Last Order: {customer?.lastOrder ? new Date(customer.lastOrder).toLocaleDateString() : "—"}
+                    <span className="text-base-content/60 text-xs font-medium">
+                      {customer?.phone || "—"}
                     </span>
                   </div>
                   <div className="flex items-center gap-2.5">
                     <div className="w-7 h-7 flex items-center justify-center rounded-full bg-error/10">
-                      <Briefcase className="w-3.5 h-3.5 text-red-400" />
+                      <Briefcase className="w-3.5 h-3.5 text-error" />
                     </div>
-                    <span className="text-gray-500 text-xs font-medium">
-                      Total Spent: ${customer?.totalSpent != null ? customer.totalSpent.toLocaleString() : "—"}
+                    <span className="text-base-content/60 text-xs font-medium">
+                      {customer?.company || "—"}{customer?.jobTitle ? ` · ${customer.jobTitle}` : ""}
                     </span>
                   </div>
                 </div>
@@ -366,7 +406,7 @@ const CustomerDetail = () => {
             <div className="w-72 flex-shrink-0 rounded-2xl overflow-hidden shadow-md flex flex-col">
               <div
                 className="flex-1 px-6 pt-5 pb-5"
-                style={{ background: "linear-gradient(160deg, #2ecc71 0%, #25a85a 100%)" }}
+                style={{ background: "linear-gradient(160deg, oklch(var(--su)) 0%, oklch(var(--su) / 0.8) 100%)" }}
               >
                 <div className="flex items-center justify-between mb-2">
                   <p className="text-white/70 text-[10px] font-semibold tracking-widest uppercase">
@@ -389,7 +429,7 @@ const CustomerDetail = () => {
 
               <div
                 className="px-6 py-4 flex items-center justify-between"
-                style={{ background: "#1e9e50" }}
+                style={{ background: "oklch(var(--su) / 0.7)" }}
               >
                 <div>
                   <p className="text-white/50 text-[10px] font-semibold uppercase tracking-widest mb-0.5">
@@ -414,6 +454,37 @@ const CustomerDetail = () => {
 
         </main>
       </div>
+
+      {/* Edit Customer Modal */}
+      {editOpen && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-base-100 rounded-2xl shadow-xl w-full max-w-md p-6">
+            <h2 className="font-bold text-lg mb-4">Edit Customer</h2>
+            {[
+              { key: "name", label: "Name" },
+              { key: "email", label: "Email" },
+              { key: "phone", label: "Phone" },
+              { key: "company", label: "Company" },
+              { key: "jobTitle", label: "Job Title" },
+              { key: "location", label: "Location" },
+            ].map(({ key, label }) => (
+              <input
+                key={key}
+                placeholder={label}
+                value={editForm[key] || ""}
+                onChange={(e) => setEditForm({ ...editForm, [key]: e.target.value })}
+                className="input input-bordered w-full mb-3"
+              />
+            ))}
+            <div className="flex justify-end gap-3 mt-2">
+              <button onClick={() => setEditOpen(false)} className="btn btn-ghost">Cancel</button>
+              <button onClick={saveEdit} disabled={saving} className="btn btn-primary">
+                {saving ? <span className="loading loading-spinner loading-sm" /> : "Save"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
