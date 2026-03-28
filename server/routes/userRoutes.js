@@ -70,6 +70,10 @@ export default function userRoutes(User) {
                 const field = e.keyPattern?.email ? "Email" : e.keyPattern?.uid ? "Account" : "User";
                 return res.status(400).json({ message: `${field} already registered` });
             }
+            if (e.name === 'ValidationError') {
+                const msg = Object.values(e.errors).map(v => v.message).join(', ');
+                return res.status(400).json({ message: msg });
+            }
             console.error(e);
             return res.status(500).json({ message: "Internal Server Error" });
         }

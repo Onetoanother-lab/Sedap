@@ -25,7 +25,7 @@ const userSchema = new mongoose.Schema({
     uid: {
         type: String,
     },
-}, { timestamps: true });
+}, { timestamps: true, id: false });
 
 // Sparse unique indexes — only enforce uniqueness on non-null values
 userSchema.index({ email: 1 }, { unique: true, sparse: true });
