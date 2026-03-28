@@ -1,5 +1,5 @@
-import { createContext, useContext, useState, useCallback, useEffect } from 'react'
-import { getRedirectResult } from 'firebase/auth'
+import { createContext, useContext, useState, useCallback } from 'react'
+import { signOut } from 'firebase/auth'
 import { auth } from '../firebase'
 import api from '../api/axios'
 
@@ -47,7 +47,6 @@ async function oauthUpsert(setUser, { uid, name, email, avatar }) {
 }
 
 export function AuthProvider({ children }) {
-    const [redirectError, setRedirectError] = useState('')
     const [user, setUser] = useState(() => {
         try {
             const saved = localStorage.getItem(LS_KEY)
@@ -55,31 +54,9 @@ export function AuthProvider({ children }) {
         } catch { return null }
     })
 
-    useEffect(() => {
-        let isMounted = true
-        getRedirectResult(auth)
-            .then(async (result) => {
-                if (!isMounted || !result) return
-                const fu = result.user
-                if (!fu?.uid) throw new Error('Authentication failed: invalid user data from provider')
-                const providerData = fu.providerData?.[0] || {}
-                await oauthUpsert(setUser, {
-                    uid:    fu.uid,
-                    name:   fu.displayName || providerData.displayName || 'User',
-                    email:  fu.email       || providerData.email       || null,
-                    avatar: fu.photoURL    || providerData.photoURL    || null,
-                })
-                if (isMounted) window.location.replace('/')
-            })
-            .catch((err) => {
-                if (!isMounted) return
-                const code = err.code || ''
-                if (code !== 'auth/popup-closed-by-user' && code !== 'auth/cancelled-popup-request') {
-                    setRedirectError(err.message || 'Sign-in failed. Please try again.')
-                }
-            })
-        return () => { isMounted = false }
-    }, [])
+    // AUTH-D-04 fixed: removed getRedirectResult useEffect —
+    // dashboard uses signInWithPopup only, so getRedirectResult always
+    // returns null and is unnecessary.
 
     const login = useCallback(async (email, password) => {
         const { data } = await api.post('/users/login', { email, password })
@@ -110,13 +87,15 @@ export function AuthProvider({ children }) {
         })
     }, [])
 
+    // AUTH-D-02 fixed: call signOut(auth) so Firebase session is cleared
     const logout = useCallback(() => {
+        signOut(auth).catch(() => {})
         setUser(null)
         localStorage.removeItem(LS_KEY)
     }, [])
 
     return (
-        <AuthContext.Provider value={{ user, login, register, googleLogin, githubLogin, logout, redirectError }}>
+        <AuthContext.Provider value={{ user, login, register, googleLogin, githubLogin, logout }}>
             {children}
         </AuthContext.Provider>
     )

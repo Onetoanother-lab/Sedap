@@ -46,7 +46,7 @@ export default function userRoutes(User) {
     // POST /api/users  — register (email+password) OR create OAuth user
     router.post("/users", async (req, res) => {
         try {
-            const { name, email, password, avatar = null, uid = "" } = req.body;
+            const { name, email, password, avatar = null, uid = null } = req.body;
             if (!name?.trim()) {
                 return res.status(400).json({ message: "Name is required" });
             }

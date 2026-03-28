@@ -1,16 +1,18 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { signInWithPopup } from 'firebase/auth'
 import { auth, googleProvider, githubProvider } from '../firebase'
 import { useAuth } from '../context/AuthContext'
 import { MdDashboard } from 'react-icons/md'
 
+const EMAIL_RE = /\S+@\S+\.\S+/
+
 export default function Login() {
-  const { login, googleLogin, githubLogin, redirectError } = useAuth()
+  const { login, googleLogin, githubLogin } = useAuth()
   const navigate = useNavigate()
 
   const [form, setForm]             = useState({ email: '', password: '' })
-  const [error, setError]           = useState(redirectError || '')
+  const [error, setError]           = useState('')
   const [loading, setLoading]       = useState(false)
   const [oauthLoading, setOauthLoading] = useState(null)
 
@@ -18,6 +20,8 @@ export default function Login() {
     e.preventDefault()
     setError('')
     if (!form.email || !form.password) { setError('Please fill in all fields'); return }
+    // AUTH-D-05: email format validation
+    if (!EMAIL_RE.test(form.email)) { setError('Please enter a valid email address'); return }
     setLoading(true)
     try { await login(form.email, form.password); navigate('/') }
     catch (err) { setError(err.response?.data?.message || err.message) }

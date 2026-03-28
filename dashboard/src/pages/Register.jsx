@@ -5,6 +5,8 @@ import { auth, googleProvider, githubProvider } from '../firebase'
 import { useAuth } from '../context/AuthContext'
 import { MdDashboard } from 'react-icons/md'
 
+const EMAIL_RE = /\S+@\S+\.\S+/
+
 export default function Register() {
   const { register, googleLogin, githubLogin } = useAuth()
   const navigate = useNavigate()
@@ -18,6 +20,8 @@ export default function Register() {
     e.preventDefault()
     setError('')
     if (!form.name || !form.email || !form.password || !form.confirm) { setError('Please fill in all fields'); return }
+    // AUTH-D-05: email format validation
+    if (!EMAIL_RE.test(form.email)) { setError('Please enter a valid email address'); return }
     if (form.password.length < 6) { setError('Password must be at least 6 characters'); return }
     if (form.password !== form.confirm) { setError('Passwords do not match'); return }
     setLoading(true)
