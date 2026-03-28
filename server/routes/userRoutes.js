@@ -51,9 +51,17 @@ export default function userRoutes(User) {
                 return res.status(400).json({ message: "Name is required" });
             }
 
-            const hashedPassword = password ? await bcrypt.hash(password, 10) : null;
+            const hashedPassword = password ? await bcrypt.hash(password, 10) : undefined;
 
-            const user = new User({ name, email: email || null, password: hashedPassword, avatar, uid });
+            // Only include email/uid when they have actual values —
+            // sparse unique indexes index null, but skip ABSENT fields.
+            const user = new User({
+                name,
+                ...(email    ? { email }              : {}),
+                ...(hashedPassword ? { password: hashedPassword } : {}),
+                ...(avatar   ? { avatar }             : {}),
+                ...(uid      ? { uid }                : {}),
+            });
             await user.save();  // pre-save hook sets user.id = _id.toString()
 
             return res.status(201).json(safeUser(user));

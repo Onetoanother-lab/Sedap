@@ -36,7 +36,10 @@ async function oauthUpsert(setUser, { uid, name, email, avatar }) {
         }
 
         const { data: created } = await api.post('/users', {
-            name, email: email || null, avatar: avatar || null, uid, password: null,
+            name,
+            ...(email  ? { email }  : {}),
+            ...(avatar ? { avatar } : {}),
+            uid,
         })
         return persist(setUser, created)
     } catch (error) {

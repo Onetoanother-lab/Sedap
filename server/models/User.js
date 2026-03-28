@@ -9,25 +9,21 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    // sparse unique: null values are NOT treated as duplicates
-    // (GitHub OAuth can return users without a public email)
+    // sparse unique: field must be ABSENT (not null) for the index to skip it.
+    // MongoDB sparse indexes still index null values — only missing fields are skipped.
     email: {
         type: String,
-        default: null,
     },
     // null for OAuth-only accounts; bcrypt hash for email+password accounts
     password: {
         type: String,
-        default: null,
     },
     avatar: {
         type: String,
-        default: null,
     },
-    // Firebase UID — null for plain email/password accounts
+    // Firebase UID — absent for plain email/password accounts (NOT null, to avoid sparse index conflict)
     uid: {
         type: String,
-        default: null,
     },
 }, { timestamps: true });
 

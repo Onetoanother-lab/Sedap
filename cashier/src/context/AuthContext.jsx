@@ -42,10 +42,9 @@ async function oauthUpsert(setUser, { uid, name, email, avatar }) {
         // 3. Brand-new user
         const { data: created } = await api.post('/users', {
             name,
-            email: email || null,
-            avatar: avatar || null,
+            ...(email  ? { email }  : {}),
+            ...(avatar ? { avatar } : {}),
             uid,
-            password: null,
         })
         return persist(setUser, created)
     } catch (error) {
@@ -103,7 +102,7 @@ export function AuthProvider({ children }) {
     const register = useCallback(async (name, email, password) => {
         const { data: existing } = await api.get(`/users?email=${encodeURIComponent(email)}`)
         if (existing.length > 0) throw new Error('Email already registered')
-        const { data } = await api.post('/users', { name, email, password, avatar: null, uid: '' })
+        const { data } = await api.post('/users', { name, email, password })
         return persist(setUser, data)
     }, [])
 

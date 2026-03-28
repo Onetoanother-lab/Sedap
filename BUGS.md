@@ -484,9 +484,78 @@ productOrders.forEach((order) => {
 
 ---
 
+## AUTH-AGENT — Dashboard Login / Register
+
+### [x] AUTH-D-01 🔴 `userRoutes.js` POST `/users` — `uid`/`avatar` null qiymatlari sparse index ni buzadi → register 500 xatosi
+**Fayl:** `server/routes/userRoutes.js` — 49-qator, `server/models/User.js`, `cashier/src/context/AuthContext.jsx`, `dashboard/src/context/AuthContext.jsx`
+**Muammo:** MongoDB sparse unique index `null` qiymatlarni INDEKSLAYDI — faqat ABSENT (mavjud bo'lmagan) maydonlarni o'tkazib yuboradi. `uid: ""` yoki `uid: null` saqlansa, sparse index uni indekslaydi. Ikkinchi foydalanuvchi register qilganda `uid: null` uchun `11000 duplicate key` → 500 xatosi.
+
+Muammo uch joyda edi:
+1. `userRoutes.js`: `uid = ""` (keyin `uid = null`) default → `null` DB ga saqlandi
+2. `User.js` model: `uid: { type: String, default: null }` — Mongoose `null` saqlardi
+3. `AuthContext.register`: `{ uid: '', avatar: null }` yuborardi
+
+**Tuzatish (to'liq):**
+- `User.js`: barcha optional fieldlardan `default: null` olib tashlash — field ABSENT bo'lsa DB ga saqlanmaydi
+- `userRoutes.js`: conditional spread — faqat truthy qiymatlar saqlash:
+```js
+const user = new User({
+    name,
+    ...(email          ? { email }              : {}),
+    ...(hashedPassword ? { password: hashedPassword } : {}),
+    ...(avatar         ? { avatar }             : {}),
+    ...(uid            ? { uid }                : {}),
+});
+```
+- `cashier/src/context/AuthContext.jsx` register: `{ name, email, password }` yuborish (uid/avatar yo'q)
+- `dashboard/src/context/AuthContext.jsx` oauthUpsert: conditional spread email/avatar uchun
+
+---
+
+### [x] AUTH-D-02 🟠 `AuthContext.logout()` — Firebase sessiyasini yopmaydidi
+**Fayl:** `dashboard/src/context/AuthContext.jsx` — 113-116-qatorlar
+**Muammo:** `logout()` faqat React state va localStorage ni tozalaydi. Firebase `auth.currentUser` esa aktiv qoladi — `signOut(auth)` chaqirilmagan. Agar foydalanuvchi Google/GitHub bilan kirgan bo'lsa, Firebase sessiyasi brauzerda saqlanib qoladi.
+**Tuzatish:** `signOut(auth)` qo'shish:
+```js
+import { signOut } from 'firebase/auth'
+const logout = useCallback(() => {
+    signOut(auth).catch(() => {})
+    setUser(null)
+    localStorage.removeItem(LS_KEY)
+}, [])
+```
+
+---
+
+### [x] AUTH-D-03 🟠 `Login.jsx` — `redirectError` context o'zgarishlari ko'rsatilmaydi
+**Fayl:** `dashboard/src/pages/Login.jsx` — 13-qator
+**Muammo:** `const [error, setError] = useState(redirectError || '')` — `useState` initial qiymatni faqat birinchi render'da ishlatadi. `redirectError` async `getRedirectResult` dan keyin o'rnatilsa (component mount bo'lgandan keyin), local `error` state yangilanmaydi → foydalanuvchi OAuth redirect xatosini ko'rmaydi.
+**Tuzatish:** `useEffect` bilan `redirectError` ni kuzatish:
+```js
+useEffect(() => {
+    if (redirectError) setError(redirectError)
+}, [redirectError])
+```
+
+---
+
+### [x] AUTH-D-04 🟡 `AuthContext` — `getRedirectResult` useEffect dashboard uchun keraksiz
+**Fayl:** `dashboard/src/context/AuthContext.jsx` — 58-82-qatorlar
+**Muammo:** Dashboard faqat `signInWithPopup` ishlatadi (redirect emas). `getRedirectResult` har app yuklanishida Firebase ga so'rov yuboradi, lekin har doim `null` qaytaradi — bu ortiqcha network call va kod murakkabligi.
+**Tuzatish:** `getRedirectResult` useEffect ni dashboard `AuthContext` dan olib tashlash.
+
+---
+
+### [x] AUTH-D-05 🟢 Login/Register — email format client-side tekshirilmaydi
+**Fayl:** `dashboard/src/pages/Login.jsx` — 20-qator, `Register.jsx` — 20-qator
+**Muammo:** `!form.email` faqat bo'sh ekanligini tekshiradi. `"notanemail"` yoki `"abc"` kiritilsa client-side xato ko'rsatilmaydi — server ga yuboriladi va "Invalid email or password" qaytaradi. Foydalanuvchi nima xato qilganini tushunmaydi.
+**Tuzatish:** `!/\S+@\S+\.\S+/.test(form.email)` tekshiruvi qo'shish.
+
+---
+
 ## DEVOPS-AGENT — Deployment (Render.com)
 
-### [ ] DEPL-01 🔴 Server o'zgarishlari commit/push qilinmagan — production eski kod bilan ishlayapti
+### [x] DEPL-01 🔴 Server o'zgarishlari commit/push qilinmagan — production eski kod bilan ishlayapti
 **Fayl:** `server/routes/customerRoutes.js`, `server/index.js` va boshqa server fayllari
 **Muammo:** `git status` ko'rsatishicha barcha server o'zgarishlari uncommitted (`M`) yoki untracked (`??`):
 - `server/routes/customerRoutes.js` → `??` (yangi fayl, hech qachon git ga qo'shilmagan)
@@ -658,3 +727,8 @@ Bu mahsulotlar Cashier menusida noto'g'ri kategoriyada ko'rinadi.
 | 65 | CST-04 | dashboard | 🟢 Past |
 | 66 | DEPL-01 | devops | 🔴 Kritik |
 | 67 | DEPL-02 | devops | 🔴 Kritik |
+| 68 | AUTH-D-01 | backend | 🔴 Kritik |
+| 69 | AUTH-D-02 | auth | 🟠 Yuqori |
+| 70 | AUTH-D-03 | auth | 🟠 Yuqori |
+| 71 | AUTH-D-04 | auth | 🟡 O'rta |
+| 72 | AUTH-D-05 | auth | 🟢 Past |
