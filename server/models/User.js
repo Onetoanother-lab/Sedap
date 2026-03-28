@@ -33,11 +33,10 @@ userSchema.index({ id: 1 },    { unique: true, sparse: true });
 userSchema.index({ uid: 1 },   { unique: true, sparse: true });
 
 // Auto-assign id = _id.toString() so the frontend always receives a stable string id
-userSchema.pre("save", function (next) {
+userSchema.pre("save", function () {
     if (!this.id) {
         this.id = this._id.toString();
     }
-    next();
 });
 
 export default mongoose.model("User", userSchema);
