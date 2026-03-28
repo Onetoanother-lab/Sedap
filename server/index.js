@@ -10,19 +10,21 @@ import OrderList from './models/OrderList.js';
 import userRoutes from './routes/userRoutes.js';
 import productRoutes from './routes/productRoutes.js';
 import cartRoutes from './routes/cartRoutes.js';
-import orderListRoutes from './routes/orderlistRoutes.js';
+import orderListRoutes from './routes/orderListRoutes.js';
 
 const PORT = 8000;
 const app = express();
 
-app.use(express.json({ limit: '10mb' }));   
+app.use(express.json({ limit: '10mb' }));
+
 app.use(cors({
-  origin: [
-    'http://localhost:5173',
-    'https://sedap-nnap.onrender.com',
-  ],
-  credentials: true,
-}))
+    origin: [
+        'http://localhost:5173',
+        'http://localhost:5174',
+        'http://localhost:5175',
+    ],
+    credentials: true,
+}));
 
 app.use('/api', userRoutes(User));
 app.use('/api', productRoutes(Product));
