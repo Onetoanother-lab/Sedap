@@ -17,7 +17,6 @@ const app = express();
 
 app.use(express.json({ limit: '10mb' }));
 
-// Allow both Vite ports (cashier app + dashboard)
 app.use(cors({
     origin: [
         'http://localhost:5173',

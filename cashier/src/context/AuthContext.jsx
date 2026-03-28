@@ -1,8 +1,12 @@
-import { createContext, useContext, useState, useCallback } from 'react'
+import { createContext, useContext, useState, useCallback, useEffect } from 'react'
+import { getRedirectResult } from 'firebase/auth'
+import { auth } from '../firebase'
 import api from '../api/axios'
 
 const AuthContext = createContext(null)
 
+
+// Strip password, normalise _id → id, persist to state + localStorage
 function persist(setUser, userData) {
     const obj = { ...userData }
     delete obj.password
@@ -12,12 +16,14 @@ function persist(setUser, userData) {
     return obj
 }
 
+// Shared OAuth upsert logic used by both Google and GitHub
 async function oauthUpsert(setUser, { uid, name, email, avatar }) {
     setUser(null)
     localStorage.removeItem('cashier_user')
 
-    if (!uid || typeof uid !== 'string' || uid.trim() === '')
+    if (!uid || typeof uid !== 'string' || uid.trim() === '') {
         throw new Error('Provider did not return a valid user ID. Please try again.')
+    }
 
     // 1. Look up by Firebase uid
     const { data: uidMatches } = await api.get(`/users?uid=${encodeURIComponent(uid)}`)
@@ -47,6 +53,7 @@ async function oauthUpsert(setUser, { uid, name, email, avatar }) {
 }
 
 export function AuthProvider({ children }) {
+    const [redirectError, setRedirectError] = useState('')
     const [user, setUser] = useState(() => {
         try {
             const saved = localStorage.getItem('cashier_user')
@@ -54,11 +61,40 @@ export function AuthProvider({ children }) {
         } catch { return null }
     })
 
+    // Handle redirect result on app load (Google / GitHub signInWithRedirect)
+    // This runs once when the app mounts after the OAuth redirect returns
+    useEffect(() => {
+        getRedirectResult(auth)
+        
+            .then(async (result) => {
+        console.log(result);
+                if (!result) return   // normal page load, no redirect pending
+                const fu = result.user
+                const providerData = fu.providerData?.[0] || {}
+                await oauthUpsert(setUser, {
+                    uid:    fu.uid,
+                    name:   fu.displayName || providerData.displayName || 'User',
+                    email:  fu.email       || providerData.email       || null,
+                    avatar: fu.photoURL    || providerData.photoURL    || null,
+                })
+                // Navigate to menu after successful redirect login
+                window.location.replace('/menu')
+            })
+.catch((err) => {
+    const code = err.code || ''
+    if (code !== 'auth/popup-closed-by-user' && code !== 'auth/cancelled-popup-request') {
+        setRedirectError(err.message || 'Sign-in failed. Please try again.')
+    }
+})
+    }, [])
+
+    // Email + password login
     const login = useCallback(async (email, password) => {
         const { data } = await api.post('/users/login', { email, password })
         return persist(setUser, data)
     }, [])
 
+    // Email + password register
     const register = useCallback(async (name, email, password) => {
         const { data: existing } = await api.get(`/users?email=${encodeURIComponent(email)}`)
         if (existing.length > 0) throw new Error('Email already registered')
@@ -66,6 +102,8 @@ export function AuthProvider({ children }) {
         return persist(setUser, data)
     }, [])
 
+    // These are kept for any component that still calls them directly
+    // (they now just delegate to oauthUpsert)
     const googleLogin = useCallback(async (firebaseUser) => {
         return oauthUpsert(setUser, {
             uid:    firebaseUser.uid,
@@ -99,7 +137,7 @@ export function AuthProvider({ children }) {
     }, [])
 
     return (
-        <AuthContext.Provider value={{ user, login, register, googleLogin, githubLogin, logout, updateUser }}>
+       <AuthContext.Provider value={{ user, login, register, googleLogin, githubLogin, logout, updateUser, redirectError }}>
             {children}
         </AuthContext.Provider>
     )
