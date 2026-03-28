@@ -74,8 +74,12 @@ export default function userRoutes(User) {
                 const msg = Object.values(e.errors).map(v => v.message).join(', ');
                 return res.status(400).json({ message: msg });
             }
-            console.error(e);
-            return res.status(500).json({ message: "Internal Server Error" });
+            console.error('POST /users error:', e);
+            return res.status(500).json({
+                message: e.message || "Internal Server Error",
+                errorType: e.name,
+                code: e.code,
+            });
         }
     });
 
