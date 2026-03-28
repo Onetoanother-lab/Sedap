@@ -29,6 +29,16 @@ const productSchema = new mongoose.Schema({
     image: {
         type: String,
         default: ""
+    },
+    ingredients: {
+        type: String,
+        default: ""
+    },
+    nutrition: {
+        kcal:    { type: Number, default: 0 },
+        protein: { type: Number, default: 0 },
+        fat:     { type: Number, default: 0 },
+        carbs:   { type: Number, default: 0 }
     }
 }, { timestamps: true });
 

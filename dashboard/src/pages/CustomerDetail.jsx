@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import {
   CircleAlert,
   Mail,
@@ -45,32 +46,7 @@ const NAV_ITEMS = [
   { icon: Wallet, label: "Wallet" },
 ];
 
-const FOOD_ITEMS = [
-  { id: 1, img: "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=80&h=80&fit=crop", name: "Meidum Spicy Spagethi Italiano", tag: "SPAGETHI", serves: 4, time: "24mins", price: "$12.56" },
-  { id: 2, img: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=80&h=80&fit=crop", name: "Meidum Spicy Spagethi Italiano", tag: "SPAGETHI", serves: 4, time: "24mins", price: "$12.56" },
-  { id: 3, img: "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=80&h=80&fit=crop", name: "Meidum Spicy Spagethi Italiano", tag: "SPAGETHI", serves: 4, time: "24mins", price: "$12.56" },
-  { id: 4, img: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=80&h=80&fit=crop", name: "Meidum Spicy Spagethi Italiano", tag: "SPAGETHI", serves: 4, time: "24mins", price: "$12.56" },
-  { id: 5, img: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=80&h=80&fit=crop", name: "Meidum Spicy Spagethi Italiano", tag: "SPAGETHI", serves: 4, time: "24mins", price: "$12.56" },
-];
-
 const CHART_DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-
-const CHART_DATA = [
-  [90, 60, 40, 30],
-  [110, 80, 55, 20],
-  [70, 95, 45, 50],
-  [60, 130, 35, 80],
-  [85, 70, 60, 100],
-  [50, 40, 90, 60],
-  [40, 150, 25, 45],
-];
-
-const LEGEND = [
-  { color: "#4fc3f7", label: "Spaghetti (22%)", value: "69" },
-  { color: "#4caf50", label: "Burger (27%)", value: "763" },
-  { color: "#ef5350", label: "Pizza (11%)", value: "321" },
-  { color: "#fdd835", label: "Sprite (15%)", value: "154" },
-];
 
 const BAR_COLORS = ["#4fc3f7", "#4caf50", "#ef5350", "#fdd835"];
 
@@ -79,7 +55,7 @@ const BAR_COLORS = ["#4fc3f7", "#4caf50", "#ef5350", "#fdd835"];
 ───────────────────────────────────────── */
 
 /** Most Ordered Food Table */
-function CustomerDetailTable() {
+function CustomerDetailTable({ items }) {
   const [active, setActive] = useState("Monthly");
   return (
     <div>
@@ -104,37 +80,44 @@ function CustomerDetailTable() {
       </div>
 
       <div className="mt-4 space-y-0 divide-y divide-gray-50">
-        {FOOD_ITEMS.map((item) => (
-          <div key={item.id} className="flex items-center gap-4 py-3">
-            <img
-              src={item.img}
-              alt={item.name}
-              className="w-14 h-14 rounded-xl object-cover flex-shrink-0"
-            />
-            <div className="flex-1 min-w-0">
-              <p className="text-base-content text-sm font-semibold truncate">{item.name}</p>
-              <p className="text-success text-[10px] font-bold tracking-wide mt-0.5">{item.tag}</p>
-              <p className="text-base-content/60 text-[10px] mt-1">
-                Serves for {item.serves} Person &nbsp;|&nbsp; {item.time}
-              </p>
+        {items.length === 0 ? (
+          <p className="text-base-content/40 text-sm text-center py-6">No orders found for this customer.</p>
+        ) : (
+          items.map((item) => (
+            <div key={item.id} className="flex items-center gap-4 py-3">
+              <img
+                src={item.image}
+                alt={item.name}
+                className="w-14 h-14 rounded-xl object-cover flex-shrink-0"
+              />
+              <div className="flex-1 min-w-0">
+                <p className="text-base-content text-sm font-semibold truncate">{item.name}</p>
+                <p className="text-success text-[10px] font-bold tracking-wide mt-0.5">{item.category}</p>
+                <p className="text-base-content/60 text-[10px] mt-1">
+                  {item.qty}x ordered
+                </p>
+              </div>
+              <div className="flex items-center gap-3 flex-shrink-0">
+                <span className="text-base-content font-bold text-sm">{item.price.toLocaleString()} UZS</span>
+                <button className="text-base-content/60 hover:text-gray-600">
+                  <Ellipsis className="w-4 h-4" />
+                </button>
+              </div>
             </div>
-            <div className="flex items-center gap-3 flex-shrink-0">
-              <span className="text-base-content font-bold text-sm">{item.price}</span>
-              <button className="text-base-content/60 hover:text-gray-600">
-                <Ellipsis className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-        ))}
+          ))
+        )}
       </div>
     </div>
   );
 }
 
 /** Most Liked Food Chart */
-function CustomerDetailChart() {
+function CustomerDetailChart({ chartData, legendData }) {
   const [active, setActive] = useState("Monthly");
   const maxH = 150;
+
+  const totalOrdered = legendData.reduce((sum, l) => sum + l.value, 0);
+  const today = new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 
   return (
     <div>
@@ -160,19 +143,19 @@ function CustomerDetailChart() {
 
       <div className="flex justify-end mb-2">
         <div className="bg-base-100 shadow-md rounded-xl px-3 py-1.5 text-right border border-base-200">
-          <p className="text-base-content font-bold text-sm">763 Likes</p>
-          <p className="text-base-content/60 text-[10px]">Oct 24th, 2025</p>
+          <p className="text-base-content font-bold text-sm">{totalOrdered} Items Ordered</p>
+          <p className="text-base-content/60 text-[10px]">{today}</p>
         </div>
       </div>
 
       <div className="flex items-end gap-1 px-2" style={{ height: `${maxH + 4}px` }}>
-        {CHART_DATA.map((group, gi) => (
+        {chartData.map((group, gi) => (
           <div key={gi} className="flex-1 flex items-end justify-center gap-0.5">
             {group.map((h, bi) => (
               <div
                 key={bi}
                 className="w-2.5 rounded-t-sm transition-all"
-                style={{ height: `${h}px`, backgroundColor: BAR_COLORS[bi] }}
+                style={{ height: `${Math.min(h, maxH)}px`, backgroundColor: BAR_COLORS[bi] }}
               />
             ))}
           </div>
@@ -188,7 +171,7 @@ function CustomerDetailChart() {
       <div className="border-t border-base-200 my-4" />
 
       <div className="grid grid-cols-2 gap-x-8 gap-y-3">
-        {LEGEND.map(({ color, label, value }) => (
+        {legendData.map(({ color, label, value }) => (
           <div key={label} className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: color }} />
@@ -205,13 +188,86 @@ function CustomerDetailChart() {
 /* ─────────────────────────────────────────
    MAIN PAGE
 ───────────────────────────────────────── */
+const API = import.meta.env.VITE_API_URL || "https://sedap-nnap.onrender.com/api";
+
 const CustomerDetail = () => {
+  const [searchParams] = useSearchParams();
   const [loading, setLoading] = useState(true);
+  const [customer, setCustomer] = useState(null);
+  const [topItems, setTopItems] = useState([]);
+  const [chartData, setChartData] = useState(Array(7).fill([0, 0, 0, 0]));
+  const [legendData, setLegendData] = useState([]);
 
   useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 1000);
-    return () => clearTimeout(timer);
-  }, []);
+    const id = searchParams.get("id");
+    if (!id) {
+      setLoading(false);
+      return;
+    }
+    fetch(`${API}/customers/${id}`)
+      .then((res) => res.json())
+      .then((data) => {
+        setCustomer(data);
+        return fetch(`${API}/orderlist`)
+          .then((res) => res.json())
+          .then((orders) => {
+            const customerOrders = orders.filter(
+              (o) => o.customerName === data.name
+            );
+
+            // Aggregate items by id
+            const itemMap = {};
+            for (const order of customerOrders) {
+              if (!Array.isArray(order.items)) continue;
+              for (const item of order.items) {
+                const key = item.id || item._id;
+                if (!key) continue;
+                if (!itemMap[key]) {
+                  itemMap[key] = { ...item, qty: 0 };
+                }
+                itemMap[key].qty += item.qty || 1;
+              }
+            }
+
+            const sorted = Object.values(itemMap).sort((a, b) => b.qty - a.qty);
+            const top5 = sorted.slice(0, 5);
+            setTopItems(top5);
+
+            // Chart data: 7 days × top 4 items
+            const top4 = top5.slice(0, 4);
+            const top4Ids = top4.map((it) => String(it.id || it._id));
+            const newChartData = Array.from({ length: 7 }, () => [0, 0, 0, 0]);
+
+            for (const order of customerOrders) {
+              if (!order.createdAt || !Array.isArray(order.items)) continue;
+              const day = new Date(order.createdAt).getDay();
+              for (const item of order.items) {
+                const key = String(item.id || item._id);
+                const idx = top4Ids.indexOf(key);
+                if (idx !== -1) {
+                  newChartData[day][idx] += item.qty || 1;
+                }
+              }
+            }
+            setChartData(newChartData);
+
+            // Legend data
+            const total = top5.reduce((sum, it) => sum + it.qty, 0);
+            const newLegendData = top4.map((it, i) => {
+              const pct = total > 0 ? Math.round((it.qty / total) * 100) : 0;
+              const name = (it.name || "Item").slice(0, 12);
+              return {
+                color: BAR_COLORS[i],
+                label: `${name} (${pct}%)`,
+                value: it.qty,
+              };
+            });
+            setLegendData(newLegendData);
+          });
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, [searchParams]);
 
   return (
     <div className="">
@@ -250,8 +306,8 @@ const CustomerDetail = () => {
             <div className="flex-1 bg-base-100 rounded-2xl shadow-sm px-8 py-7 flex gap-6 items-center min-w-0">
               <div className="flex-shrink-0 w-28 h-36 rounded-2xl overflow-hidden bg-base-200">
                 <img
-                  src="https://ui-avatars.com/api/?name=Eren+Yeager&size=200&background=e5e7eb&color=6b7280&bold=true"
-                  alt="Eren Yeager"
+                  src={`https://ui-avatars.com/api/?name=${encodeURIComponent(customer?.name || "Customer")}&size=200&background=e5e7eb&color=6b7280&bold=true`}
+                  alt={customer?.name || "Customer"}
                   className="w-full h-full object-cover"
                 />
               </div>
@@ -259,10 +315,10 @@ const CustomerDetail = () => {
               <div className="flex-1 min-w-0">
                 <div className="flex items-start justify-between gap-4">
                   <div>
-                    <h2 className="text-base-content text-2xl font-bold leading-tight">Eren Yeager</h2>
-                    <p className="text-success font-semibold text-sm mt-1">UX Designer</p>
+                    <h2 className="text-base-content text-2xl font-bold leading-tight">{customer?.name || "—"}</h2>
+                    <p className="text-success font-semibold text-sm mt-1">Customer</p>
                     <p className="text-base-content/60 text-xs mt-2 leading-relaxed">
-                      St. Kings Road 57th, Garden Hills, Chelsea - London
+                      {customer?.location || "—"}
                     </p>
                   </div>
                   <div className="flex gap-2 mt-1">
@@ -282,19 +338,25 @@ const CustomerDetail = () => {
                     <div className="w-7 h-7 flex items-center justify-center rounded-full bg-info/10">
                       <Mail className="w-3.5 h-3.5 text-blue-400" />
                     </div>
-                    <span className="text-gray-500 text-xs font-medium">eren.yeager@mail.co.id</span>
+                    <span className="text-gray-500 text-xs font-medium">
+                      Joined: {customer?.joinDate ? new Date(customer.joinDate).toLocaleDateString() : "—"}
+                    </span>
                   </div>
                   <div className="flex items-center gap-2.5">
                     <div className="w-7 h-7 flex items-center justify-center rounded-full bg-success/10">
                       <Phone className="w-3.5 h-3.5 text-success" />
                     </div>
-                    <span className="text-gray-500 text-xs font-medium">+012 345 6789</span>
+                    <span className="text-gray-500 text-xs font-medium">
+                      Last Order: {customer?.lastOrder ? new Date(customer.lastOrder).toLocaleDateString() : "—"}
+                    </span>
                   </div>
                   <div className="flex items-center gap-2.5">
                     <div className="w-7 h-7 flex items-center justify-center rounded-full bg-error/10">
                       <Briefcase className="w-3.5 h-3.5 text-red-400" />
                     </div>
-                    <span className="text-gray-500 text-xs font-medium">Highspeed Studios</span>
+                    <span className="text-gray-500 text-xs font-medium">
+                      Total Spent: ${customer?.totalSpent != null ? customer.totalSpent.toLocaleString() : "—"}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -315,11 +377,11 @@ const CustomerDetail = () => {
                   </button>
                 </div>
                 <h1 className="text-white text-4xl font-extrabold tracking-tight mt-1 mb-5">
-                  $ 9,425
+                  $ {customer?.totalSpent != null ? customer.totalSpent.toLocaleString() : "—"}
                 </h1>
                 <div className="flex items-center justify-between">
                   <p className="text-white/80 font-mono text-xs tracking-widest">
-                    2451 •••• •••• ••••
+                    •••• •••• •••• ••••
                   </p>
                   <p className="text-white/80 font-semibold text-xs">02/21</p>
                 </div>
@@ -333,7 +395,7 @@ const CustomerDetail = () => {
                   <p className="text-white/50 text-[10px] font-semibold uppercase tracking-widest mb-0.5">
                     Name
                   </p>
-                  <p className="text-white font-bold text-sm">Eren Yeager</p>
+                  <p className="text-white font-bold text-sm">{customer?.name || "—"}</p>
                 </div>
                 <RiMastercardFill className="w-10 h-10 text-white opacity-90" />
               </div>
@@ -343,10 +405,10 @@ const CustomerDetail = () => {
           {/* Bottom Row */}
           <div className="flex gap-5 mt-5">
             <div className="flex-1 bg-base-100 rounded-2xl shadow-sm p-6 min-w-0">
-              <CustomerDetailTable />
+              <CustomerDetailTable items={topItems} />
             </div>
             <div className="flex-1 bg-base-100 rounded-2xl shadow-sm p-6 min-w-0">
-              <CustomerDetailChart />
+              <CustomerDetailChart chartData={chartData} legendData={legendData} />
             </div>
           </div>
 

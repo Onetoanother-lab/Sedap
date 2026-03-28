@@ -11,6 +11,17 @@ const orderItemSchema = new mongoose.Schema({
     qty: { type: Number, required: true, default: 1 }
 }, { _id: false });
 
+const courierSchema = new mongoose.Schema({
+    name:   { type: String, default: "" },
+    phone:  { type: String, default: "" },
+    avatar: { type: String, default: "" },
+}, { _id: false });
+
+const statusHistorySchema = new mongoose.Schema({
+    status:    { type: String, required: true },
+    changedAt: { type: Date, default: Date.now },
+}, { _id: false });
+
 const orderListSchema = new mongoose.Schema({
     id: {
         type: String,
@@ -48,6 +59,23 @@ const orderListSchema = new mongoose.Schema({
     total: {
         type: Number,
         required: true
+    },
+    status: {
+        type: String,
+        enum: ['new', 'on_delivery', 'delivered', 'canceled'],
+        default: 'new'
+    },
+    branch: {
+        type: String,
+        default: ""
+    },
+    courier: {
+        type: courierSchema,
+        default: () => ({})
+    },
+    statusHistory: {
+        type: [statusHistorySchema],
+        default: []
     },
     createdAt: {
         type: Date,

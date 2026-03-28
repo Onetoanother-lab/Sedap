@@ -1,37 +1,48 @@
 import React, { useEffect, useState } from 'react';
 import { ChevronDown, X } from 'lucide-react';
 
+const API = import.meta.env.VITE_API_URL || "https://sedap-nnap.onrender.com/api";
+
 const EventCalendar = () => {
-  
+
   const [currentDate, setCurrentDate] = useState(new Date());
   const [view, setView] = useState('Month');
   const [selectedDay, setSelectedDay] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(true);
+  const [allEvents, setAllEvents] = useState({});
 
   const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-  const allEvents = {
-    2: [
-      { name: 'Spicy Nugget', color: 'bg-error', time: '10:00 AM', description: 'Delicious spicy chicken nuggets special' },
-      { name: 'Caesar Salad', color: 'bg-error', time: '11:30 AM', description: 'Fresh caesar salad with grilled chicken' },
-      { name: 'Pasta Carbonara', color: 'bg-error', time: '01:00 PM', description: 'Creamy pasta carbonara' },
-      { name: 'Grilled Salmon', color: 'bg-error', time: '02:30 PM', description: 'Fresh grilled salmon with vegetables' },
-      { name: 'Pizza la Piazza BBQ', color: 'bg-error', time: '04:00 PM', description: 'Special BBQ pizza with extra cheese' }
-    ],
-    18: [
-      { name: 'Spicy Nugget', color: 'bg-success', time: '10:00 AM', description: 'Spicy nugget special' },
-      { name: 'Beef Burger', color: 'bg-success', time: '12:00 PM', description: 'Premium beef burger' },
-      { name: 'Fish Tacos', color: 'bg-success', time: '02:00 PM', description: 'Fresh fish tacos' },
-      { name: 'Pizza BBQ', color: 'bg-success', time: '04:00 PM', description: 'BBQ pizza special' }
-    ],
-    22: [
-      { name: 'Spicy Nugget', color: 'bg-primary', time: '11:00 AM', description: 'Chicken nuggets' },
-      { name: 'Veggie Bowl', color: 'bg-primary', time: '01:00 PM', description: 'Healthy vegetable bowl' },
-      { name: 'Sushi Platter', color: 'bg-primary', time: '03:00 PM', description: 'Fresh sushi selection' },
-      { name: 'Pizza BBQ', color: 'bg-primary', time: '05:00 PM', description: 'Evening pizza special' }
-    ]
-  };
+  useEffect(() => {
+    const fetchEvents = async () => {
+      setLoading(true);
+      try {
+        const year = currentDate.getFullYear();
+        const month = currentDate.getMonth() + 1;
+        const res = await fetch(`${API}/events?year=${year}&month=${month}`);
+        if (!res.ok) throw new Error('Failed to fetch events');
+        const data = await res.json();
+        const grouped = {};
+        (Array.isArray(data) ? data : []).forEach((event) => {
+          const day = new Date(event.date).getDate();
+          if (!grouped[day]) grouped[day] = [];
+          grouped[day].push({
+            name: event.title,
+            description: event.description,
+            time: event.time,
+            color: event.color,
+          });
+        });
+        setAllEvents(grouped);
+      } catch {
+        setAllEvents({});
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchEvents();
+  }, [currentDate]);
   
   const getDaysInMonth = (date) => {
     const year = date.getFullYear();
@@ -72,13 +83,6 @@ const EventCalendar = () => {
       setShowModal(true);
     }
   };
-useEffect(() => {
-  const timer = setTimeout(() => {
-    setLoading(false);
-  }, 1000); // 1 sekund
-
-  return () => clearTimeout(timer);
-}, []);
   const monthYear = currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
   const days = getDaysInMonth(currentDate);
   const weekDays = getWeekDays();
@@ -89,9 +93,7 @@ useEffect(() => {
 
   const getDateBg = (day) => {
     if (!day.isCurrentMonth) return '';
-    if (day.day === 2) return 'bg-error/10';
-    if (day.day === 18) return 'bg-success/10';
-    if (day.day === 22) return 'bg-primary/10';
+    if (allEvents[day.day] && allEvents[day.day].length > 0) return 'bg-primary/10';
     return '';
   };
 
@@ -170,7 +172,7 @@ useEffect(() => {
           <div className="bg-base-100 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden">
             <div className="bg-primary text-white p-6 flex items-center justify-between">
               <div>
-                <h2 className="text-2xl font-bold">Events for April {selectedDay}, 2021</h2>
+                <h2 className="text-2xl font-bold">Events for {currentDate.toLocaleDateString('en-US', { month: 'long' })} {selectedDay}, {currentDate.getFullYear()}</h2>
                 <p className="text-primary/30 text-sm mt-1">{allEvents[selectedDay].length} events scheduled</p>
               </div>
               <button

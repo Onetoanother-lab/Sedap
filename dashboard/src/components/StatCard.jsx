@@ -11,28 +11,28 @@ const StatCard = ({ title, value, percent }) => {
       {/* ICON */}
       <div
         className={`w-14 h-14 rounded-xl flex items-center justify-center ${
-          isPositive ? "bg-emerald-100" : "bg-red-100"
+          isPositive ? "bg-success/10" : "bg-error/10"
         }`}
       >
         {isPositive ? (
-          <TrendingUp className="text-emerald-600" />
+          <TrendingUp className="text-success" />
         ) : (
-          <TrendingDown className="text-red-500" />
+          <TrendingDown className="text-error" />
         )}
       </div>
 
       {/* CONTENT */}
       <div className="flex-1">
-        <p className="text-sm text-gray-500">{title}</p>
+        <p className="text-sm text-base-content/60">{title}</p>
 
-        <h2 className="text-2xl font-semibold text-gray-800">
+        <h2 className="text-2xl font-semibold text-base-content">
           {value.toLocaleString()}{" "}
-          <span className="text-sm text-gray-400">UZS</span>
+          <span className="text-sm text-base-content/40">UZS</span>
         </h2>
 
         <div
           className={`text-sm font-medium flex items-center gap-1 ${
-            isPositive ? "text-emerald-600" : "text-red-500"
+            isPositive ? "text-success" : "text-error"
           }`}
         >
           {isPositive ? "▲" : "▼"} {Math.abs(percent)}%

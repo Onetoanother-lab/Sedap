@@ -8,6 +8,9 @@ import Customer from "./models/Customer.js";
 import Order from "./models/Order.js";
 import OrderList from "./models/OrderList.js";
 import User from "./models/User.js";
+import Review from "./models/Review.js";
+import Transaction from "./models/Transaction.js";
+import Event from "./models/Event.js";
 
 dotenv.config();
 
@@ -25,7 +28,10 @@ const seed = async () => {
             Customer.deleteMany({}),
             Order.deleteMany({}),
             OrderList.deleteMany({}),
-            User.deleteMany({})
+            User.deleteMany({}),
+            Review.deleteMany({}),
+            Transaction.deleteMany({}),
+            Event.deleteMany({}),
         ]);
         console.log("🧹 Cleared existing data");
 
@@ -57,6 +63,24 @@ const seed = async () => {
         if (db.users?.length) {
             await User.insertMany(db.users);
             console.log(`👤 Inserted ${db.users.length} users`);
+        }
+
+        // ── Reviews ─────────────────────────────────────────────────────
+        if (db.reviews?.length) {
+            await Review.insertMany(db.reviews);
+            console.log(`⭐ Inserted ${db.reviews.length} reviews`);
+        }
+
+        // ── Transactions ─────────────────────────────────────────────────
+        if (db.transactions?.length) {
+            await Transaction.insertMany(db.transactions);
+            console.log(`💳 Inserted ${db.transactions.length} transactions`);
+        }
+
+        // ── Events ───────────────────────────────────────────────────────
+        if (db.events?.length) {
+            await Event.insertMany(db.events);
+            console.log(`📅 Inserted ${db.events.length} events`);
         }
 
         console.log("\n🎉 Seeding complete!");

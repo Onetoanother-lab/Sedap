@@ -7,12 +7,18 @@ import Product from './models/Product.js';
 import Cart from './models/Cart.js';
 import OrderList from './models/OrderList.js';
 import Customer from './models/Customer.js';
+import Review from './models/Review.js';
+import Transaction from './models/Transaction.js';
+import Event from './models/Event.js';
 
 import userRoutes from './routes/userRoutes.js';
 import productRoutes from './routes/productRoutes.js';
 import cartRoutes from './routes/cartRoutes.js';
 import orderListRoutes from './routes/orderListRoutes.js';
 import customerRoutes from './routes/customerRoutes.js';
+import reviewRoutes from './routes/reviewRoutes.js';
+import transactionRoutes from './routes/transactionRoutes.js';
+import eventRoutes from './routes/eventRoutes.js';
 
 const PORT = 8000;
 const app = express();
@@ -40,6 +46,9 @@ app.use('/api', productRoutes(Product));
 app.use('/api', cartRoutes(Cart));
 app.use('/api', orderListRoutes(OrderList));
 app.use('/api', customerRoutes(Customer));
+app.use('/api', reviewRoutes(Review));
+app.use('/api', transactionRoutes(Transaction));
+app.use('/api', eventRoutes(Event));
 
 const startServer = async () => {
     await connectDB();

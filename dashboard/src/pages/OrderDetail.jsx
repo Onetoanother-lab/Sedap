@@ -4,6 +4,8 @@ import { LuTruck } from "react-icons/lu";
 import { FiPhone } from "react-icons/fi";
 import { TbTruckDelivery } from "react-icons/tb";
 
+const API = import.meta.env.VITE_API_URL || "https://sedap-nnap.onrender.com/api";
+
 const OrderDetail = () => {
   const { id } = useParams();
   const [order, setOrder] = useState(null);
@@ -13,8 +15,8 @@ const OrderDetail = () => {
     const fetchOrder = async () => {
       try {
         const url = id
-          ? `https://sedap-nnap.onrender.com/api/orderlist/${id}`
-          : "https://sedap-nnap.onrender.com/api/orderlist";
+          ? `${API}/orderlist/${id}`
+          : `${API}/orderlist`;
         const res = await fetch(url);
         const data = await res.json();
         setOrder(id ? data : data[0]);
@@ -37,9 +39,11 @@ const OrderDetail = () => {
 
   if (!order) return <p>Order not found</p>;
 
+  const statusLabel = { new: "New Order", on_delivery: "On Delivery", delivered: "Delivered", canceled: "Canceled" };
+
   const safeOrder = {
     id: order.id,
-    status: "On Delivery",
+    status: order.status || "new",
     customer: {
       name: order.customerName,
       avatar:
@@ -48,9 +52,10 @@ const OrderDetail = () => {
     address: order.address,
     items: order.items || [],
     delivery: {
-      name: "Courier",
-      phone: "+998 90 000 00 00",
-      time: "12:52",
+      name: order.courier?.name || "Courier",
+      phone: order.courier?.phone || "—",
+      avatar: order.courier?.avatar || "https://img.daisyui.com/images/profile/demo/2@94.webp",
+      time: order.createdAt ? new Date(order.createdAt).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }) : "—",
     },
   };
 
@@ -73,7 +78,7 @@ const OrderDetail = () => {
           </button>
           <button className="btn btn-success btn-sm rounded-lg px-5 gap-2 font-semibold text-white shadow">
             <LuTruck className="text-base" />
-            {safeOrder.status}
+            {statusLabel[safeOrder.status] || safeOrder.status}
             <svg className="w-4 h-4 ml-1 opacity-80" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
           </button>
         </div>
@@ -98,7 +103,7 @@ const OrderDetail = () => {
           </div>
 
           {/* Note Order — dark slate card */}
-          <div className="rounded-2xl shadow-sm px-5 py-4 relative bottom-3" style={{ background: "#2d3748" }}>
+          <div className="bg-neutral rounded-2xl shadow-sm px-5 py-4 relative bottom-3">
             <h4 className="font-bold text-white text-sm mb-2 tracking-tight">Note Order</h4>
             <p className="text-[12px] text-white/60 leading-[1.6]">
               Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
@@ -107,7 +112,7 @@ const OrderDetail = () => {
             {/* Address pill inside note card, matching screenshot */}
             <div className="mt-4 flex items-center gap-2 bg-white/10 rounded-xl px-3 py-2.5">
               <div className="w-8 h-8 rounded-full bg-white/90 flex items-center justify-center flex-shrink-0">
-                <TbTruckDelivery className="text-base" style={{ color: "#2d3748" }} />
+                <TbTruckDelivery className="text-base text-neutral" />
               </div>
               <p className="text-[11px] font-semibold text-white leading-snug">
                 {safeOrder.address || "6 The Avenue, London E250 4GN"}
@@ -126,40 +131,29 @@ const OrderDetail = () => {
               {/* Active line from step 2 down */}
               <div className="absolute left-[5px] top-[28px] bottom-0 w-[2px] bg-error/70 rounded-full" />
 
-              {/* Step 1 — Order Delivered (future / grey) */}
-              <div className="relative flex items-start gap-3 mb-5">
-                <span className="relative z-10 mt-[3px] w-3 h-3 rounded-full bg-base-300 border-2 border-base-100 flex-shrink-0" />
-                <div>
-                  <p className="text-[12px] text-base-content/40 font-medium">Order Delivered</p>
-                </div>
-              </div>
+              {(() => {
+                const history = (order.statusHistory && order.statusHistory.length > 0)
+                  ? [...order.statusHistory].reverse()
+                  : [{ status: "Order Created", changedAt: order.createdAt }];
 
-              {/* Step 2 — On Delivery (active) */}
-              <div className="relative flex items-start gap-3 mb-5">
-                <span className="relative z-10 mt-[3px] w-3 h-3 rounded-full bg-error border-2 border-base-100 flex-shrink-0 shadow-sm" />
-                <div>
-                  <p className="text-[12px] font-bold text-base-content leading-tight">On Delivery</p>
-                  <p className="text-[11px] text-base-content/40 mt-0.5">Sat, 23 Jul 2020, 01:24 PM</p>
-                </div>
-              </div>
-
-              {/* Step 3 — Payment Success (active) */}
-              <div className="relative flex items-start gap-3 mb-5">
-                <span className="relative z-10 mt-[3px] w-3 h-3 rounded-full bg-error border-2 border-base-100 flex-shrink-0 shadow-sm" />
-                <div>
-                  <p className="text-[12px] font-bold text-base-content leading-tight">Payment Success</p>
-                  <p className="text-[11px] text-base-content/40 mt-0.5">Fri, 22 Jul 2020, 10:44 AM</p>
-                </div>
-              </div>
-
-              {/* Step 4 — Order Created (active) */}
-              <div className="relative flex items-start gap-3">
-                <span className="relative z-10 mt-[3px] w-3 h-3 rounded-full bg-error border-2 border-base-100 flex-shrink-0 shadow-sm" />
-                <div>
-                  <p className="text-[12px] font-bold text-base-content leading-tight">Order Created</p>
-                  <p className="text-[11px] text-base-content/40 mt-0.5">Thu, 21 Jul 2020, 11:48 AM</p>
-                </div>
-              </div>
+                return history.map((step, i) => {
+                  const isFirst = i === 0;
+                  const label = statusLabel[step.status] || step.status;
+                  const dateStr = step.changedAt
+                    ? new Date(step.changedAt).toLocaleDateString() + ", " + new Date(step.changedAt).toLocaleTimeString()
+                    : "";
+                  const isLast = i === history.length - 1;
+                  return (
+                    <div key={i} className={`relative flex items-start gap-3 ${isLast ? "" : "mb-5"}`}>
+                      <span className={`relative z-10 mt-[3px] w-3 h-3 rounded-full border-2 border-base-100 flex-shrink-0 ${isFirst ? "bg-base-300" : "bg-error shadow-sm"}`} />
+                      <div>
+                        <p className={`text-[12px] leading-tight ${isFirst ? "text-base-content/40 font-medium" : "font-bold text-base-content"}`}>{label}</p>
+                        {dateStr && <p className="text-[11px] text-base-content/40 mt-0.5">{dateStr}</p>}
+                      </div>
+                    </div>
+                  );
+                });
+              })()}
             </div>
           </div>
 
@@ -195,7 +189,7 @@ const OrderDetail = () => {
                     />
                   </div>
                   <div>
-                    <p className="text-[10px] font-semibold text-base-content/40 uppercase tracking-wide mb-0.5">Main Course</p>
+                    <p className="text-[10px] font-semibold text-base-content/40 uppercase tracking-wide mb-0.5">{item.category || "—"}</p>
                     <p className="font-semibold text-sm text-base-content leading-tight">{item.name}</p>
                     <div className="flex items-center gap-0.5 mt-1">
                       {[1, 2, 3, 4].map(s => (
@@ -303,12 +297,12 @@ const OrderDetail = () => {
               <div className="flex items-center gap-3">
                 <div className="avatar">
                   <div className="w-10 h-10 rounded-full bg-base-200 overflow-hidden">
-                    <img src="https://img.daisyui.com/images/profile/demo/2@94.webp" alt="courier" className="w-full h-full object-cover" />
+                    <img src={safeOrder.delivery.avatar} alt="courier" className="w-full h-full object-cover" />
                   </div>
                 </div>
                 <div>
                   <p className="font-bold text-sm text-base-content">{safeOrder.delivery.name}</p>
-                  <p className="text-xs text-base-content/40">ID · 40495</p>
+                  <p className="text-xs text-base-content/40">{order?.courier?.id ? `ID · ${order.courier.id}` : ""}</p>
                 </div>
               </div>
 

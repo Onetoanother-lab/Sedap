@@ -25,6 +25,26 @@ const customerSchema = new mongoose.Schema({
     lastOrder: {
         type: Date,
         default: null
+    },
+    email: {
+        type: String,
+        default: ""
+    },
+    phone: {
+        type: String,
+        default: ""
+    },
+    company: {
+        type: String,
+        default: ""
+    },
+    jobTitle: {
+        type: String,
+        default: ""
+    },
+    avatar: {
+        type: String,
+        default: ""
     }
 }, { timestamps: true });
 

@@ -36,7 +36,7 @@ export default function CustomerTable() {
 
   if (error) {
     return (
-      <div className="text-center text-red-600 p-8">
+      <div className="text-center text-error p-8">
         Error: {error}
         <br />
         <small>serverri main branchtan pull qlib yoqin </small>
@@ -82,24 +82,24 @@ export default function CustomerTable() {
                 className="hover:bg-base-300 transition-colors"
               >
                 <td className="whitespace-nowrap px-6 py-4">
-                  <span className="font-semibold text-slate-500">
+                  <span className="font-semibold text-base-content/60">
                     #{customer.id}
                   </span>
                 </td>
-                <td className="whitespace-nowrap px-6 py-4 text-slate-500">
+                <td className="whitespace-nowrap px-6 py-4 text-base-content/60">
                   {customer.joinDate ? new Date(customer.joinDate).toLocaleDateString() : '—'}
                 </td>
-                <td className="whitespace-nowrap px-6 py-4 font-medium text-slate-500">
+                <td className="whitespace-nowrap px-6 py-4 font-medium text-base-content/60">
                   {customer.name}
                 </td>
-                <td className="whitespace-nowrap px-6 py-4 text-slate-500">
+                <td className="whitespace-nowrap px-6 py-4 text-base-content/60">
                   {customer.location}
                 </td>
-                <td className="whitespace-nowrap px-6 py-4 font-bold text-slate-500">
+                <td className="whitespace-nowrap px-6 py-4 font-bold text-base-content/60">
                   ${typeof customer.totalSpent === 'number' ? customer.totalSpent.toFixed(2) : customer.totalSpent}
                 </td>
                 <td className="whitespace-nowrap px-6 py-4">
-                  <span className="inline-flex items-center rounded-full bg-green-50 px-3 py-1 text-sm font-medium text-success ring-1 ring-inset ring-green-600/20">
+                  <span className="inline-flex items-center rounded-full bg-success/10 px-3 py-1 text-sm font-medium text-success ring-1 ring-inset ring-success/20">
                     {customer.lastOrder ? new Date(customer.lastOrder).toLocaleDateString() : '—'}
                   </span>
                 </td>
@@ -107,11 +107,11 @@ export default function CustomerTable() {
                   <div className="flex gap-3">
                     <button
                       onClick={() => navigate(`/customersDetail?id=${customer.id}`)}
-                      className="rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-700 transition-colors"
+                      className="rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-white hover:bg-primary-focus transition-colors"
                     >
                       View Detail
                     </button>
-                    <button className="rounded-md bg-error px-3 py-1.5 text-xs font-medium text-white hover:bg-orange-700 transition-colors">
+                    <button className="rounded-md bg-error px-3 py-1.5 text-xs font-medium text-white hover:bg-warning-focus transition-colors">
                       Edit
                     </button>
                   </div>
@@ -123,7 +123,7 @@ export default function CustomerTable() {
       </div>
 
       {customers.length === 0 && (
-        <div className="py-16 text-center text-gray-500">
+        <div className="py-16 text-center text-base-content/60">
           No customers found in database
         </div>
       )}

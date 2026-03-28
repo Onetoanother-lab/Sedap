@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Eye, Pencil, Trash2, Plus, Search } from "lucide-react";
 
-const API = "https://sedap-nnap.onrender.com/api/products";
+const API = `${import.meta.env.VITE_API_URL || "https://sedap-nnap.onrender.com/api"}/products`;
 
 const Foods = () => {
   const [foods, setFoods] = useState([]);

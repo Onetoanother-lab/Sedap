@@ -1,98 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { Star, Calendar, ChevronLeft, ChevronRight } from "lucide-react";
 
+const API = import.meta.env.VITE_API_URL || "https://sedap-nnap.onrender.com/api";
+
 const ReviewsDashboard = () => {
   const [filterPeriod] = useState("17 April 2020 - 21 May 2020");
   const [loading, setLoading] = useState(true);
-
-  const featuredReviews = [
-    {
-      id: 1,
-      dish: "Chicken Curry Special withCucumber",
-      category: "MAIN COURSE",
-      image:
-        "https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=400&h=400&fit=crop",
-      review:
-        "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-      reviewer: "Roberto Jr.",
-      role: "Graphic Design",
-      avatar: "https://i.pravatar.cc/150?img=12",
-      rating: 4.5,
-    },
-    {
-      id: 2,
-      dish: "Spaghetti Special with Barbeque",
-      category: "MAIN COURSE",
-      image:
-        "https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?w=400&h=400&fit=crop",
-      review:
-        "Fast, professional and friendly service, every dish was spectacular!",
-      reviewer: "Lord Ned Stark",
-      role: "UX Designer",
-      avatar: "https://i.pravatar.cc/150?img=33",
-      rating: 4.5,
-    },
-    {
-      id: 3,
-      dish: "Pizza Mozarella with Spicy Cream",
-      category: "MAIN COURSE",
-      image:
-        "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=400&h=400&fit=crop",
-      review:
-        "Fast, professional and friendly service, every dish was spectacular!",
-      reviewer: "Fredy Mercury",
-      role: "Sr. Programmer",
-      avatar: "https://i.pravatar.cc/150?img=15",
-      rating: 4.5,
-    },
-  ];
-
-  const otherReviews = [
-    {
-      id: 1,
-      name: "James Kowalski",
-      role: "Head Marketing",
-      date: "24 June 2020",
-      avatar: "https://i.pravatar.cc/150?img=60",
-      tags: ["Good Services", "Good Places", "Excellent"],
-      rating: 3.5,
-      review:
-        "We recently had dinner with friends and walked away with a great experience.",
-    },
-    {
-      id: 2,
-      name: "Jonathan Fringerman",
-      role: "UX Designer",
-      date: "24 June 2020",
-      avatar: "https://i.pravatar.cc/150?img=13",
-      tags: ["Good Services", "Excellent"],
-      rating: 3.5,
-      review:
-        "We recently had dinner with friends and walked away with a great experience.",
-    },
-    {
-      id: 3,
-      name: "Trianto Lauw",
-      role: "Graphic Designer",
-      date: "24 June 2020",
-      avatar: "https://i.pravatar.cc/150?img=68",
-      tags: ["Delicious", "Good Services"],
-      rating: 3.5,
-      review:
-        "We recently had dinner with friends and walked away with a great experience.",
-    },
-    {
-      id: 4,
-      name: "Verelyn Chong",
-      role: "Quality Assurance",
-      date: "24 June 2020",
-      avatar: "https://i.pravatar.cc/150?img=47",
-      tags: ["Good Services"],
-      rating: 3.5,
-      review:
-        "We recently had dinner with friends and walked away with a great experience.",
-    },
-  ];
+  const [featuredReviews, setFeaturedReviews] = useState([]);
+  const [otherReviews, setOtherReviews] = useState([]);
 
   const StarRating = ({ rating }) => (
     <div className="flex gap-1">
@@ -120,10 +35,52 @@ const ReviewsDashboard = () => {
   };
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 1000);
-    return () => clearTimeout(timer);
+    let cancelled = false;
+    setLoading(true);
+    fetch(`${API}/reviews`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (cancelled) return;
+        const all = Array.isArray(data) ? data : [];
+        const featured = all
+          .filter((r) => r.isFeatured)
+          .map((r) => ({
+            id: r.id,
+            dish: r.productName,
+            category: r.productCategory,
+            image: r.productImage,
+            review: r.review,
+            reviewer: r.reviewer,
+            role: r.reviewerRole,
+            avatar: r.reviewerAvatar,
+            rating: r.rating,
+          }));
+        const others = all
+          .filter((r) => !r.isFeatured)
+          .map((r) => ({
+            id: r.id,
+            name: r.reviewer,
+            role: r.reviewerRole,
+            avatar: r.reviewerAvatar,
+            tags: Array.isArray(r.tags) ? r.tags : [],
+            rating: r.rating,
+            review: r.review,
+          }));
+        setFeaturedReviews(featured);
+        setOtherReviews(others);
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setFeaturedReviews([]);
+          setOtherReviews([]);
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   return (

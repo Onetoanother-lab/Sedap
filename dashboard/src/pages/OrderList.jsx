@@ -12,40 +12,32 @@ export default function OrderList() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const API = import.meta.env.VITE_API_URL || "https://sedap-nnap.onrender.com/api";
     const fetchOrders = async () => {
       try {
         setLoading(true);
 
-        const response = await fetch(
-          "https://jsonplaceholder.typicode.com/users"
-        );
-        const users = await response.json();
+        const response = await fetch(`${API}/orderlist`);
+        const data = await response.json();
 
-        const transformedOrders = users.map((user, index) => {
-          const date = new Date();
-          date.setDate(date.getDate() - index);
+        const transformed = (Array.isArray(data) ? data : []).map((order) => ({
+          id: `#${order.id || order._id}`,
+          date: order.createdAt
+            ? new Date(order.createdAt).toLocaleDateString("en-GB", {
+                day: "numeric",
+                month: "long",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+              })
+            : "—",
+          customer: order.customerName || "—",
+          location: order.address || "—",
+          amount: `${(order.total || 0).toLocaleString()} UZS`,
+          status: order.status || "New Order",
+        }));
 
-          const statuses = ["New Order", "On Delivery", "Delivered"];
-          const randomStatus =
-            statuses[Math.floor(Math.random() * statuses.length)];
-
-          return {
-            id: `#${5859 + index}`,
-            date: date.toLocaleDateString("en-GB", {
-              day: "numeric",
-              month: "long",
-              year: "numeric",
-              hour: "2-digit",
-              minute: "2-digit",
-            }),
-            customer: user.name,
-            location: `${user.address.street}, ${user.address.city}`,
-            amount: `${(Math.random() * 500 + 100).toFixed(2)} UZS`,
-            status: randomStatus,
-          };
-        });
-
-        setOrders(transformedOrders);
+        setOrders(transformed);
       } catch (e) {
         console.error(e);
       } finally {

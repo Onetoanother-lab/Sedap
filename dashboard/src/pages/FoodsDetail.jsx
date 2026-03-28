@@ -12,6 +12,8 @@ import {
 } from "recharts";
   import { ToastContainer, toast } from 'react-toastify';
 
+const API = import.meta.env.VITE_API_URL || "https://sedap-nnap.onrender.com/api";
+
 const FoodsDetail = () => {
   const { id } = useParams();
   const [product, setProduct] = useState(null);
@@ -36,8 +38,8 @@ const FoodsDetail = () => {
 
   const fetchData = async () => {
     try {
-      const productRes = await fetch(`https://sedap-nnap.onrender.com/api/products/${id}`);
-      const ordersRes = await fetch("https://sedap-nnap.onrender.com/api/orderlist");
+      const productRes = await fetch(`${API}/products/${id}`);
+      const ordersRes = await fetch(`${API}/orderlist`);
 
       if (!productRes.ok || !ordersRes.ok) throw new Error("API xatosi");
 
@@ -132,14 +134,14 @@ const FoodsDetail = () => {
     try {
       let response;
       if (modalMode === "add") {
-        response = await fetch("https://sedap-nnap.onrender.com/api/products", {
+        response = await fetch(`${API}/products`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(submitData),
         });
         if (response.ok) toast.success("Menu muvaffaqiyatli qo'shildi!");
       } else {
-        response = await fetch(`https://sedap-nnap.onrender.com/api/products/${product.id}`, {
+        response = await fetch(`${API}/products/${product.id}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ ...product, ...submitData }),
@@ -290,15 +292,15 @@ const FoodsDetail = () => {
           <div className="border-t border-base-300 pt-6">
             <h4 className="font-semibold text-lg mb-3">Tarkibi</h4>
             <p className="text-base-content/70 mb-6">
-              Tuxum, pomidor, qalampir, piyoz, yangi o'tlar, tuz, qalampir
+              {product.ingredients || "—"}
             </p>
             <h4 className="font-semibold text-lg mb-3">Oziqlanish qiymati (taxminiy)</h4>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
               {[
-                { label: "Kaloriya", value: "320 kcal" },
-                { label: "Oqsil", value: "18g" },
-                { label: "Yog'", value: "22g" },
-                { label: "Uglevod", value: "12g" },
+                { label: "Kaloriya", value: product.nutrition?.kcal    ? `${product.nutrition.kcal} kcal` : "—" },
+                { label: "Oqsil",    value: product.nutrition?.protein ? `${product.nutrition.protein}g`  : "—" },
+                { label: "Yog'",     value: product.nutrition?.fat     ? `${product.nutrition.fat}g`      : "—" },
+                { label: "Uglevod",  value: product.nutrition?.carbs   ? `${product.nutrition.carbs}g`    : "—" },
               ].map((item) => (
                 <div key={item.label} className="bg-base-200 p-3 rounded-lg text-center">
                   <p className="text-sm text-base-content/60">{item.label}</p>

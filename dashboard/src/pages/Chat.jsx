@@ -1,15 +1,15 @@
 import { useState, useEffect, useRef } from "react";
 
 const USERS = [
-  { id: "diyor",        name: "Diyor",        color: "#570df8" },
-  { id: "kamron",       name: "Kamron",       color: "#f9a800" },
-  { id: "sharof",       name: "Sharof",       color: "#00b5d8" },
-  { id: "muhammadamin", name: "Muhammadamin", color: "#ff5861" },
-  { id: "ismoil",       name: "Ismoil",       color: "#793ef9" },
-  { id: "ibrohim",      name: "Ibrohim",      color: "#37cdbe" },
-  { id: "sarvar",       name: "Sarvar",       color: "#36d399" },
-  { id: "miraziz",      name: "Miraziz",      color: "#f471b5" },
-  { id: "soliha",       name: "Soliha",       color: "#1fb2a5" },
+  { id: "diyor",        name: "Diyor",        color: "oklch(var(--p))"  },
+  { id: "kamron",       name: "Kamron",        color: "oklch(var(--wa))" },
+  { id: "sharof",       name: "Sharof",        color: "oklch(var(--in))" },
+  { id: "muhammadamin", name: "Muhammadamin",  color: "oklch(var(--er))" },
+  { id: "ismoil",       name: "Ismoil",        color: "oklch(var(--s))"  },
+  { id: "ibrohim",      name: "Ibrohim",       color: "oklch(var(--su))" },
+  { id: "sarvar",       name: "Sarvar",        color: "oklch(var(--a))"  },
+  { id: "miraziz",      name: "Miraziz",       color: "oklch(var(--pc))" },
+  { id: "soliha",       name: "Soliha",        color: "oklch(var(--sc))" },
 ];
 
 const MSGS_KEY   = "gchat_msgs_v5";
@@ -39,7 +39,7 @@ function Avatar({ user, size = 34 }) {
   return (
     <div style={{
       width: size, height: size, borderRadius: "50%",
-      background: user.color + "22", border: `1.5px solid ${user.color}55`,
+      background: user.color.replace(')', ' / 0.13)'), border: `1.5px solid ${user.color.replace(')', ' / 0.33)')}`,
       display: "flex", alignItems: "center", justifyContent: "center",
       color: user.color, fontWeight: 700, fontSize: size * 0.33, flexShrink: 0,
       fontFamily: "'DM Sans', sans-serif",
@@ -63,16 +63,16 @@ function Input({ label, type = "text", value, onChange, onKeyDown, placeholder, 
           borderRadius: 10, fontSize: 14, fontFamily: "'DM Sans', sans-serif",
           background: "var(--color-background-secondary)",
           color: "var(--color-text-primary)", outline: "none",
-          border: error ? "1.5px solid #ff5861" : "0.5px solid var(--color-border-secondary)",
+          border: error ? `1.5px solid oklch(var(--er))` : "0.5px solid var(--color-border-secondary)",
           transition: "border 0.15s",
         }}
       />
-      {error && <div style={{ color: "#ff5861", fontSize: 12, marginTop: 5 }}>! {error}</div>}
+      {error && <div style={{ color: "oklch(var(--er))", fontSize: 12, marginTop: 5 }}>! {error}</div>}
     </div>
   );
 }
 
-function Btn({ children, onClick, color = "#570df8", disabled, variant = "solid", style = {} }) {
+function Btn({ children, onClick, color = "oklch(var(--p))", disabled, variant = "solid", style = {} }) {
   const base = {
     padding: "11px 0", borderRadius: 10, fontSize: 14, fontWeight: 600,
     fontFamily: "'DM Sans', sans-serif", cursor: disabled ? "not-allowed" : "pointer",
@@ -92,7 +92,7 @@ function SideItem({ active, color, label, icon, badge, onClick }) {
     <button onClick={onClick} style={{
       display: "flex", alignItems: "center", gap: 9, width: "100%", padding: "7px 8px",
       borderRadius: 8, border: "none", cursor: "pointer",
-      background: active ? color + "15" : "transparent",
+      background: active ? color.replace(')', ' / 0.08)') : "transparent",
       borderLeft: active ? `2px solid ${color}` : "2px solid transparent",
       color: active ? "var(--color-text-primary)" : "var(--color-text-secondary)",
       fontFamily: "'DM Sans', sans-serif", fontWeight: active ? 600 : 400,
@@ -100,7 +100,7 @@ function SideItem({ active, color, label, icon, badge, onClick }) {
     }}>
       <div style={{
         width: 26, height: 26, borderRadius: "50%",
-        background: color + "20", border: `1px solid ${color}40`,
+        background: color.replace(')', ' / 0.12)'), border: `1px solid ${color.replace(')', ' / 0.25)')}`,
         display: "flex", alignItems: "center", justifyContent: "center",
         color, fontWeight: 700, fontSize: 10, flexShrink: 0,
       }}>{icon}</div>
@@ -128,7 +128,7 @@ function AuthCard({ children }) {
         {/* Left brand panel */}
         <div style={{
           width: 260, flexShrink: 0, padding: "40px 28px",
-          background: "#570df8",
+          background: "oklch(var(--p))",
           display: "flex", flexDirection: "column", justifyContent: "space-between",
         }}>
           <div>
@@ -300,12 +300,12 @@ export default function App() {
                 display: "flex", flexDirection: "column", alignItems: "center", gap: 5,
                 padding: "10px 6px", borderRadius: 12,
                 border: selUser === u.id ? `2px solid ${u.color}` : "0.5px solid var(--color-border-tertiary)",
-                background: selUser === u.id ? u.color + "12" : "var(--color-background-secondary)",
+                background: selUser === u.id ? u.color.replace(')', ' / 0.07)') : "var(--color-background-secondary)",
                 cursor: "pointer", fontFamily: "'DM Sans', sans-serif", transition: "all 0.12s",
               }}>
                 <div style={{
                   width: 34, height: 34, borderRadius: "50%",
-                  background: u.color + "22", border: `1.5px solid ${u.color}55`,
+                  background: u.color.replace(')', ' / 0.13)'), border: `1.5px solid ${u.color.replace(')', ' / 0.33)')}`,
                   display: "flex", alignItems: "center", justifyContent: "center",
                   color: u.color, fontWeight: 700, fontSize: 11,
                 }}>{initials(u.name)}</div>
@@ -325,7 +325,7 @@ export default function App() {
           error={loginError}
         />
 
-        <Btn onClick={handleLogin} color={selUser ? USERS.find(u => u.id === selUser)?.color || "#570df8" : "#570df8"}>
+        <Btn onClick={handleLogin} color={selUser ? USERS.find(u => u.id === selUser)?.color || "oklch(var(--p))" : "oklch(var(--p))"} >
           Kirish
         </Btn>
 
@@ -366,7 +366,7 @@ export default function App() {
         <Input label="Yangi parol" type="password" value={newPass} onChange={e => { setNewPass(e.target.value); setCpError(""); setCpSuccess(""); }} placeholder="Yangi parol (kamida 3 belgi)" />
         <Input label="Yangi parolni tasdiqlang" type="password" value={newPass2} onChange={e => { setNewPass2(e.target.value); setCpError(""); setCpSuccess(""); }} onKeyDown={e => e.key === "Enter" && handleChangePassword()} placeholder="Qayta kiriting" error={cpError} />
 
-        {cpSuccess && <div style={{ color: "#36d399", fontSize: 13, fontWeight: 600, marginBottom: 14, padding: "10px 14px", background: "#36d39912", borderRadius: 10, border: "0.5px solid #36d39944" }}>{cpSuccess}</div>}
+        {cpSuccess && <div style={{ color: "oklch(var(--su))", fontSize: 13, fontWeight: 600, marginBottom: 14, padding: "10px 14px", background: "oklch(var(--su) / 0.07)", borderRadius: 10, border: "0.5px solid oklch(var(--su) / 0.27)" }}>{cpSuccess}</div>}
 
         <Btn onClick={handleChangePassword} color={me.color}>Saqlash</Btn>
         <div style={{ marginTop: 10 }}>
@@ -399,7 +399,7 @@ export default function App() {
             <Avatar user={me} size={34} />
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontWeight: 600, fontSize: 13, color: "var(--color-text-primary)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{me.name}</div>
-              <div style={{ fontSize: 11, color: "#36d399" }}>online</div>
+              <div style={{ fontSize: 11, color: "oklch(var(--su))" }}>online</div>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
               <button onClick={() => setScreen("changePassword")} style={{
@@ -412,8 +412,8 @@ export default function App() {
               }}>Parol</button>
               <button onClick={handleLogout} style={{
                 background: "transparent",
-                border: "0.5px solid #ff586133",
-                borderRadius: 7, color: "#ff5861",
+                border: "0.5px solid oklch(var(--er) / 0.20)",
+                borderRadius: 7, color: "oklch(var(--er))",
                 cursor: "pointer", fontSize: 11, fontWeight: 600,
                 padding: "4px 8px", fontFamily: "'DM Sans', sans-serif",
                 whiteSpace: "nowrap",
@@ -423,7 +423,7 @@ export default function App() {
 
           <div style={{ padding: "10px 10px 4px" }}>
             <div style={{ fontSize: 10, fontWeight: 600, color: "var(--color-text-tertiary)", letterSpacing: 1.2, textTransform: "uppercase", marginBottom: 4, padding: "0 4px" }}>Guruh</div>
-            <SideItem active={activeTab === "all"} color="#570df8" label="Umumiy chat" icon="G" onClick={() => { setActiveTab("all"); setToUser("all"); }} />
+            <SideItem active={activeTab === "all"} color="oklch(var(--p))" label="Umumiy chat" icon="G" onClick={() => { setActiveTab("all"); setToUser("all"); }} />
           </div>
 
           <div style={{ padding: "10px 10px 4px", flex: 1, overflowY: "auto" }}>
@@ -441,7 +441,7 @@ export default function App() {
           <div style={{ height: 54, borderBottom: "0.5px solid var(--color-border-tertiary)", display: "flex", alignItems: "center", padding: "0 18px", gap: 12, background: "var(--color-background-secondary)" }}>
             {activeTab === "all" ? (
               <>
-                <div style={{ width: 30, height: 30, borderRadius: "50%", background: "#570df822", border: "1.5px solid #570df844", display: "flex", alignItems: "center", justifyContent: "center", color: "#570df8", fontWeight: 700, fontSize: 11 }}>G</div>
+                <div style={{ width: 30, height: 30, borderRadius: "50%", background: "oklch(var(--p) / 0.13)", border: "1.5px solid oklch(var(--p) / 0.27)", display: "flex", alignItems: "center", justifyContent: "center", color: "oklch(var(--p))", fontWeight: 700, fontSize: 11 }}>G</div>
                 <div>
                   <div style={{ fontWeight: 600, fontSize: 14, color: "var(--color-text-primary)" }}>Umumiy guruh</div>
                   <div style={{ fontSize: 11, color: "var(--color-text-tertiary)" }}>{USERS.length} a'zo</div>
@@ -507,7 +507,7 @@ export default function App() {
                   cursor: "pointer", whiteSpace: "nowrap",
                 }}>
                   {toUser === "all" ? (
-                    <><div style={{ width: 8, height: 8, borderRadius: "50%", background: "#570df8", flexShrink: 0 }} />Hammaga</>
+                    <><div style={{ width: 8, height: 8, borderRadius: "50%", background: "oklch(var(--p))", flexShrink: 0 }} />Hammaga</>
                   ) : (
                     <><div style={{ width: 8, height: 8, borderRadius: "50%", background: USERS.find(u => u.id === toUser)?.color, flexShrink: 0 }} />{USERS.find(u => u.id === toUser)?.name}</>
                   )}
@@ -521,13 +521,13 @@ export default function App() {
                     borderRadius: 10, padding: "4px", minWidth: 160,
                     boxShadow: "0 4px 20px rgba(0,0,0,0.12)", zIndex: 100,
                   }}>
-                    {[{ id: "all", name: "Hammaga", color: "#570df8" }, ...otherUsers].map(u => (
+                    {[{ id: "all", name: "Hammaga", color: "oklch(var(--p))" }, ...otherUsers].map(u => (
                       <button key={u.id} onClick={() => { setToUser(u.id); setDropOpen(false); }} style={{
                         display: "flex", alignItems: "center", gap: 9,
                         width: "100%", padding: "8px 10px", borderRadius: 7,
                         border: "none", cursor: "pointer", fontFamily: "'DM Sans', sans-serif",
                         fontSize: 13, fontWeight: toUser === u.id ? 600 : 400,
-                        background: toUser === u.id ? u.color + "15" : "transparent",
+                        background: toUser === u.id ? u.color.replace(')', ' / 0.08)') : "transparent",
                         color: toUser === u.id ? u.color : "var(--color-text-primary)",
                         textAlign: "left",
                       }}>

@@ -46,6 +46,23 @@ export default function orderListRoutes(OrderList) {
         }
     });
 
+    // PATCH update order status
+    router.patch("/orderlist/:id/status", async (req, res) => {
+        try {
+            const { status } = req.body;
+            if (!status) return res.status(400).json({ error: "Missing required field: status" });
+            const order = await OrderList.findOne({ id: req.params.id });
+            if (!order) return res.status(404).json({ error: "Order not found" });
+            order.status = status;
+            order.statusHistory.push({ status, changedAt: new Date() });
+            await order.save();
+            return res.status(200).json(order);
+        } catch (e) {
+            console.error(e);
+            return res.status(500).json({ error: "Internal Server Error" });
+        }
+    });
+
     // DELETE order by id
     router.delete("/orderlist/:id", async (req, res) => {
         try {
