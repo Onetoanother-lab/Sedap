@@ -60,8 +60,7 @@ export default function userRoutes(User) {
 
             const user = new User({ name, email: email || null, password: hashedPassword, avatar, uid });
             await user.save();  // pre-save hook sets user.id = _id.toString()
- user.id = user._id.toString();
-        await user.save();
+
             return res.status(201).json(safeUser(user));
         } catch (e) {
             if (e.code === 11000) {
