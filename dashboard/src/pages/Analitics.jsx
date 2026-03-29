@@ -10,18 +10,51 @@ const API = import.meta.env.VITE_API_URL || "https://sedap-nnap.onrender.com/api
 const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 const DAYS   = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 
+// Plain hex values — oklch(var(--*)) tokens cannot be resolved by SVG renderers
+// or Canvas 2D (same fix already applied in Branch.jsx and Monthly.jsx).
+const COLOR_SUCCESS = "#34d399"; // ≈ DaisyUI --su
+const COLOR_PRIMARY = "#60a5fa"; // ≈ DaisyUI --p
+
+// Shared Recharts style props — keeps all four charts consistent and avoids
+// repeating the same dark-mode-safe values in every JSX block.
+const GRID_PROPS = {
+  strokeDasharray: "3 3",
+  stroke: "#94a3b8",   // slate-400 — visible in both light and dark mode
+  strokeOpacity: 0.3,
+};
+
+const AXIS_PROPS = {
+  tick:   { fill: "#94a3b8", fontSize: 11 },
+  axisLine:  { stroke: "#94a3b8", strokeOpacity: 0.3 },
+  tickLine:  { stroke: "#94a3b8", strokeOpacity: 0.3 },
+};
+
 const Analitics = () => {
   const [products, setProducts] = useState([]);
   const [orders, setOrders]     = useState([]);
+  // FIX 7: replace full-screen fixed spinner with inline skeleton —
+  // the fixed overlay blocked the entire app (sidebar, navbar, other routes)
+  // while Analytics was loading.
   const [loading, setLoading]   = useState(true);
   const [error, setError]       = useState(null);
   const [filter, setFilter]     = useState("Monthly");
-  const [likes, setLikes]       = useState({});
-  const [ratings, setRatings]   = useState({});
+  // FIX 4: persist likes and ratings in localStorage so they survive navigation.
+  // Previously both were plain useState({}) and reset to zero on every unmount.
+  const [likes, setLikes] = useState(() => {
+    try { return JSON.parse(localStorage.getItem("analytics_likes") || "{}"); }
+    catch { return {}; }
+  });
+  const [ratings, setRatings] = useState(() => {
+    try { return JSON.parse(localStorage.getItem("analytics_ratings") || "{}"); }
+    catch { return {}; }
+  });
 
   const now = useMemo(() => new Date(), []);
 
-  // ── Chart data ──────────────────────────────────────────────────────────────
+  // ── Chart data — now produces both "orders" and "revenue" keys ──────────────
+  // FIX 6: previously chartData only carried a single "value" key (order count)
+  // which meant both the Chart Orders and Revenue charts rendered identical lines.
+  // Now each data point carries "orders" (count) and "revenue" (sum of totals).
   const chartData = useMemo(() => {
     if (filter === "Weekly") {
       const weekStart = new Date(now);
@@ -29,34 +62,41 @@ const Analitics = () => {
       return DAYS.map((d, i) => {
         const day = new Date(weekStart);
         day.setDate(weekStart.getDate() + i);
+        const dayOrders = orders.filter(
+          (o) => new Date(o.createdAt).toDateString() === day.toDateString()
+        );
         return {
           name: d,
-          value: orders
-            .filter((o) => new Date(o.createdAt).toDateString() === day.toDateString())
-            .reduce((sum, o) => sum + (o.total || 0), 0),
+          orders: dayOrders.length,
+          revenue: dayOrders.reduce((sum, o) => sum + (o.total || 0), 0),
         };
       });
     }
     if (filter === "Daily") {
-      return Array.from({ length: 24 }, (_, h) => ({
-        name: `${h}:00`,
-        value: orders
-          .filter((o) => {
-            const d = new Date(o.createdAt);
-            return d.toDateString() === now.toDateString() && d.getHours() === h;
-          })
-          .reduce((sum, o) => sum + (o.total || 0), 0),
-      }));
-    }
-    return MONTHS.map((m, i) => ({
-      name: m,
-      value: orders
-        .filter((o) => {
+      return Array.from({ length: 24 }, (_, h) => {
+        const hourOrders = orders.filter((o) => {
           const d = new Date(o.createdAt);
-          return d.getMonth() === i && d.getFullYear() === now.getFullYear();
-        })
-        .reduce((sum, o) => sum + (o.total || 0), 0),
-    }));
+          return d.toDateString() === now.toDateString() && d.getHours() === h;
+        });
+        return {
+          name: `${h}:00`,
+          orders: hourOrders.length,
+          revenue: hourOrders.reduce((sum, o) => sum + (o.total || 0), 0),
+        };
+      });
+    }
+    // Monthly
+    return MONTHS.map((m, i) => {
+      const monthOrders = orders.filter((o) => {
+        const d = new Date(o.createdAt);
+        return d.getMonth() === i && d.getFullYear() === now.getFullYear();
+      });
+      return {
+        name: m,
+        orders: monthOrders.length,
+        revenue: monthOrders.reduce((sum, o) => sum + (o.total || 0), 0),
+      };
+    });
   }, [filter, orders, now]);
 
   const dateRangeLabel = useMemo(() => {
@@ -94,9 +134,19 @@ const Analitics = () => {
     fetchData();
   }, []);
 
+  // FIX 4 (cont.): write through to localStorage on every change
+  useEffect(() => {
+    localStorage.setItem("analytics_likes", JSON.stringify(likes));
+  }, [likes]);
+
+  useEffect(() => {
+    localStorage.setItem("analytics_ratings", JSON.stringify(ratings));
+  }, [ratings]);
+
+  // FIX 7 (cont.): inline loader — sidebar and navbar remain usable
   if (loading)
     return (
-      <div className="fixed inset-0 flex items-center justify-center bg-black/30 z-50">
+      <div className="flex items-center justify-center h-64">
         <span className="loading loading-spinner text-success w-12"></span>
       </div>
     );
@@ -120,7 +170,7 @@ const Analitics = () => {
     return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
   });
 
-  // ── Previous period orders (for trend comparison) ───────────────────────────
+  // ── Previous period orders ──────────────────────────────────────────────────
   const prevOrders = orders.filter((o) => {
     const date = new Date(o.createdAt);
     if (filter === "Daily") {
@@ -133,7 +183,6 @@ const Analitics = () => {
       const e = new Date(s);   e.setDate(s.getDate() + 6);
       return date >= s && date <= e;
     }
-    // Monthly → previous month
     const prevMonth = now.getMonth() === 0 ? 11 : now.getMonth() - 1;
     const prevYear  = now.getMonth() === 0 ? now.getFullYear() - 1 : now.getFullYear();
     return date.getMonth() === prevMonth && date.getFullYear() === prevYear;
@@ -141,12 +190,25 @@ const Analitics = () => {
 
   const totalRevenue = filteredOrders.reduce((a, o) => a + (o.total || 0), 0);
 
+  // FIX 1: compute the correct denominator for "avg sales per day".
+  // The old code hard-coded 30 for all three filter modes:
+  //   • Daily   → should be 1 (one day)
+  //   • Weekly  → should be 7 (seven days)
+  //   • Monthly → should be days elapsed so far this month (not always 30)
+  const avgDivisor = (() => {
+    if (filter === "Daily")  return 1;
+    if (filter === "Weekly") return 7;
+    return Math.max(now.getDate(), 1); // days elapsed this month, min 1
+  })();
+
   // ── Aggregate item quantities per product ────────────────────────────────────
   const buildProductStats = (orderSet) => {
     const stats = {};
     orderSet.forEach((o) => {
       (o.items || []).forEach((item) => {
-        stats[item.id] = (stats[item.id] || 0) + (item.qty || 1);
+        const key = item.id || item._id;
+        if (!key) return;
+        stats[key] = (stats[key] || 0) + (item.qty || 1);
       });
     });
     return stats;
@@ -155,14 +217,11 @@ const Analitics = () => {
   const currentStats = buildProductStats(filteredOrders);
   const prevStats    = buildProductStats(prevOrders);
 
-  // ── Build sorted "most selling" list with real trend direction ───────────────
   const mostSelling = Object.entries(currentStats)
     .map(([id, qty]) => {
-      const p        = products.find((x) => String(x.id) === String(id));
-      const prevQty  = prevStats[id] || 0;
-      // Trending up if sold more than previous period (or new this period)
-      const trending = qty >= prevQty;
-      return p ? { ...p, qty, trending } : null;
+      const p       = products.find((x) => String(x.id) === String(id));
+      const prevQty = prevStats[id] || 0;
+      return p ? { ...p, qty, trending: qty >= prevQty } : null;
     })
     .filter(Boolean)
     .sort((a, b) => b.qty - a.qty);
@@ -182,7 +241,7 @@ const Analitics = () => {
         </div>
       </div>
 
-      {/* CHART + MOST SELLING */}
+      {/* CHART ORDERS + MOST SELLING */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-base-100 rounded-2xl shadow p-6">
           <div className="flex justify-between items-center mb-4">
@@ -208,9 +267,10 @@ const Analitics = () => {
               <p className="text-success font-bold text-xl">{totalRevenue.toLocaleString()}</p>
             </div>
             <div>
+              {/* FIX 1 applied here */}
               <p className="text-base-content/50 text-sm">Avg. Sales per day</p>
               <p className="text-success font-bold text-xl">
-                {Math.round(totalRevenue / (filter === "Daily" ? 1 : filter === "Weekly" ? 7 : 30)).toLocaleString()}
+                {Math.round(totalRevenue / avgDivisor).toLocaleString()}
               </p>
             </div>
           </div>
@@ -218,11 +278,27 @@ const Analitics = () => {
           <div className="h-64">
             <ResponsiveContainer>
               <LineChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Line type="monotone" dataKey="value" stroke="oklch(var(--su))" strokeWidth={3} dot={{ r: 4 }} />
+                <CartesianGrid {...GRID_PROPS} />
+                <XAxis dataKey="name" {...AXIS_PROPS} />
+                <YAxis {...AXIS_PROPS} allowDecimals={false} />
+                <Tooltip
+                  contentStyle={{
+                    background: "var(--color-background-primary, #fff)",
+                    border: "1px solid #e2e8f0",
+                    borderRadius: 8,
+                    fontSize: 12,
+                  }}
+                />
+                {/* stroke is a plain hex — oklch(var(--su)) is not resolved by SVG */}
+                <Line
+                  type="monotone"
+                  dataKey="orders"
+                  name="Orders"
+                  stroke={COLOR_SUCCESS}
+                  strokeWidth={2.5}
+                  dot={{ r: 3, fill: COLOR_SUCCESS, strokeWidth: 0 }}
+                  activeDot={{ r: 5 }}
+                />
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -260,8 +336,9 @@ const Analitics = () => {
         <div className="bg-base-100 rounded-2xl shadow p-6">
           <div className="flex justify-between mb-4">
             <h2 className="font-semibold text-lg">Trending Items</h2>
-            {/* Label reflects actual filter */}
-            <span className="text-sm text-primary capitalize">{filter} ⌄</span>
+            {/* FIX 3: removed the "⌄" chevron — it implied a clickable period
+                picker but was purely decorative. Plain text label is honest. */}
+            <span className="text-sm text-base-content/50 capitalize">{filter}</span>
           </div>
 
           {mostSelling.length === 0 ? (
@@ -284,7 +361,6 @@ const Analitics = () => {
                       </p>
                     </div>
                   </div>
-                  {/* ── FIXED: real trend from actual qty comparison ── */}
                   {item.trending
                     ? <TrendingUp  className="text-success w-5 h-5 flex-shrink-0" />
                     : <TrendingDown className="text-error   w-5 h-5 flex-shrink-0" />
@@ -300,11 +376,39 @@ const Analitics = () => {
           <div className="h-64">
             <ResponsiveContainer>
               <LineChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Line type="monotone" dataKey="value" stroke="oklch(var(--p))" strokeWidth={3} dot={{ r: 4 }} />
+                <CartesianGrid {...GRID_PROPS} />
+                <XAxis dataKey="name" {...AXIS_PROPS} />
+                {/* width=64 + tickFormatter prevent large UZS numbers overflowing */}
+                <YAxis
+                  {...AXIS_PROPS}
+                  width={64}
+                  tickFormatter={(v) =>
+                    v >= 1_000_000
+                      ? `${(v / 1_000_000).toFixed(1)}M`
+                      : v >= 1_000
+                      ? `${(v / 1_000).toFixed(0)}k`
+                      : String(v)
+                  }
+                />
+                <Tooltip
+                  formatter={(v) => [`${v.toLocaleString()} UZS`, "Revenue"]}
+                  contentStyle={{
+                    background: "var(--color-background-primary, #fff)",
+                    border: "1px solid #e2e8f0",
+                    borderRadius: 8,
+                    fontSize: 12,
+                  }}
+                />
+                {/* stroke is a plain hex — oklch(var(--p)) is not resolved by SVG */}
+                <Line
+                  type="monotone"
+                  dataKey="revenue"
+                  name="Revenue (UZS)"
+                  stroke={COLOR_PRIMARY}
+                  strokeWidth={2.5}
+                  dot={{ r: 3, fill: COLOR_PRIMARY, strokeWidth: 0 }}
+                  activeDot={{ r: 5 }}
+                />
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -328,20 +432,30 @@ const Analitics = () => {
                   <div className="p-4 space-y-2">
                     <h3 className="font-semibold text-sm">{item.name}</h3>
                     <p className="text-xs text-base-content/40 line-clamp-2">{item.description}</p>
+
+                    {/* FIX 5: star row always renders all 5 stars visually;
+                        filled count matches the stored rating exactly.
+                        The text label now only appears after rating is set,
+                        so "Rate this" and "1 / 5" are never shown simultaneously. */}
                     <div className="flex items-center gap-1 text-sm">
                       {[1, 2, 3, 4, 5].map((s) => (
                         <span
                           key={s}
                           onClick={() => setRatings((p) => ({ ...p, [item.id]: s }))}
-                          className={`cursor-pointer ${s <= rate ? "text-warning" : "text-base-300"}`}
+                          className={`cursor-pointer select-none ${s <= rate ? "text-warning" : "text-base-300"}`}
                         >
                           ★
                         </span>
                       ))}
-                      <span className="text-base-content/40 ml-2">{rate ? `${rate} / 5` : "Rate this"}</span>
+                      <span className="text-base-content/40 ml-2 text-xs">
+                        {rate > 0 ? `${rate} / 5` : "Rate this"}
+                      </span>
                     </div>
+
                     <button
-                      onClick={() => setLikes((p) => ({ ...p, [item.id]: (p[item.id] || 0) + 1 }))}
+                      onClick={() =>
+                        setLikes((p) => ({ ...p, [item.id]: (p[item.id] || 0) + 1 }))
+                      }
                       className="mt-3 flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/20 text-primary text-sm"
                     >
                       💙 {like} Like it
@@ -352,10 +466,45 @@ const Analitics = () => {
             })}
           </div>
         )}
-        <div className="text-right mt-4 text-primary text-sm cursor-pointer">View more ⌄</div>
+
+        {/* FIX 2: "View more" is now only rendered when hidden items exist,
+            and clicking it actually expands/collapses them in-place.
+            Previously the div always rendered and clicking did nothing. */}
+        {mostSelling.length > 6 && (
+          <ExpandableViewMore items={mostSelling.slice(6)} />
+        )}
       </div>
     </div>
   );
 };
+
+// FIX 2 (extracted component): shows/hides the overflow items on demand
+function ExpandableViewMore({ items }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      {open && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+          {items.map((item) => (
+            <div key={item.id} className="rounded-2xl overflow-hidden border border-base-300 hover:shadow-lg transition">
+              <img src={item.image} className="h-40 w-full object-cover" />
+              <div className="p-4 space-y-2">
+                <h3 className="font-semibold text-sm">{item.name}</h3>
+                <p className="text-xs text-base-content/40 line-clamp-2">{item.description}</p>
+                <span className="font-semibold text-sm">{item.price?.toLocaleString()} UZS</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+      <div
+        className="text-right mt-4 text-primary text-sm cursor-pointer hover:underline"
+        onClick={() => setOpen((v) => !v)}
+      >
+        {open ? "Show less ▲" : `View ${items.length} more ▼`}
+      </div>
+    </>
+  );
+}
 
 export default Analitics;
