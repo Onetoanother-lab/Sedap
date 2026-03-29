@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
+const API = import.meta.env.VITE_API_URL || 'https://sedap-nnap.onrender.com/api';
+
 // ─── Theme Cycle Hook ─────────────────────────────────────────────────────────
 const THEMES = ['light', 'dark', 'system'];
 
@@ -12,7 +14,6 @@ function useThemeCycle() {
 
   useEffect(() => {
     localStorage.setItem('theme', theme);
-
     const apply = (resolved) =>
       document.documentElement.setAttribute('data-theme', resolved);
 
@@ -23,7 +24,6 @@ function useThemeCycle() {
 
     const mq = window.matchMedia('(prefers-color-scheme: dark)');
     apply(mq.matches ? 'dark' : 'light');
-
     const handler = (e) => apply(e.matches ? 'dark' : 'light');
     mq.addEventListener('change', handler);
     return () => mq.removeEventListener('change', handler);
@@ -53,13 +53,8 @@ const THEME_CONFIG = {
       color: 'oklch(var(--p))',
       borderRadius: '14px',
       padding: '8px 16px',
-      display: 'flex',
-      alignItems: 'center',
-      gap: '8px',
-      fontSize: '14px',
-      fontWeight: 500,
-      cursor: 'pointer',
-      transition: 'opacity 0.2s',
+      display: 'flex', alignItems: 'center', gap: '8px',
+      fontSize: '14px', fontWeight: 500, cursor: 'pointer', transition: 'opacity 0.2s',
     },
   },
   dark: {
@@ -75,13 +70,8 @@ const THEME_CONFIG = {
       color: 'oklch(var(--p))',
       borderRadius: '14px',
       padding: '8px 16px',
-      display: 'flex',
-      alignItems: 'center',
-      gap: '8px',
-      fontSize: '14px',
-      fontWeight: 500,
-      cursor: 'pointer',
-      transition: 'opacity 0.2s',
+      display: 'flex', alignItems: 'center', gap: '8px',
+      fontSize: '14px', fontWeight: 500, cursor: 'pointer', transition: 'opacity 0.2s',
     },
   },
   system: {
@@ -98,13 +88,8 @@ const THEME_CONFIG = {
       color: 'oklch(var(--p))',
       borderRadius: '14px',
       padding: '8px 16px',
-      display: 'flex',
-      alignItems: 'center',
-      gap: '8px',
-      fontSize: '14px',
-      fontWeight: 500,
-      cursor: 'pointer',
-      transition: 'opacity 0.2s',
+      display: 'flex', alignItems: 'center', gap: '8px',
+      fontSize: '14px', fontWeight: 500, cursor: 'pointer', transition: 'opacity 0.2s',
     },
   },
 };
@@ -112,7 +97,6 @@ const THEME_CONFIG = {
 function ThemeButton() {
   const { theme, cycleTheme } = useThemeCycle();
   const config = THEME_CONFIG[theme];
-
   return (
     <button
       onClick={cycleTheme}
@@ -127,11 +111,63 @@ function ThemeButton() {
   );
 }
 
+// ─── useBadgeCounts: fetches real counts from existing API endpoints ──────────
+function useBadgeCounts() {
+  const [counts, setCounts] = useState({
+    newOrders: 0,      // bell    — orders with status "new"
+    reviews: 0,        // message — total reviews
+    delivered: 0,      // gift    — delivered orders
+    pendingTx: 0,      // settings — pending transactions
+  });
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const fetchAll = async () => {
+      try {
+        const [ordersRes, reviewsRes, txRes] = await Promise.all([
+          fetch(`${API}/orderlist`),
+          fetch(`${API}/reviews`),
+          fetch(`${API}/transactions`),
+        ]);
+
+        const [orders, reviews, transactions] = await Promise.all([
+          ordersRes.ok ? ordersRes.json() : [],
+          reviewsRes.ok ? reviewsRes.json() : [],
+          txRes.ok ? txRes.json() : [],
+        ]);
+
+        if (cancelled) return;
+
+        const newOrders  = Array.isArray(orders)       ? orders.filter(o => o.status === 'new').length        : 0;
+        const delivered  = Array.isArray(orders)       ? orders.filter(o => o.status === 'delivered').length  : 0;
+        const reviewCount = Array.isArray(reviews)     ? reviews.length                                       : 0;
+        const pendingTx  = Array.isArray(transactions) ? transactions.filter(t => t.status === 'Pending').length : 0;
+
+        setCounts({ newOrders, reviews: reviewCount, delivered, pendingTx });
+      } catch {
+        // silently keep zeros — badges are non-critical
+      }
+    };
+
+    fetchAll();
+    // Refresh every 60 seconds so counts stay reasonably current
+    const interval = setInterval(fetchAll, 60_000);
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
+  }, []);
+
+  return counts;
+}
+
 // ─── Navbar ───────────────────────────────────────────────────────────────────
 const Navbar = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [search, setSearch] = useState('');
+  const counts = useBadgeCounts();
 
   const handleLogout = () => {
     logout();
@@ -141,23 +177,23 @@ const Navbar = () => {
   const handleSearch = (e) => {
     if (e.key === 'Enter' && search.trim()) {
       const q = search.trim().toLowerCase();
-      if (q.includes('order')) navigate('/orders');
-      else if (q.includes('customer')) navigate('/customers');
+      if (q.includes('order'))                         navigate('/orders');
+      else if (q.includes('customer'))                 navigate('/customers');
       else if (q.includes('food') || q.includes('product')) navigate('/foods');
-      else if (q.includes('review')) navigate('/reviews');
+      else if (q.includes('review'))                   navigate('/reviews');
       else if (q.includes('analytic') || q.includes('stat')) navigate('/analytics');
       else if (q.includes('wallet') || q.includes('payment')) navigate('/walet');
       else if (q.includes('calendar') || q.includes('event')) navigate('/calendar');
-      else if (q.includes('chat')) navigate('/chat');
-      else navigate(`/foods`);
+      else if (q.includes('chat'))                     navigate('/chat');
+      else                                             navigate('/foods');
       setSearch('');
     }
   };
 
   return (
-    <div className="flex items-center  justify-between  max-h-[10%] p-4 w-full font-sans">
+    <div className="flex items-center justify-between max-h-[10%] p-4 w-full font-sans">
 
-      {/* 1. Поисковая строка */}
+      {/* Search */}
       <div className="relative flex-grow max-w-2xl">
         <input
           type="search"
@@ -174,39 +210,64 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* 2. Правая часть (Иконки и Профиль) */}
+      {/* Right side */}
       <div className="flex items-center space-x-4 ml-8">
 
-        {/* Блок иконок */}
         <div className="flex space-x-3">
-          {/* Уведомления */}
-          <IconButton count="21" color="text-info" bgColor="bg-info/10" badgeColor="bg-info">
+          {/* Bell — new orders */}
+          <IconButton
+            count={counts.newOrders}
+            color="text-info"
+            bgColor="bg-info/10"
+            badgeColor="bg-info"
+            title={`${counts.newOrders} new order${counts.newOrders !== 1 ? 's' : ''}`}
+            onClick={() => navigate('/orders')}
+          >
             <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" />
           </IconButton>
 
-          {/* Сообщения */}
-          <IconButton count="53" color="text-info" bgColor="bg-info/10" badgeColor="bg-info">
+          {/* Messages — total reviews */}
+          <IconButton
+            count={counts.reviews}
+            color="text-info"
+            bgColor="bg-info/10"
+            badgeColor="bg-info"
+            title={`${counts.reviews} review${counts.reviews !== 1 ? 's' : ''}`}
+            onClick={() => navigate('/reviews')}
+          >
             <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 0 1 .865-.501 48.172 48.172 0 0 0 3.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0 0 12 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018Z" />
           </IconButton>
 
-          {/* Подарки */}
-          <IconButton count="15" color="text-primary" bgColor="bg-primary/10" badgeColor="bg-primary">
+          {/* Gift — delivered orders */}
+          <IconButton
+            count={counts.delivered}
+            color="text-primary"
+            bgColor="bg-primary/10"
+            badgeColor="bg-primary"
+            title={`${counts.delivered} delivered order${counts.delivered !== 1 ? 's' : ''}`}
+            onClick={() => navigate('/orders')}
+          >
             <path strokeLinecap="round" strokeLinejoin="round" d="M21 11.25v8.25a1.5 1.5 0 0 1-1.5 1.5H4.5a1.5 1.5 0 0 1-1.5-1.5v-8.25m18 0a3 3 0 0 0-3-3H12m9 3a3 3 0 0 1-3 3H12m-9-3a3 3 0 0 1 3-3H12m-9 3a3 3 0 0 0 3 3H12M9 3.75h6" />
           </IconButton>
 
-          {/* Настройки */}
-          <IconButton count="19" color="text-error" bgColor="bg-error/10" badgeColor="bg-error">
+          {/* Settings — pending transactions */}
+          <IconButton
+            count={counts.pendingTx}
+            color="text-error"
+            bgColor="bg-error/10"
+            badgeColor="bg-error"
+            title={`${counts.pendingTx} pending transaction${counts.pendingTx !== 1 ? 's' : ''}`}
+            onClick={() => navigate('/walet')}
+          >
             <path strokeLinecap="round" strokeLinejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 0 1 0 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 0 1 0-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281Z" />
           </IconButton>
         </div>
 
-        {/* ↓ ADDED: single cycling theme button */}
         <ThemeButton />
 
-        {/* Вертикальная черта */}
-        <div className="h-10 w-[1.5px] bg-base-300 mx-2"></div>
+        <div className="h-10 w-[1.5px] bg-base-300 mx-2" />
 
-        {/* Профиль */}
+        {/* Profile */}
         <div className="flex items-center space-x-3">
           <div className="text-right">
             <p className="text-base-content/50 text-[13px] leading-tight">Admin</p>
@@ -234,15 +295,21 @@ const Navbar = () => {
   );
 };
 
-// Компонент иконки с индикатором (unchanged)
-const IconButton = ({ children, count, color, bgColor, badgeColor }) => (
-  <div className={`relative p-3 ${bgColor} ${color} rounded-2xl cursor-pointer hover:scale-105 transition-transform`}>
+// ─── IconButton — now accepts onClick + title ─────────────────────────────────
+const IconButton = ({ children, count, color, bgColor, badgeColor, title, onClick }) => (
+  <div
+    onClick={onClick}
+    title={title}
+    className={`relative p-3 ${bgColor} ${color} rounded-2xl cursor-pointer hover:scale-105 transition-transform`}
+  >
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor" className="w-6 h-6">
       {children}
     </svg>
-    <span className={`absolute -top-1.5 -right-1.5 ${badgeColor} text-base-100 text-[10px] font-bold px-1.5 py-0.5 rounded-full border-2 border-base-100 shadow-sm`}>
-      {count}
-    </span>
+    {count > 0 && (
+      <span className={`absolute -top-1.5 -right-1.5 ${badgeColor} text-base-100 text-[10px] font-bold px-1.5 py-0.5 rounded-full border-2 border-base-100 shadow-sm`}>
+        {count > 99 ? '99+' : count}
+      </span>
+    )}
   </div>
 );
 
