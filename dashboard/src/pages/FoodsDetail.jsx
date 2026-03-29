@@ -1,35 +1,25 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  CartesianGrid,
-  Legend,
+  LineChart, Line, XAxis, YAxis, Tooltip,
+  ResponsiveContainer, CartesianGrid, Legend,
 } from "recharts";
-  import { ToastContainer, toast } from 'react-toastify';
+import { ToastContainer, toast } from "react-toastify";
 
 const API = import.meta.env.VITE_API_URL || "https://sedap-nnap.onrender.com/api";
 
 const FoodsDetail = () => {
   const { id } = useParams();
-  const [product, setProduct] = useState(null);
-  const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState("Monthly");
+  const [product, setProduct]     = useState(null);
+  const [orders, setOrders]       = useState([]);
+  const [loading, setLoading]     = useState(true);
+  const [apiError, setApiError]   = useState(null);   // FIXED: surfaces real errors
+  const [filter, setFilter]       = useState("Monthly");
   const [showModal, setShowModal] = useState(false);
   const [modalMode, setModalMode] = useState("add");
 
   const [formData, setFormData] = useState({
-    name: "",
-    description: "",
-    price: "",
-    discount: "",
-    category: "",
-    image: "",
+    name: "", description: "", price: "", discount: "", category: "", image: "",
   });
 
   useEffect(() => {
@@ -37,62 +27,44 @@ const FoodsDetail = () => {
   }, [id]);
 
   const fetchData = async () => {
+    setLoading(true);
+    setApiError(null);
     try {
-      const productRes = await fetch(`${API}/products/${id}`);
-      const ordersRes = await fetch(`${API}/orderlist`);
+      const [productRes, ordersRes] = await Promise.all([
+        fetch(`${API}/products/${id}`),
+        fetch(`${API}/orderlist`),
+      ]);
 
-      if (!productRes.ok || !ordersRes.ok) throw new Error("API xatosi");
+      if (!productRes.ok) throw new Error(`Product not found (${productRes.status})`);
+      if (!ordersRes.ok)  throw new Error(`Could not load orders (${ordersRes.status})`);
 
       const productData = await productRes.json();
-      const ordersData = await ordersRes.json();
+      const ordersData  = await ordersRes.json();
 
       setProduct(productData);
 
+      // Build monthly revenue chart from real orders only
       const productOrders = ordersData.filter(
         (o) => (o.items || []).some((item) => item.id === productData.id)
       );
 
       const monthlyMap = {};
       productOrders.forEach((order) => {
-        const date = new Date(order.createdAt);
+        const date  = new Date(order.createdAt);
         const month = date.toLocaleString("en", { month: "short" });
-        if (!monthlyMap[month]) {
-          monthlyMap[month] = { name: month, value: 0 };
-        }
+        if (!monthlyMap[month]) monthlyMap[month] = { name: month, value: 0 };
         const rev = (order.items || [])
           .filter((item) => item.id === productData.id)
           .reduce((s, item) => s + (item.price * (item.qty || 1)), 0);
         monthlyMap[month].value += rev;
       });
 
-      // ✅ filledData to'g'ri aniqlandi
-      const allMonths = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+      const allMonths  = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
       const filledData = allMonths.map((m) => monthlyMap[m] || { name: m, value: 0 });
-
       setOrders(filledData);
     } catch (err) {
-      console.error("API ishlamayapti, random mock ma'lumotlar:", err);
-
-      const mockProduct = {
-        id: "1",
-        name: "Vegetable Omelette",
-        description: "Tuxum va sabzavotlardan tayyorlangan yangi omlet",
-        price: 18000,
-        discount: 0.1,
-        category: "Nonushta",
-        image:
-          "https://images.unsplash.com/photo-1525351326368-efbb5cb6814d?w=800",
-      };
-
-      setProduct(mockProduct);
-
-      const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-      const randomData = months.map((month) => ({
-        name: month,
-        value: Math.floor(Math.random() * 150000) + 20000,
-      }));
-
-      setOrders(randomData);
+      // FIXED: show real error, no silent mock data
+      setApiError(err.message || "Failed to load product data");
     } finally {
       setLoading(false);
     }
@@ -108,12 +80,12 @@ const FoodsDetail = () => {
     if (!product) return;
     setModalMode("edit");
     setFormData({
-      name: product.name,
+      name:        product.name,
       description: product.description,
-      price: product.price.toString(),
-      discount: (product.discount * 100).toString(),
-      category: product.category,
-      image: product.image,
+      price:       product.price.toString(),
+      discount:    (product.discount * 100).toString(),
+      category:    product.category,
+      image:       product.image,
     });
     setShowModal(true);
   };
@@ -127,52 +99,40 @@ const FoodsDetail = () => {
     e.preventDefault();
     const submitData = {
       ...formData,
-      price: parseFloat(formData.price) || 0,
+      price:    parseFloat(formData.price)    || 0,
       discount: (parseFloat(formData.discount) || 0) / 100,
     };
-
     try {
       let response;
       if (modalMode === "add") {
         response = await fetch(`${API}/products`, {
-          method: "POST",
+          method:  "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(submitData),
+          body:    JSON.stringify(submitData),
         });
         if (response.ok) toast.success("Menu muvaffaqiyatli qo'shildi!");
       } else {
         response = await fetch(`${API}/products/${product.id}`, {
-          method: "PUT",
+          method:  "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ...product, ...submitData }),
+          body:    JSON.stringify({ ...product, ...submitData }),
         });
         if (response.ok) toast.success("Menu muvaffaqiyatli yangilandi!");
       }
-
-      if (response?.ok) {
-        setShowModal(false);
-        fetchData();
-      }
+      if (response?.ok) { setShowModal(false); fetchData(); }
     } catch (error) {
-      console.error("Xato:", error);
-      toast.error("Amaliyot muvaffaqiyatsiz. JSON server 3001-portda ishlayotganligini tekshiring");
+      toast.error("Amaliyot muvaffaqiyatsiz. Serverni tekshiring.");
     }
   };
 
   const formatPrice = (price) =>
-    new Intl.NumberFormat("uz-UZ", {
-      style: "currency",
-      currency: "UZS",
-      minimumFractionDigits: 0,
-    }).format(price);
+    new Intl.NumberFormat("uz-UZ", { style: "currency", currency: "UZS", minimumFractionDigits: 0 }).format(price);
 
   const CustomTooltip = ({ active, payload }) => {
     if (active && payload?.length) {
       return (
         <div className="bg-base-100 p-3 rounded-lg shadow-lg border border-base-300 min-w-[140px]">
-          <p className="font-semibold text-success">
-            {formatPrice(payload[0].value)}
-          </p>
+          <p className="font-semibold text-success">{formatPrice(payload[0].value)}</p>
           <p className="text-sm text-base-content/60">{payload[0].payload.name}</p>
         </div>
       );
@@ -180,19 +140,23 @@ const FoodsDetail = () => {
     return null;
   };
 
+  // ── Loading ────────────────────────────────────────────────────────────────
   if (loading) {
     return (
-      <div
-        style={{
-          position: "fixed",
-          inset: 0,
-          zIndex: 9999,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
+      <div style={{ position: "fixed", inset: 0, zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center" }}>
         <span className="loading loading-spinner text-success w-12"></span>
+      </div>
+    );
+  }
+
+  // ── FIXED: Real error state instead of silent mock fallback ────────────────
+  if (apiError) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center p-6 gap-4">
+        <div className="text-error text-5xl">⚠️</div>
+        <h2 className="text-xl font-bold text-base-content">Failed to load product</h2>
+        <p className="text-base-content/60 text-sm text-center max-w-sm">{apiError}</p>
+        <button onClick={fetchData} className="btn btn-primary mt-2">Retry</button>
       </div>
     );
   }
@@ -206,10 +170,11 @@ const FoodsDetail = () => {
   }
 
   const discountedPrice = product.price * (1 - product.discount);
-  const totalRevenue = orders.reduce((sum, item) => sum + (item.value || 0), 0);
+  const totalRevenue    = orders.reduce((sum, item) => sum + (item.value || 0), 0);
 
   return (
     <div className="min-h-screen bg-base-200 p-4 sm:p-6 text-base-content">
+      <ToastContainer />
 
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
@@ -229,7 +194,7 @@ const FoodsDetail = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Left */}
+        {/* Left — product info */}
         <div className="bg-base-100 rounded-2xl p-5 sm:p-6 shadow-sm border border-base-300">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-3">
             <h2 className="text-xl font-semibold">Menu haqida</h2>
@@ -244,7 +209,7 @@ const FoodsDetail = () => {
               src={product.image}
               alt={product.name}
               className="w-full sm:w-56 h-56 object-cover rounded-xl shadow-md"
-              onError={(e) => (e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(product?.name || 'Food')}&size=300&background=e5e7eb&color=6b7280&bold=true`)}
+              onError={(e) => (e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(product?.name || "Food")}&size=300&background=e5e7eb&color=6b7280&bold=true`)}
             />
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-3">
@@ -270,19 +235,13 @@ const FoodsDetail = () => {
               </div>
 
               <div className="flex gap-3 flex-wrap">
-                <button
-                  onClick={handleAddMenu}
-                  className="bg-primary hover:bg-primary-focus text-primary-content px-5 py-2.5 rounded-lg font-medium flex items-center gap-2 transition-colors"
-                >
+                <button onClick={handleAddMenu} className="bg-primary hover:bg-primary-focus text-primary-content px-5 py-2.5 rounded-lg font-medium flex items-center gap-2 transition-colors">
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                   </svg>
                   Qo'shish
                 </button>
-                <button
-                  onClick={handleEditMenu}
-                  className="bg-base-200 hover:bg-base-300 px-5 py-2.5 rounded-lg font-medium transition-colors"
-                >
+                <button onClick={handleEditMenu} className="bg-base-200 hover:bg-base-300 px-5 py-2.5 rounded-lg font-medium transition-colors">
                   Tahrirlash
                 </button>
               </div>
@@ -291,9 +250,7 @@ const FoodsDetail = () => {
 
           <div className="border-t border-base-300 pt-6">
             <h4 className="font-semibold text-lg mb-3">Tarkibi</h4>
-            <p className="text-base-content/70 mb-6">
-              {product.ingredients || "—"}
-            </p>
+            <p className="text-base-content/70 mb-6">{product.ingredients || "—"}</p>
             <h4 className="font-semibold text-lg mb-3">Oziqlanish qiymati (taxminiy)</h4>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
               {[
@@ -311,7 +268,7 @@ const FoodsDetail = () => {
           </div>
         </div>
 
-        {/* Right */}
+        {/* Right — revenue chart (real data only) */}
         <div className="bg-base-100 rounded-2xl p-5 sm:p-6 shadow-sm border border-base-300">
           <div className="flex flex-col sm:flex-row justify-between items-start mb-6 gap-4">
             <div>
@@ -320,16 +277,18 @@ const FoodsDetail = () => {
               <p className="text-2xl sm:text-3xl font-bold text-primary mt-2">
                 {totalRevenue.toLocaleString()} so'm
               </p>
+              {totalRevenue === 0 && (
+                <p className="text-xs text-base-content/40 mt-1">No orders recorded for this product yet.</p>
+              )}
             </div>
             <div className="flex gap-2 bg-base-200 p-1 rounded-lg">
               {["Monthly", "Weekly", "Daily"].map((range) => (
                 <span
                   key={range}
                   onClick={() => setFilter(range)}
-                  className={`px-3 py-1 rounded-full cursor-pointer ${filter === range
-                      ? "bg-primary/20 text-primary font-medium"
-                      : "text-base-content/40 hover:bg-base-300"
-                    }`}
+                  className={`px-3 py-1 rounded-full cursor-pointer ${
+                    filter === range ? "bg-primary/20 text-primary font-medium" : "text-base-content/40 hover:bg-base-300"
+                  }`}
                 >
                   {range}
                 </span>
@@ -355,12 +314,7 @@ const FoodsDetail = () => {
               <LineChart data={orders} margin={{ top: 10, right: 30, left: 10, bottom: 20 }}>
                 <CartesianGrid stroke="hsl(var(--bc) / 0.1)" strokeDasharray="3 3" />
                 <XAxis dataKey="name" stroke="hsl(var(--bc) / 0.5)" fontSize={12} />
-                <YAxis
-                  stroke="hsl(var(--bc) / 0.5)"
-                  fontSize={12}
-                  tickFormatter={(v) => `${Math.round(v / 1000)}k`}
-                  width={50}
-                />
+                <YAxis stroke="hsl(var(--bc) / 0.5)" fontSize={12} tickFormatter={(v) => `${Math.round(v / 1000)}k`} width={50} />
                 <Tooltip content={<CustomTooltip />} />
                 <Legend verticalAlign="top" height={36} />
                 <Line
@@ -383,57 +337,31 @@ const FoodsDetail = () => {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
           <div className="bg-base-100/90 backdrop-blur-md rounded-2xl p-6 sm:p-8 w-full max-w-2xl max-h-[92vh] overflow-y-auto border border-base-300 shadow-2xl">
             <div className="flex justify-between items-center mb-6">
-              <h3 className="text-2xl font-bold">
-                {modalMode === "add" ? "Yangi menu qo'shish" : "Menu tahrirlash"}
-              </h3>
-              <button
-                onClick={() => setShowModal(false)}
-                className="text-3xl text-base-content/50 hover:text-base-content"
-              >
-                ×
-              </button>
+              <h3 className="text-2xl font-bold">{modalMode === "add" ? "Yangi menu qo'shish" : "Menu tahrirlash"}</h3>
+              <button onClick={() => setShowModal(false)} className="text-3xl text-base-content/50 hover:text-base-content">×</button>
             </div>
-
             <form onSubmit={handleSubmit} className="space-y-5">
               {[
-                { label: "Nomi", name: "name", type: "text" },
-                { label: "Narxi (so'm)", name: "price", type: "number" },
+                { label: "Nomi",          name: "name",     type: "text"   },
+                { label: "Narxi (so'm)", name: "price",    type: "number" },
                 { label: "Chegirma (%)", name: "discount", type: "number" },
-                { label: "Kategoriya", name: "category", type: "text" },
-                { label: "Rasm URL", name: "image", type: "text" },
+                { label: "Kategoriya",   name: "category", type: "text"   },
+                { label: "Rasm URL",     name: "image",    type: "text"   },
               ].map((field) => (
                 <div key={field.name}>
                   <label className="block text-sm font-medium mb-1">{field.label}</label>
-                  <input
-                    type={field.type}
-                    name={field.name}
-                    value={formData[field.name]}
-                    onChange={handleInputChange}
-                    className="input input-bordered w-full focus:outline-none focus:ring-2 focus:ring-primary"
-                  />
+                  <input type={field.type} name={field.name} value={formData[field.name]} onChange={handleInputChange}
+                    className="input input-bordered w-full focus:outline-none focus:ring-2 focus:ring-primary" />
                 </div>
               ))}
               <div>
                 <label className="block text-sm font-medium mb-1">Tavsif</label>
-                <textarea
-                  name="description"
-                  value={formData.description}
-                  onChange={handleInputChange}
-                  rows={3}
-                  className="textarea textarea-bordered w-full focus:outline-none focus:ring-2 focus:ring-primary"
-                />
+                <textarea name="description" value={formData.description} onChange={handleInputChange} rows={3}
+                  className="textarea textarea-bordered w-full focus:outline-none focus:ring-2 focus:ring-primary" />
               </div>
               <div className="flex gap-3 justify-end pt-2">
-                <button
-                  type="button"
-                  onClick={() => setShowModal(false)}
-                  className="btn btn-ghost"
-                >
-                  Bekor qilish
-                </button>
-                <button type="submit" className="btn btn-primary">
-                  {modalMode === "add" ? "Qo'shish" : "Saqlash"}
-                </button>
+                <button type="button" onClick={() => setShowModal(false)} className="btn btn-ghost">Bekor qilish</button>
+                <button type="submit" className="btn btn-primary">{modalMode === "add" ? "Qo'shish" : "Saqlash"}</button>
               </div>
             </form>
           </div>

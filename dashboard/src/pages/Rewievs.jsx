@@ -1,12 +1,20 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useMemo } from "react";
 import { Star, Calendar, ChevronLeft, ChevronRight } from "lucide-react";
 
 const API = import.meta.env.VITE_API_URL || "https://sedap-nnap.onrender.com/api";
+
+const SORT_OPTIONS = [
+  { label: "Latest",         value: "latest" },
+  { label: "Oldest",         value: "oldest" },
+  { label: "Highest Rating", value: "highest" },
+  { label: "Lowest Rating",  value: "lowest" },
+];
 
 const ReviewsDashboard = () => {
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [sort, setSort] = useState("latest");
   const carouselRef = useRef(null);
   const [loading, setLoading] = useState(true);
   const [featuredReviews, setFeaturedReviews] = useState([]);
@@ -39,9 +47,9 @@ const ReviewsDashboard = () => {
   const getTagClass = (tag) => {
     const map = {
       "Good Services": "badge-primary",
-      "Good Places": "badge-success",
-      Excellent: "badge-error",
-      Delicious: "badge-warning",
+      "Good Places":   "badge-success",
+      Excellent:       "badge-error",
+      Delicious:       "badge-warning",
     };
     return map[tag] || "badge-ghost";
   };
@@ -51,7 +59,7 @@ const ReviewsDashboard = () => {
     setLoading(true);
     const params = new URLSearchParams();
     if (from) params.set("from", from);
-    if (to) params.set("to", to);
+    if (to)   params.set("to", to);
     const qs = params.toString();
     fetch(`${API}/reviews${qs ? `?${qs}` : ""}`)
       .then((res) => res.json())
@@ -61,26 +69,27 @@ const ReviewsDashboard = () => {
         const featured = all
           .filter((r) => r.isFeatured)
           .map((r) => ({
-            id: r.id,
-            dish: r.productName,
+            id:       r.id,
+            dish:     r.productName,
             category: r.productCategory,
-            image: r.productImage,
-            review: r.review,
+            image:    r.productImage,
+            review:   r.review,
             reviewer: r.reviewer,
-            role: r.reviewerRole,
-            avatar: r.reviewerAvatar,
-            rating: r.rating,
+            role:     r.reviewerRole,
+            avatar:   r.reviewerAvatar,
+            rating:   r.rating,
           }));
         const others = all
           .filter((r) => !r.isFeatured)
           .map((r) => ({
-            id: r.id,
-            name: r.reviewer,
-            role: r.reviewerRole,
-            avatar: r.reviewerAvatar,
-            tags: Array.isArray(r.tags) ? r.tags : [],
-            rating: r.rating,
-            review: r.review,
+            id:        r.id,
+            name:      r.reviewer,
+            role:      r.reviewerRole,
+            avatar:    r.reviewerAvatar,
+            tags:      Array.isArray(r.tags) ? r.tags : [],
+            rating:    r.rating,
+            review:    r.review,
+            createdAt: r.createdAt,
           }));
         setFeaturedReviews(featured);
         setOtherReviews(others);
@@ -94,45 +103,38 @@ const ReviewsDashboard = () => {
       .finally(() => {
         if (!cancelled) setLoading(false);
       });
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, [from, to]);
+
+  // ── Sort derived from real data ─────────────────────────────────────────────
+  const sortedReviews = useMemo(() => {
+    const copy = [...otherReviews];
+    switch (sort) {
+      case "oldest":  return copy.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+      case "highest": return copy.sort((a, b) => b.rating - a.rating);
+      case "lowest":  return copy.sort((a, b) => a.rating - b.rating);
+      default:        return copy.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    }
+  }, [otherReviews, sort]);
 
   return (
     <div className="relative">
 
       {/* Loading Overlay */}
       {loading && (
-        <div
-          style={{
-            position: "fixed",
-            inset: 0,
-            zIndex: 9999,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
+        <div style={{ position: "fixed", inset: 0, zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center" }}>
           <span className="loading loading-spinner text-success w-12"></span>
         </div>
       )}
 
-      {/* Page Content — loading paytida ko'rinmaydi, tugagach smooth paydo bo'ladi */}
-      <div
-        style={{
-          opacity: loading ? 0 : 1,
-          transition: "opacity 0.4s ease",
-          pointerEvents: loading ? "none" : "auto",
-        }}
-      >
+      <div style={{ opacity: loading ? 0 : 1, transition: "opacity 0.4s ease", pointerEvents: loading ? "none" : "auto" }}>
+
         {/* Header */}
         <div className="mb-6">
           <h1 className="text-3xl font-bold text-base-content mb-2">Reviews</h1>
           <div className="flex justify-between items-center">
             <p className="text-sm text-base-content/60">
-              <span className="text-primary font-semibold">Dashboard</span> /
-              Customer Reviews
+              <span className="text-primary font-semibold">Dashboard</span> / Customer Reviews
             </p>
             <div className="relative">
               <button
@@ -149,35 +151,15 @@ const ReviewsDashboard = () => {
                 <div className="absolute right-0 top-12 z-50 bg-base-100 shadow-xl rounded-xl p-4 flex flex-col gap-3 w-64">
                   <div>
                     <label className="text-xs font-semibold text-base-content/60 block mb-1">From</label>
-                    <input
-                      type="date"
-                      value={from}
-                      onChange={(e) => setFrom(e.target.value)}
-                      className="input input-bordered input-sm w-full"
-                    />
+                    <input type="date" value={from} onChange={(e) => setFrom(e.target.value)} className="input input-bordered input-sm w-full" />
                   </div>
                   <div>
                     <label className="text-xs font-semibold text-base-content/60 block mb-1">To</label>
-                    <input
-                      type="date"
-                      value={to}
-                      onChange={(e) => setTo(e.target.value)}
-                      className="input input-bordered input-sm w-full"
-                    />
+                    <input type="date" value={to} onChange={(e) => setTo(e.target.value)} className="input input-bordered input-sm w-full" />
                   </div>
                   <div className="flex gap-2 justify-end">
-                    <button
-                      onClick={() => { setFrom(""); setTo(""); }}
-                      className="btn btn-ghost btn-xs"
-                    >
-                      Clear
-                    </button>
-                    <button
-                      onClick={() => setShowDatePicker(false)}
-                      className="btn btn-primary btn-xs"
-                    >
-                      Apply
-                    </button>
+                    <button onClick={() => { setFrom(""); setTo(""); }} className="btn btn-ghost btn-xs">Clear</button>
+                    <button onClick={() => setShowDatePicker(false)} className="btn btn-primary btn-xs">Apply</button>
                   </div>
                 </div>
               )}
@@ -186,39 +168,21 @@ const ReviewsDashboard = () => {
         </div>
 
         {/* Featured */}
-        <div ref={carouselRef} className="flex gap-4 mb-4 overflow-x-auto pb-4 scroll-smooth"
-          style={{ scrollbarWidth: "none" }}>
+        <div ref={carouselRef} className="flex gap-4 mb-4 overflow-x-auto pb-4 scroll-smooth" style={{ scrollbarWidth: "none" }}>
           {featuredReviews.map((item) => (
-            <div
-              key={item.id}
-              className="bg-base-100 rounded-xl shadow w-80 flex-shrink-0"
-            >
+            <div key={item.id} className="bg-base-100 rounded-xl shadow w-80 flex-shrink-0">
               <div className="p-5 text-center">
                 <div className="w-40 h-40 mx-auto mb-4 rounded-full overflow-hidden ring ring-base-300">
-                  <img
-                    src={item.image}
-                    alt={item.dish}
-                    className="w-full h-full object-cover"
-                  />
+                  <img src={item.image} alt={item.dish} className="w-full h-full object-cover" />
                 </div>
                 <h3 className="font-bold">{item.dish}</h3>
-                <p className="text-xs text-primary font-bold mb-3">
-                  {item.category}
-                </p>
-                <p className="text-xs text-base-content/70 mb-4">
-                  {item.review}
-                </p>
+                <p className="text-xs text-primary font-bold mb-3">{item.category}</p>
+                <p className="text-xs text-base-content/70 mb-4">{item.review}</p>
                 <div className="bg-neutral rounded-lg p-3 flex justify-between items-center">
                   <div className="flex gap-2 items-center">
-                    <img
-                      src={item.avatar}
-                      alt={item.reviewer}
-                      className="w-10 h-10 rounded-full ring ring-base-100"
-                    />
+                    <img src={item.avatar} alt={item.reviewer} className="w-10 h-10 rounded-full ring ring-base-100" />
                     <div className="text-left">
-                      <p className="text-base-100 font-semibold text-sm">
-                        {item.reviewer}
-                      </p>
+                      <p className="text-base-100 font-semibold text-sm">{item.reviewer}</p>
                       <p className="text-base-300 text-xs">{item.role}</p>
                     </div>
                   </div>
@@ -234,16 +198,10 @@ const ReviewsDashboard = () => {
 
         {/* Arrows */}
         <div className="flex justify-end gap-2 mb-6">
-          <button
-            onClick={() => carouselRef.current?.scrollBy({ left: -320, behavior: "smooth" })}
-            className="btn btn-circle btn-primary btn-sm"
-          >
+          <button onClick={() => carouselRef.current?.scrollBy({ left: -320, behavior: "smooth" })} className="btn btn-circle btn-primary btn-sm">
             <ChevronLeft />
           </button>
-          <button
-            onClick={() => carouselRef.current?.scrollBy({ left: 320, behavior: "smooth" })}
-            className="btn btn-circle btn-primary btn-sm"
-          >
+          <button onClick={() => carouselRef.current?.scrollBy({ left: 320, behavior: "smooth" })} className="btn btn-circle btn-primary btn-sm">
             <ChevronRight />
           </button>
         </div>
@@ -253,45 +211,38 @@ const ReviewsDashboard = () => {
           <div className="flex justify-between mb-5">
             <div>
               <h2 className="text-xl font-bold">Others review</h2>
-              <p className="text-xs text-base-content/60">
-                Customer reviews about your restaurant
-              </p>
+              <p className="text-xs text-base-content/60">Customer reviews about your restaurant</p>
             </div>
-            <select className="select select-sm select-primary">
-              <option>Latest</option>
-              <option>Oldest</option>
-              <option>Highest Rating</option>
-              <option>Lowest Rating</option>
+            {/* ── FIXED: onChange now actually sorts the list ── */}
+            <select
+              className="select select-sm select-primary"
+              value={sort}
+              onChange={(e) => setSort(e.target.value)}
+            >
+              {SORT_OPTIONS.map((o) => (
+                <option key={o.value} value={o.value}>{o.label}</option>
+              ))}
             </select>
           </div>
 
           <div className="space-y-5">
-            {otherReviews.map((r, i) => (
-              <div
-                key={r.id}
-                className={`pb-5 ${
-                  i !== otherReviews.length - 1
-                    ? "border-b border-base-300"
-                    : ""
-                }`}
-              >
+            {sortedReviews.length === 0 && !loading && (
+              <p className="text-center text-base-content/40 py-8">No reviews found for this period.</p>
+            )}
+            {sortedReviews.map((r, i) => (
+              <div key={r.id} className={`pb-5 ${i !== sortedReviews.length - 1 ? "border-b border-base-300" : ""}`}>
                 <div className="flex justify-between gap-4">
                   <div className="flex gap-3 flex-1">
-                    <img
-                      src={r.avatar}
-                      alt={r.name}
-                      className="w-12 h-12 rounded-full ring ring-base-300"
-                    />
+                    <img src={r.avatar} alt={r.name} className="w-12 h-12 rounded-full ring ring-base-300" />
                     <div>
                       <h3 className="font-bold text-sm">{r.name}</h3>
                       <p className="text-xs text-base-content/60">
-                        {r.role} • {r.date}
+                        {r.role}
+                        {r.createdAt ? ` • ${new Date(r.createdAt).toLocaleDateString()}` : ""}
                       </p>
                       <div className="flex gap-2 flex-wrap my-3">
                         {r.tags.map((t, idx) => (
-                          <span key={idx} className={`badge ${getTagClass(t)}`}>
-                            {t}
-                          </span>
+                          <span key={idx} className={`badge ${getTagClass(t)}`}>{t}</span>
                         ))}
                       </div>
                       <p className="text-sm text-base-content/80">{r.review}</p>

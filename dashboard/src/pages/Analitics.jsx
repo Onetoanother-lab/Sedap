@@ -1,12 +1,7 @@
 import React, { useEffect, useState, useMemo } from "react";
 import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  CartesianGrid,
+  LineChart, Line, XAxis, YAxis, Tooltip,
+  ResponsiveContainer, CartesianGrid,
 } from "recharts";
 import { TrendingUp, TrendingDown, Calendar } from "lucide-react";
 
@@ -24,10 +19,9 @@ const Analitics = () => {
   const [likes, setLikes]       = useState({});
   const [ratings, setRatings]   = useState({});
 
-  // ── Must be BEFORE early returns — Rules of Hooks ──────────────────
   const now = useMemo(() => new Date(), []);
 
-  // ANL-02 + ANL-03: real revenue data, responds to filter & orders
+  // ── Chart data ──────────────────────────────────────────────────────────────
   const chartData = useMemo(() => {
     if (filter === "Weekly") {
       const weekStart = new Date(now);
@@ -54,7 +48,6 @@ const Analitics = () => {
           .reduce((sum, o) => sum + (o.total || 0), 0),
       }));
     }
-    // Monthly — current year
     return MONTHS.map((m, i) => ({
       name: m,
       value: orders
@@ -66,7 +59,6 @@ const Analitics = () => {
     }));
   }, [filter, orders, now]);
 
-  // ANL-04: dynamic date range label
   const dateRangeLabel = useMemo(() => {
     if (filter === "Daily") {
       return `Today, ${now.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}`;
@@ -81,19 +73,20 @@ const Analitics = () => {
     }
     return `Jan – Dec ${now.getFullYear()}`;
   }, [filter, now]);
-  // ───────────────────────────────────────────────────────────────────
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const productsRes = await fetch(`${API}/products`);
-        const ordersRes   = await fetch(`${API}/orderlist`);
+        const [productsRes, ordersRes] = await Promise.all([
+          fetch(`${API}/products`),
+          fetch(`${API}/orderlist`),
+        ]);
         if (!productsRes.ok || !ordersRes.ok) throw new Error("Server error");
         setProducts(await productsRes.json());
         setOrders(await ordersRes.json());
         setError(null);
-      } catch (error) {
-        setError(error.message || "Failed to load analytics data");
+      } catch (err) {
+        setError(err.message || "Failed to load analytics data");
       } finally {
         setLoading(false);
       }
@@ -115,32 +108,61 @@ const Analitics = () => {
       </div>
     );
 
+  // ── Current period orders ───────────────────────────────────────────────────
   const filteredOrders = orders.filter((o) => {
     const date = new Date(o.createdAt);
     if (filter === "Daily") return date.toDateString() === now.toDateString();
     if (filter === "Weekly") {
-      const s = new Date(now);
-      s.setDate(now.getDate() - now.getDay());
-      const e = new Date(s);
-      e.setDate(s.getDate() + 6);
+      const s = new Date(now); s.setDate(now.getDate() - now.getDay());
+      const e = new Date(s);   e.setDate(s.getDate() + 6);
       return date >= s && date <= e;
     }
     return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
   });
 
-  const totalRevenue = filteredOrders.reduce((a, o) => a + (o.total || 0), 0);
-
-  const productStats = {};
-  filteredOrders.forEach((o) => {
-    (o.items || []).forEach((item) => {
-      productStats[item.id] = (productStats[item.id] || 0) + (item.qty || 1);
-    });
+  // ── Previous period orders (for trend comparison) ───────────────────────────
+  const prevOrders = orders.filter((o) => {
+    const date = new Date(o.createdAt);
+    if (filter === "Daily") {
+      const yesterday = new Date(now);
+      yesterday.setDate(now.getDate() - 1);
+      return date.toDateString() === yesterday.toDateString();
+    }
+    if (filter === "Weekly") {
+      const s = new Date(now); s.setDate(now.getDate() - now.getDay() - 7);
+      const e = new Date(s);   e.setDate(s.getDate() + 6);
+      return date >= s && date <= e;
+    }
+    // Monthly → previous month
+    const prevMonth = now.getMonth() === 0 ? 11 : now.getMonth() - 1;
+    const prevYear  = now.getMonth() === 0 ? now.getFullYear() - 1 : now.getFullYear();
+    return date.getMonth() === prevMonth && date.getFullYear() === prevYear;
   });
 
-  const mostSelling = Object.entries(productStats)
+  const totalRevenue = filteredOrders.reduce((a, o) => a + (o.total || 0), 0);
+
+  // ── Aggregate item quantities per product ────────────────────────────────────
+  const buildProductStats = (orderSet) => {
+    const stats = {};
+    orderSet.forEach((o) => {
+      (o.items || []).forEach((item) => {
+        stats[item.id] = (stats[item.id] || 0) + (item.qty || 1);
+      });
+    });
+    return stats;
+  };
+
+  const currentStats = buildProductStats(filteredOrders);
+  const prevStats    = buildProductStats(prevOrders);
+
+  // ── Build sorted "most selling" list with real trend direction ───────────────
+  const mostSelling = Object.entries(currentStats)
     .map(([id, qty]) => {
-      const p = products.find((x) => String(x.id) === String(id));
-      return p ? { ...p, qty } : null;
+      const p        = products.find((x) => String(x.id) === String(id));
+      const prevQty  = prevStats[id] || 0;
+      // Trending up if sold more than previous period (or new this period)
+      const trending = qty >= prevQty;
+      return p ? { ...p, qty, trending } : null;
     })
     .filter(Boolean)
     .sort((a, b) => b.qty - a.qty);
@@ -152,9 +174,7 @@ const Analitics = () => {
       <div className="flex flex-col sm:flex-row justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold">Analytics</h1>
-          <p className="text-base-content/50 mt-1">
-            Your restaurant summary with graph view
-          </p>
+          <p className="text-base-content/50 mt-1">Your restaurant summary with graph view</p>
         </div>
         <div className="flex items-center gap-2 border rounded-xl px-4 py-2 bg-base-100 shadow cursor-pointer">
           <Calendar className="w-5 h-5 text-primary" />
@@ -173,9 +193,7 @@ const Analitics = () => {
                   key={opt}
                   onClick={() => setFilter(opt)}
                   className={`px-3 py-1 rounded-full cursor-pointer ${
-                    filter === opt
-                      ? "bg-primary/20 text-primary"
-                      : "text-base-content/40"
+                    filter === opt ? "bg-primary/20 text-primary" : "text-base-content/40"
                   }`}
                 >
                   {opt}
@@ -187,17 +205,12 @@ const Analitics = () => {
           <div className="flex gap-6 mb-4">
             <div>
               <p className="text-base-content/50 text-sm">Total Sales</p>
-              <p className="text-success font-bold text-xl">
-                {totalRevenue.toLocaleString()}
-              </p>
+              <p className="text-success font-bold text-xl">{totalRevenue.toLocaleString()}</p>
             </div>
             <div>
               <p className="text-base-content/50 text-sm">Avg. Sales per day</p>
               <p className="text-success font-bold text-xl">
-                {Math.round(
-                  totalRevenue /
-                    (filter === "Daily" ? 1 : filter === "Weekly" ? 7 : 30)
-                ).toLocaleString()}
+                {Math.round(totalRevenue / (filter === "Daily" ? 1 : filter === "Weekly" ? 7 : 30)).toLocaleString()}
               </p>
             </div>
           </div>
@@ -209,13 +222,7 @@ const Analitics = () => {
                 <XAxis dataKey="name" />
                 <YAxis />
                 <Tooltip />
-                <Line
-                  type="monotone"
-                  dataKey="value"
-                  stroke="oklch(var(--su))"
-                  strokeWidth={3}
-                  dot={{ r: 4 }}
-                />
+                <Line type="monotone" dataKey="value" stroke="oklch(var(--su))" strokeWidth={3} dot={{ r: 4 }} />
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -225,20 +232,14 @@ const Analitics = () => {
           <div className="flex justify-between mb-4">
             <h2 className="font-semibold text-lg">Most Selling Items</h2>
           </div>
-
           {mostSelling.length === 0 ? (
-            <p className="text-base-content/40 text-sm text-center py-12">
-              No orders found for this period
-            </p>
+            <p className="text-base-content/40 text-sm text-center py-12">No orders found for this period</p>
           ) : (
             <div className="space-y-4 max-h-96 overflow-y-auto">
               {mostSelling.map((item) => (
                 <div key={item.id} className="flex justify-between">
                   <div className="flex gap-3">
-                    <img
-                      src={item.image}
-                      className="w-12 h-12 rounded-xl object-cover"
-                    />
+                    <img src={item.image} className="w-12 h-12 rounded-xl object-cover" />
                     <div>
                       <p className="font-medium">{item.name}</p>
                       <p className="text-xs text-base-content/40">
@@ -246,9 +247,7 @@ const Analitics = () => {
                       </p>
                     </div>
                   </div>
-                  <span className="font-semibold">
-                    {item.price?.toLocaleString()} UZS
-                  </span>
+                  <span className="font-semibold">{item.price?.toLocaleString()} UZS</span>
                 </div>
               ))}
             </div>
@@ -261,39 +260,35 @@ const Analitics = () => {
         <div className="bg-base-100 rounded-2xl shadow p-6">
           <div className="flex justify-between mb-4">
             <h2 className="font-semibold text-lg">Trending Items</h2>
-            <span className="text-sm text-primary cursor-pointer">
-              Weekly ⌄
-            </span>
+            {/* Label reflects actual filter */}
+            <span className="text-sm text-primary capitalize">{filter} ⌄</span>
           </div>
 
           {mostSelling.length === 0 ? (
-            <p className="text-base-content/40 text-sm text-center py-12">
-              No orders found for this period
-            </p>
+            <p className="text-base-content/40 text-sm text-center py-12">No orders found for this period</p>
           ) : (
             <div className="space-y-4 max-h-96 overflow-y-auto">
               {mostSelling.map((item, i) => (
-                <div key={item.id} className="flex justify-between">
-                  <div className="flex gap-4">
-                    <span className="text-base-content/40 font-semibold">
-                      #{i + 1}
-                    </span>
-                    <img
-                      src={item.image}
-                      className="w-12 h-12 rounded-xl object-cover"
-                    />
+                <div key={item.id} className="flex justify-between items-center">
+                  <div className="flex gap-4 items-center">
+                    <span className="text-base-content/40 font-semibold w-6">#{i + 1}</span>
+                    <img src={item.image} className="w-12 h-12 rounded-xl object-cover" />
                     <div>
                       <p className="font-medium">{item.name}</p>
-                      <p className="text-xs text-base-content/40">
-                        {item.category || "FOOD"}
+                      <p className="text-xs text-base-content/40">{item.category || "FOOD"}</p>
+                      <p className="text-xs text-base-content/30 mt-0.5">
+                        {item.qty} sold
+                        {prevStats[item.id] != null
+                          ? ` (prev: ${prevStats[item.id]})`
+                          : " (new)"}
                       </p>
                     </div>
                   </div>
-                  {i % 2 === 0 ? (
-                    <TrendingUp className="text-success w-5 h-5" />
-                  ) : (
-                    <TrendingDown className="text-error w-5 h-5" />
-                  )}
+                  {/* ── FIXED: real trend from actual qty comparison ── */}
+                  {item.trending
+                    ? <TrendingUp  className="text-success w-5 h-5 flex-shrink-0" />
+                    : <TrendingDown className="text-error   w-5 h-5 flex-shrink-0" />
+                  }
                 </div>
               ))}
             </div>
@@ -309,13 +304,7 @@ const Analitics = () => {
                 <XAxis dataKey="name" />
                 <YAxis />
                 <Tooltip />
-                <Line
-                  type="monotone"
-                  dataKey="value"
-                  stroke="oklch(var(--p))"
-                  strokeWidth={3}
-                  dot={{ r: 4 }}
-                />
+                <Line type="monotone" dataKey="value" stroke="oklch(var(--p))" strokeWidth={3} dot={{ r: 4 }} />
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -327,54 +316,32 @@ const Analitics = () => {
         <h2 className="text-xl font-semibold mb-6">Most Favourite Items</h2>
 
         {mostSelling.length === 0 ? (
-          <p className="text-base-content/40 text-sm text-center py-8">
-            No orders found for this period
-          </p>
+          <p className="text-base-content/40 text-sm text-center py-8">No orders found for this period</p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {mostSelling.slice(0, 6).map((item) => {
               const like = likes[item.id] ?? 0;
               const rate = ratings[item.id] ?? 0;
-
               return (
-                <div
-                  key={item.id}
-                  className="rounded-2xl overflow-hidden border border-base-300 hover:shadow-lg transition"
-                >
-                  <img
-                    src={item.image}
-                    className="h-40 w-full object-cover"
-                  />
+                <div key={item.id} className="rounded-2xl overflow-hidden border border-base-300 hover:shadow-lg transition">
+                  <img src={item.image} className="h-40 w-full object-cover" />
                   <div className="p-4 space-y-2">
                     <h3 className="font-semibold text-sm">{item.name}</h3>
-                    <p className="text-xs text-base-content/40 line-clamp-2">
-                      {item.description}
-                    </p>
+                    <p className="text-xs text-base-content/40 line-clamp-2">{item.description}</p>
                     <div className="flex items-center gap-1 text-sm">
                       {[1, 2, 3, 4, 5].map((s) => (
                         <span
                           key={s}
-                          onClick={() =>
-                            setRatings((p) => ({ ...p, [item.id]: s }))
-                          }
-                          className={`cursor-pointer ${
-                            s <= rate ? "text-warning" : "text-base-300"
-                          }`}
+                          onClick={() => setRatings((p) => ({ ...p, [item.id]: s }))}
+                          className={`cursor-pointer ${s <= rate ? "text-warning" : "text-base-300"}`}
                         >
                           ★
                         </span>
                       ))}
-                      <span className="text-base-content/40 ml-2">
-                        {rate ? `${rate} / 5` : "Rate this"}
-                      </span>
+                      <span className="text-base-content/40 ml-2">{rate ? `${rate} / 5` : "Rate this"}</span>
                     </div>
                     <button
-                      onClick={() =>
-                        setLikes((p) => ({
-                          ...p,
-                          [item.id]: (p[item.id] || 0) + 1,
-                        }))
-                      }
+                      onClick={() => setLikes((p) => ({ ...p, [item.id]: (p[item.id] || 0) + 1 }))}
                       className="mt-3 flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/20 text-primary text-sm"
                     >
                       💙 {like} Like it
@@ -385,10 +352,7 @@ const Analitics = () => {
             })}
           </div>
         )}
-
-        <div className="text-right mt-4 text-primary text-sm cursor-pointer">
-          View more ⌄
-        </div>
+        <div className="text-right mt-4 text-primary text-sm cursor-pointer">View more ⌄</div>
       </div>
     </div>
   );

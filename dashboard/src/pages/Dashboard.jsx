@@ -5,39 +5,91 @@ import StatCard from "../components/StatCard";
 
 const API = import.meta.env.VITE_API_URL || "https://sedap-nnap.onrender.com/api";
 
+/**
+ * Compare a metric this month vs last month.
+ * Returns percent change rounded to 1 decimal, or 0 if no prior data.
+ */
+function calcPercent(current, previous) {
+  if (previous === 0) return current > 0 ? 100 : 0;
+  return Math.round(((current - previous) / previous) * 1000) / 10;
+}
+
 const Dashboard = () => {
-  const [stats, setStats] = useState({ total: 0, canceled: 0, delivered: 0, income: 0 });
+  const [stats, setStats] = useState({
+    total: 0, canceled: 0, delivered: 0, income: 0,
+    totalPct: 0, canceledPct: 0, deliveredPct: 0, incomePct: 0,
+  });
 
   useEffect(() => {
     fetch(`${API}/orderlist`)
       .then((res) => res.json())
       .then((orders) => {
         if (!Array.isArray(orders)) return;
-        const total     = orders.length;
-        const canceled  = orders.filter(o => o.status === "canceled").length;
-        const delivered = orders.filter(o => o.status === "delivered").length;
-        const income    = orders.reduce((sum, o) => sum + (o.total || 0), 0);
-        setStats({ total, canceled, delivered, income });
+
+        const now       = new Date();
+        const thisMonth = now.getMonth();
+        const thisYear  = now.getFullYear();
+
+        const lastMonthDate = new Date(thisYear, thisMonth - 1, 1);
+        const lastMonth     = lastMonthDate.getMonth();
+        const lastYear      = lastMonthDate.getFullYear();
+
+        const inThis = (order) => {
+          const d = new Date(order.createdAt);
+          return d.getMonth() === thisMonth && d.getFullYear() === thisYear;
+        };
+        const inLast = (order) => {
+          const d = new Date(order.createdAt);
+          return d.getMonth() === lastMonth && d.getFullYear() === lastYear;
+        };
+
+        // ── This month ──
+        const thisOrders    = orders.filter(inThis);
+        const total         = orders.length;
+        const canceled      = orders.filter((o) => o.status === "canceled").length;
+        const delivered     = orders.filter((o) => o.status === "delivered").length;
+        const income        = orders.reduce((s, o) => s + (o.total || 0), 0);
+
+        // ── Last month ──
+        const lastOrders    = orders.filter(inLast);
+        const lastTotal     = lastOrders.length;
+        const lastCanceled  = lastOrders.filter((o) => o.status === "canceled").length;
+        const lastDelivered = lastOrders.filter((o) => o.status === "delivered").length;
+        const lastIncome    = lastOrders.reduce((s, o) => s + (o.total || 0), 0);
+
+        // ── This month only (for card values) ──
+        const thisTotal     = thisOrders.length;
+        const thisCanceled  = thisOrders.filter((o) => o.status === "canceled").length;
+        const thisDelivered = thisOrders.filter((o) => o.status === "delivered").length;
+        const thisIncome    = thisOrders.reduce((s, o) => s + (o.total || 0), 0);
+
+        setStats({
+          total,
+          canceled,
+          delivered,
+          income,
+          totalPct:     calcPercent(thisTotal,     lastTotal),
+          canceledPct:  calcPercent(thisCanceled,  lastCanceled),
+          deliveredPct: calcPercent(thisDelivered, lastDelivered),
+          incomePct:    calcPercent(thisIncome,     lastIncome),
+        });
       })
       .catch(() => {});
   }, []);
 
   return (
     <div className="pt-4">
-
-
-      {/* Header */}
       <h1 className="text-2xl text-primary font-bold">Dashboard</h1>
       <p className="text-md font-semibold text-primary mb-10">
         Your order history will appear here.
       </p>
 
-      {/* Stat Cards */}
+      {/* Stat Cards — percent now reflects real month-over-month change */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-10">
-        <StatCard title="Total Orders"   value={stats.total}     percent={0} />
-        <StatCard title="Total Canceled"  value={stats.canceled}  percent={0} />
-        <StatCard title="Total Delivered" value={stats.delivered} percent={0} />
-        <StatCard title="Income Profit"   value={stats.income}    percent={0} />
+        <StatCard title="Total Orders"    value={stats.total}     percent={stats.totalPct} />
+        <StatCard title="Total Canceled"  value={stats.canceled}  percent={stats.canceledPct} />
+        <StatCard title="Total Delivered" value={stats.delivered} percent={stats.deliveredPct} />
+        <StatCard title="Income Profit"   value={stats.income}    percent={stats.incomePct} />
       </div>
 
       {/* Charts */}
