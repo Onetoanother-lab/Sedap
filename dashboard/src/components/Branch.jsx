@@ -6,13 +6,15 @@ ChartJS.register(ArcElement, Tooltip, Legend);
 
 const API = import.meta.env.VITE_API_URL || "https://sedap-nnap.onrender.com/api";
 
+// FIX: Canvas 2D cannot resolve CSS custom properties like oklch(var(--er)).
+// Plain hex values work reliably across all browsers.
 const BRANCH_COLORS = [
-  "oklch(var(--er))",
-  "oklch(var(--b3))",
-  "oklch(var(--su))",
-  "oklch(var(--in))",
-  "oklch(var(--wa))",
-  "oklch(var(--p))",
+  "#f87272", // red
+  "#94a3b8", // slate
+  "#34d399", // green
+  "#60a5fa", // blue
+  "#fbbf24", // amber
+  "#a78bfa", // purple
 ];
 
 const Branch = () => {

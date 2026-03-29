@@ -20,7 +20,7 @@ import FoodsDetail from "./pages/FoodsDetail";
 import Chat from "./pages/Chat";
 import Calendar from "./pages/Calendar";
 import CustomerDetail from "./pages/CustomerDetail";
-import FinancialDashboard from "./pages/Walet";
+import FinancialDashboard from "./pages/Wallet";
 
 const router = createBrowserRouter([
   {
@@ -48,7 +48,7 @@ const router = createBrowserRouter([
       { path: "reviews",           element: <Rewievs /> },
       { path: "foodsDetail/:id",   element: <FoodsDetail /> },
       { path: "chat",              element: <Chat /> },
-      { path: "walet",             element: <FinancialDashboard /> },
+      { path: "wallet",             element: <FinancialDashboard /> },
       { path: "calendar",          element: <Calendar /> },
       { path: "customersDetail",   element: <CustomerDetail /> },
     ],

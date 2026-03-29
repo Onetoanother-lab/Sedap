@@ -13,10 +13,21 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
 
 const API = import.meta.env.VITE_API_URL || "https://sedap-nnap.onrender.com/api";
 
+// FIX: Canvas 2D cannot resolve CSS custom properties like oklch(var(--er)).
+// These are plain hex values that work in all browsers without any CSS resolution.
 const COLORS = [
-  "oklch(var(--er))",  "oklch(var(--in))",  "oklch(var(--wa))",  "oklch(var(--su))",
-  "oklch(var(--p))",   "oklch(var(--a))",   "oklch(var(--b3))",  "oklch(var(--s))",
-  "oklch(var(--er) / 0.7)", "oklch(var(--in) / 0.7)", "oklch(var(--wa) / 0.7)", "oklch(var(--su) / 0.7)",
+  "#f87272", // red
+  "#60a5fa", // blue
+  "#fbbf24", // amber
+  "#34d399", // green
+  "#a78bfa", // purple
+  "#f472b6", // pink
+  "#94a3b8", // slate
+  "#2dd4bf", // teal
+  "#fb923c", // orange
+  "#e879f9", // fuchsia
+  "#facc15", // yellow
+  "#4ade80", // lime
 ];
 
 const Monthly = () => {

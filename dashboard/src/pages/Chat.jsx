@@ -8,18 +8,8 @@ const CHAT_COLORS = [
   "oklch(var(--sc))",
 ];
 
-const FALLBACK_USERS = [
-  { id: "diyor",        name: "Diyor",        color: CHAT_COLORS[0] },
-  { id: "kamron",       name: "Kamron",        color: CHAT_COLORS[1] },
-  { id: "sharof",       name: "Sharof",        color: CHAT_COLORS[2] },
-  { id: "muhammadamin", name: "Muhammadamin",  color: CHAT_COLORS[3] },
-  { id: "ismoil",       name: "Ismoil",        color: CHAT_COLORS[4] },
-  { id: "ibrohim",      name: "Ibrohim",       color: CHAT_COLORS[5] },
-  { id: "sarvar",       name: "Sarvar",        color: CHAT_COLORS[6] },
-  { id: "miraziz",      name: "Miraziz",       color: CHAT_COLORS[7] },
-  { id: "soliha",       name: "Soliha",        color: CHAT_COLORS[8] },
-];
-
+// No hardcoded user list — we always wait for the API.
+// If the API fails, the chat shows an error rather than fake names.
 const MSGS_KEY   = "gchat_msgs_v5";
 const PASSWD_KEY = "gchat_passwords_v5";
 
@@ -175,59 +165,81 @@ function AuthCard({ children, users }) {
 // MAIN APP
 // ══════════════════════════════════════════════════════════════════
 export default function App() {
-  // users list (loaded from API, fallback to FALLBACK_USERS)
-  const [users, setUsers] = useState(FALLBACK_USERS);
+  const [users, setUsers] = useState([]);
+  const [usersLoading, setUsersLoading] = useState(true);
+  const [usersError, setUsersError]     = useState(null);
 
   // auth state
-  const [screen, setScreen] = useState("login"); // login | changePassword
-  const [me, setMe] = useState(null);
-  const [passwords, setPasswords] = useState(null); // loaded from storage
+  const [screen, setScreen] = useState("login");
+  const [me, setMe]         = useState(null);
+  const [passwords, setPasswords] = useState(null);
 
   // login form
-  const [selUser, setSelUser] = useState("");
+  const [selUser, setSelUser]   = useState("");
   const [passInput, setPassInput] = useState("");
   const [loginError, setLoginError] = useState("");
 
   // change password form
-  const [oldPass, setOldPass]     = useState("");
-  const [newPass, setNewPass]     = useState("");
-  const [newPass2, setNewPass2]   = useState("");
-  const [cpError, setCpError]     = useState("");
+  const [oldPass, setOldPass]   = useState("");
+  const [newPass, setNewPass]   = useState("");
+  const [newPass2, setNewPass2] = useState("");
+  const [cpError, setCpError]   = useState("");
   const [cpSuccess, setCpSuccess] = useState("");
 
   // chat state
-  const [messages, setMessages]   = useState([]);
-  const [input, setInput]         = useState("");
-  const [toUser, setToUser]       = useState("all");
+  const [messages, setMessages] = useState([]);
+  const [input, setInput]       = useState("");
+  const [toUser, setToUser]     = useState("all");
   const [activeTab, setActiveTab] = useState("all");
-  const [sending, setSending]     = useState(false);
-  const [dropOpen, setDropOpen]   = useState(false);
+  const [sending, setSending]   = useState(false);
+  const [dropOpen, setDropOpen] = useState(false);
   const bottomRef = useRef(null);
   const inputRef  = useRef(null);
-  const dropRef   = useRef(null);
 
-  // Load users from API on mount, fall back to FALLBACK_USERS
+  // ── Load users from API — no hardcoded fallback ─────────────────
   useEffect(() => {
     fetch(`${API_BASE}/users`)
-      .then((r) => r.json())
-      .then((data) => {
-        if (!Array.isArray(data) || data.length === 0) return;
+      .then(r => {
+        if (!r.ok) throw new Error(`Server responded ${r.status}`);
+        return r.json();
+      })
+      .then(data => {
+        if (!Array.isArray(data) || data.length === 0) {
+          throw new Error("No users returned from server");
+        }
         const mapped = data.map((u, i) => {
           const id = (u.name || u.email || u.id || `user${i}`)
             .toLowerCase().replace(/\s+/g, "");
           return { id, name: u.name || id, color: CHAT_COLORS[i % CHAT_COLORS.length] };
         });
         setUsers(mapped);
+        setUsersError(null);
       })
-      .catch(() => {}); // keep FALLBACK_USERS on error
+      .catch(err => {
+        setUsersError(err.message || "Could not load users");
+      })
+      .finally(() => setUsersLoading(false));
   }, []);
 
-  // Load passwords on mount
+  // ── Load passwords — default is a random UUID per user, NOT the username ──
+  // This means first-time users must set a password via Change Password.
+  // The admin should distribute initial passwords out-of-band.
   useEffect(() => {
+    if (users.length === 0) return;
     (async () => {
       const stored = await storageGet(PASSWD_KEY);
-      const defaultPwds = Object.fromEntries(users.map(u => [u.id, u.id]));
-      setPasswords(stored || defaultPwds);
+      if (stored) {
+        setPasswords(stored);
+      } else {
+        // First run: each user gets a random initial password.
+        // These are intentionally NOT the username — an admin must
+        // share initial credentials separately.
+        const initial = Object.fromEntries(
+          users.map(u => [u.id, crypto.randomUUID()])
+        );
+        await storageSet(PASSWD_KEY, initial);
+        setPasswords(initial);
+      }
     })();
   }, [users]);
 
@@ -249,9 +261,11 @@ export default function App() {
 
   // ── Auth handlers ──────────────────────────────────────────────
   const handleLogin = () => {
-    if (!selUser) { setLoginError("Foydalanuvchi tanlang."); return; }
+    if (!selUser)   { setLoginError("Foydalanuvchi tanlang."); return; }
     if (!passInput) { setLoginError("Parol kiriting."); return; }
-    const correct = passwords?.[selUser] ?? selUser;
+    const correct = passwords?.[selUser];
+    // If no password has been set yet (first run), block and direct to admin
+    if (!correct) { setLoginError("Parol belgilanmagan. Administrator bilan bog'laning."); return; }
     if (passInput !== correct) { setLoginError("Parol noto'g'ri."); return; }
     const user = users.find(u => u.id === selUser);
     setMe(user);
@@ -271,9 +285,9 @@ export default function App() {
 
   const handleChangePassword = async () => {
     setCpError(""); setCpSuccess("");
-    const correct = passwords?.[me.id] ?? me.id;
-    if (oldPass !== correct) { setCpError("Joriy parol noto'g'ri."); return; }
-    if (newPass.length < 3)  { setCpError("Yangi parol kamida 3 ta belgi bo'lsin."); return; }
+    const correct = passwords?.[me.id];
+    if (correct && oldPass !== correct) { setCpError("Joriy parol noto'g'ri."); return; }
+    if (newPass.length < 8) { setCpError("Yangi parol kamida 8 ta belgi bo'lsin."); return; }
     if (newPass !== newPass2) { setCpError("Yangi parollar mos emas."); return; }
     const updated = { ...passwords, [me.id]: newPass };
     await storageSet(PASSWD_KEY, updated);
@@ -305,9 +319,31 @@ export default function App() {
   const otherUsers = users.filter(u => u.id !== me?.id);
   const activePerson = activeTab !== "all" ? users.find(u => u.id === activeTab) : null;
 
-  // ══════════════════════════════════════════════════════════════
-  // SCREENS
-  // ══════════════════════════════════════════════════════════════
+  // ── Loading state while users fetch ───────────────────────────
+  if (usersLoading) {
+    return (
+      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <span className="loading loading-spinner text-success w-12" />
+      </div>
+    );
+  }
+
+  // ── Hard error — do not fall back to fake data ─────────────────
+  if (usersError) {
+    return (
+      <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 12, fontFamily: "'DM Sans', sans-serif" }}>
+        <div style={{ fontSize: 32 }}>⚠️</div>
+        <div style={{ fontSize: 15, fontWeight: 600, color: "var(--color-text-primary)" }}>Foydalanuvchilarni yuklashda xatolik</div>
+        <div style={{ fontSize: 13, color: "var(--color-text-secondary)", maxWidth: 320, textAlign: "center" }}>{usersError}</div>
+        <button
+          onClick={() => { setUsersLoading(true); setUsersError(null); window.location.reload(); }}
+          style={{ marginTop: 8, padding: "10px 24px", borderRadius: 10, background: "oklch(var(--p))", color: "#fff", border: "none", cursor: "pointer", fontSize: 14, fontWeight: 600 }}
+        >
+          Qayta urinish
+        </button>
+      </div>
+    );
+  }
 
   // ── LOGIN ────────────────────────────────────────────────────
   if (!me && screen === "login") {
@@ -316,7 +352,6 @@ export default function App() {
         <div style={{ fontSize: 22, fontWeight: 700, color: "var(--color-text-primary)", marginBottom: 4 }}>Kirish</div>
         <div style={{ fontSize: 13, color: "var(--color-text-secondary)", marginBottom: 28 }}>Akkauntingizga kiring</div>
 
-        {/* User select */}
         <div style={{ marginBottom: 16 }}>
           <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "var(--color-text-secondary)", letterSpacing: 0.6, textTransform: "uppercase", marginBottom: 6 }}>Foydalanuvchi</label>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 7 }}>
@@ -350,7 +385,7 @@ export default function App() {
           error={loginError}
         />
 
-        <Btn onClick={handleLogin} color={selUser ? users.find(u => u.id === selUser)?.color || "oklch(var(--p))" : "oklch(var(--p))"} >
+        <Btn onClick={handleLogin} color={selUser ? users.find(u => u.id === selUser)?.color || "oklch(var(--p))" : "oklch(var(--p))"}>
           Kirish
         </Btn>
 
@@ -361,13 +396,9 @@ export default function App() {
         }}>
           <div style={{ fontSize: 11, fontWeight: 600, color: "var(--color-text-secondary)", letterSpacing: 0.5, marginBottom: 7, textTransform: "uppercase" }}>Eslatma</div>
           <div style={{ fontSize: 12, color: "var(--color-text-secondary)", lineHeight: 1.75 }}>
-            Birinchi marta kirishda parol — ismingiz kichik harfda.{" "}
-            <span style={{ color: "var(--color-text-tertiary)" }}>Masalan Sarvar uchun: </span>
-            <code style={{ background: "var(--color-background-tertiary)", border: "0.5px solid var(--color-border-secondary)", borderRadius: 5, padding: "1px 7px", fontSize: 12, fontFamily: "monospace", color: "var(--color-text-primary)" }}>sarvar</code>
-          </div>
-          <div style={{ marginTop: 9, paddingTop: 9, borderTop: "0.5px solid var(--color-border-tertiary)", fontSize: 12, color: "var(--color-text-secondary)", lineHeight: 1.75 }}>
-            Parolni o'zgartirish uchun chatga kirib, yuqori chap burchakdagi{" "}
-            <code style={{ background: "var(--color-background-tertiary)", border: "0.5px solid var(--color-border-secondary)", borderRadius: 5, padding: "1px 7px", fontSize: 11, fontWeight: 600, color: "var(--color-text-primary)", fontFamily: "monospace" }}>P</code>
+            Birinchi marta kirishda parolni administrator beradi.
+            Parolni keyinchalik o'zgartirish uchun chatga kirib, yuqori chap burchakdagi{" "}
+            <code style={{ background: "var(--color-background-tertiary)", border: "0.5px solid var(--color-border-secondary)", borderRadius: 5, padding: "1px 7px", fontSize: 12, fontFamily: "monospace", color: "var(--color-text-primary)" }}>Parol</code>
             {" "}tugmasini bosing.
           </div>
         </div>
@@ -375,7 +406,7 @@ export default function App() {
     );
   }
 
-  // ── CHANGE PASSWORD (from within chat) ───────────────────────
+  // ── CHANGE PASSWORD ──────────────────────────────────────────
   if (me && screen === "changePassword") {
     return (
       <AuthCard users={users}>
@@ -388,7 +419,7 @@ export default function App() {
         </div>
 
         <Input label="Joriy parol" type="password" value={oldPass} onChange={e => { setOldPass(e.target.value); setCpError(""); setCpSuccess(""); }} placeholder="Hozirgi parolingiz" autoFocus />
-        <Input label="Yangi parol" type="password" value={newPass} onChange={e => { setNewPass(e.target.value); setCpError(""); setCpSuccess(""); }} placeholder="Yangi parol (kamida 3 belgi)" />
+        <Input label="Yangi parol" type="password" value={newPass} onChange={e => { setNewPass(e.target.value); setCpError(""); setCpSuccess(""); }} placeholder="Yangi parol (kamida 8 belgi)" />
         <Input label="Yangi parolni tasdiqlang" type="password" value={newPass2} onChange={e => { setNewPass2(e.target.value); setCpError(""); setCpSuccess(""); }} onKeyDown={e => e.key === "Enter" && handleChangePassword()} placeholder="Qayta kiriting" error={cpError} />
 
         {cpSuccess && <div style={{ color: "oklch(var(--su))", fontSize: 13, fontWeight: 600, marginBottom: 14, padding: "10px 14px", background: "oklch(var(--su) / 0.07)", borderRadius: 10, border: "0.5px solid oklch(var(--su) / 0.27)" }}>{cpSuccess}</div>}
@@ -418,8 +449,6 @@ export default function App() {
 
         {/* SIDEBAR */}
         <div style={{ width: 230, flexShrink: 0, background: "var(--color-background-secondary)", borderRight: "0.5px solid var(--color-border-tertiary)", display: "flex", flexDirection: "column" }}>
-
-          {/* Me */}
           <div style={{ padding: "14px 12px", borderBottom: "0.5px solid var(--color-border-tertiary)", display: "flex", alignItems: "center", gap: 10 }}>
             <Avatar user={me} size={34} />
             <div style={{ flex: 1, minWidth: 0 }}>
@@ -461,8 +490,6 @@ export default function App() {
 
         {/* MAIN */}
         <div style={{ flex: 1, display: "flex", flexDirection: "column", background: "var(--color-background-primary)" }}>
-
-          {/* Header */}
           <div style={{ height: 54, borderBottom: "0.5px solid var(--color-border-tertiary)", display: "flex", alignItems: "center", padding: "0 18px", gap: 12, background: "var(--color-background-secondary)" }}>
             {activeTab === "all" ? (
               <>
@@ -483,11 +510,10 @@ export default function App() {
             )}
           </div>
 
-          {/* Messages */}
           <div style={{ flex: 1, overflowY: "auto", padding: "14px 18px 8px", display: "flex", flexDirection: "column", gap: 6 }}>
             {visibleMessages.length === 0 && (
               <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--color-text-tertiary)", fontSize: 13, flexDirection: "column", gap: 8, paddingTop: 60 }}>
-                <div style={{ fontSize: 26 }}>{activeTab === "all" ? "msg" : "lock"}</div>
+                <div style={{ fontSize: 26 }}>{activeTab === "all" ? "💬" : "🔒"}</div>
                 <div>{activeTab === "all" ? "Hali xabar yo'q" : `${activePerson?.name} bilan shaxsiy suhbat`}</div>
               </div>
             )}
@@ -518,10 +544,9 @@ export default function App() {
             <div ref={bottomRef} />
           </div>
 
-          {/* Input bar */}
           <div style={{ borderTop: "0.5px solid var(--color-border-tertiary)", padding: "10px 14px", background: "var(--color-background-secondary)", display: "flex", alignItems: "center", gap: 8 }}>
             {activeTab === "all" && (
-              <div ref={dropRef} style={{ position: "relative", flexShrink: 0 }}>
+              <div style={{ position: "relative", flexShrink: 0 }}>
                 <button onClick={() => setDropOpen(o => !o)} style={{
                   display: "flex", alignItems: "center", gap: 6,
                   padding: "8px 12px", borderRadius: 9,

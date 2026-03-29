@@ -4,8 +4,6 @@ import { useAuth } from '../context/AuthContext';
 
 const API = import.meta.env.VITE_API_URL || 'https://sedap-nnap.onrender.com/api';
 
-// ── Route registry — single source of truth ──────────────────────────────────
-// Add / rename routes here and search updates automatically.
 const ROUTE_REGISTRY = [
   { path: '/',               keywords: ['dashboard', 'home', 'overview'] },
   { path: '/orders',         keywords: ['order', 'orders', 'order list'] },
@@ -20,31 +18,18 @@ const ROUTE_REGISTRY = [
   { path: '/walet',          keywords: ['wallet', 'walet', 'payment', 'transaction', 'finance', 'money'] },
 ];
 
-/**
- * Find the best matching route for a query string.
- * Tries exact keyword match first, then prefix match.
- * Returns the path string or null if nothing matches.
- */
 function findRoute(query) {
   const q = query.toLowerCase().trim();
   if (!q) return null;
-
-  // 1. Exact keyword match
   for (const route of ROUTE_REGISTRY) {
     if (route.keywords.some((kw) => q === kw)) return route.path;
   }
-
-  // 2. Any keyword that contains the query, or query contains keyword
   for (const route of ROUTE_REGISTRY) {
-    if (route.keywords.some((kw) => kw.includes(q) || q.includes(kw))) {
-      return route.path;
-    }
+    if (route.keywords.some((kw) => kw.includes(q) || q.includes(kw))) return route.path;
   }
-
   return null;
 }
 
-// ── Theme Cycle Hook ──────────────────────────────────────────────────────────
 const THEMES = ['light', 'dark', 'system'];
 
 function useThemeCycle() {
@@ -53,9 +38,7 @@ function useThemeCycle() {
   useEffect(() => {
     localStorage.setItem('theme', theme);
     const apply = (resolved) => document.documentElement.setAttribute('data-theme', resolved);
-
     if (theme !== 'system') { apply(theme); return; }
-
     const mq = window.matchMedia('(prefers-color-scheme: dark)');
     apply(mq.matches ? 'dark' : 'light');
     const handler = (e) => apply(e.matches ? 'dark' : 'light');
@@ -67,7 +50,6 @@ function useThemeCycle() {
   return { theme, cycleTheme };
 }
 
-// ── Theme Button ──────────────────────────────────────────────────────────────
 const THEME_CONFIG = {
   light: {
     label: 'Light',
@@ -113,42 +95,53 @@ function ThemeButton() {
   );
 }
 
-// ── Badge counts ──────────────────────────────────────────────────────────────
+// FIX: Added AbortController so fetch calls are cancelled when the component
+// unmounts, preventing "setState on unmounted component" warnings and memory leaks.
+// Previously only `cancelled` was used to guard setState, but the in-flight
+// fetch requests themselves were never aborted.
 function useBadgeCounts() {
   const [counts, setCounts] = useState({ newOrders: 0, reviews: 0, delivered: 0, pendingTx: 0 });
 
   useEffect(() => {
-    let cancelled = false;
+    const controller = new AbortController();
+    const { signal } = controller;
+
     const fetchAll = async () => {
       try {
         const [ordersRes, reviewsRes, txRes] = await Promise.all([
-          fetch(`${API}/orderlist`),
-          fetch(`${API}/reviews`),
-          fetch(`${API}/transactions`),
+          fetch(`${API}/orderlist`,     { signal }),
+          fetch(`${API}/reviews`,       { signal }),
+          fetch(`${API}/transactions`,  { signal }),
         ]);
         const [orders, reviews, transactions] = await Promise.all([
           ordersRes.ok  ? ordersRes.json()  : [],
           reviewsRes.ok ? reviewsRes.json() : [],
           txRes.ok      ? txRes.json()      : [],
         ]);
-        if (cancelled) return;
         setCounts({
           newOrders: Array.isArray(orders)       ? orders.filter((o) => o.status === 'new').length        : 0,
           delivered: Array.isArray(orders)       ? orders.filter((o) => o.status === 'delivered').length  : 0,
           reviews:   Array.isArray(reviews)      ? reviews.length                                          : 0,
           pendingTx: Array.isArray(transactions) ? transactions.filter((t) => t.status === 'Pending').length : 0,
         });
-      } catch { /* badges are non-critical */ }
+      } catch (err) {
+        // AbortError is expected on unmount — don't log it as a real error
+        if (err.name !== 'AbortError') console.error('Badge fetch failed:', err);
+      }
     };
+
     fetchAll();
     const interval = setInterval(fetchAll, 60_000);
-    return () => { cancelled = true; clearInterval(interval); };
+
+    return () => {
+      controller.abort();
+      clearInterval(interval);
+    };
   }, []);
 
   return counts;
 }
 
-// ── Navbar ────────────────────────────────────────────────────────────────────
 const Navbar = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -160,14 +153,12 @@ const Navbar = () => {
 
   const handleSearch = (e) => {
     if (e.key !== 'Enter' || !search.trim()) return;
-
     const path = findRoute(search.trim());
     if (path) {
       navigate(path);
       setSearch('');
       setNoMatch(false);
     } else {
-      // FIXED: surface feedback instead of silently falling through to /foods
       setNoMatch(true);
       setTimeout(() => setNoMatch(false), 2000);
     }

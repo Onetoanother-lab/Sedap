@@ -1,13 +1,15 @@
-// src/components/StatCard.jsx
 import React from "react";
 import { TrendingUp, TrendingDown } from "lucide-react";
 
-const StatCard = ({ title, value, percent }) => {
+// FIX: Added optional `unit` prop (defaults to empty string).
+// Callers that display monetary values pass unit="UZS";
+// count-based cards (Total Orders, Canceled, Delivered) pass no unit.
+const StatCard = ({ title, value, percent, unit = "" }) => {
   const isPositive = percent >= 0;
 
   return (
     <div className="bg-base-100 p-5 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 flex items-center gap-4">
-      
+
       {/* ICON */}
       <div
         className={`w-14 h-14 rounded-xl flex items-center justify-center ${
@@ -26,8 +28,10 @@ const StatCard = ({ title, value, percent }) => {
         <p className="text-sm text-base-content/60">{title}</p>
 
         <h2 className="text-2xl font-semibold text-base-content">
-          {value.toLocaleString()}{" "}
-          <span className="text-sm text-base-content/40">UZS</span>
+          {value.toLocaleString()}
+          {unit && (
+            <span className="text-sm text-base-content/40 ml-1">{unit}</span>
+          )}
         </h2>
 
         <div
@@ -36,6 +40,7 @@ const StatCard = ({ title, value, percent }) => {
           }`}
         >
           {isPositive ? "▲" : "▼"} {Math.abs(percent)}%
+          <span className="text-base-content/40 font-normal text-xs ml-1">vs last month</span>
         </div>
       </div>
     </div>
@@ -43,12 +48,3 @@ const StatCard = ({ title, value, percent }) => {
 };
 
 export default StatCard;
-
-
-
-
-
-
-
-
-

@@ -3,6 +3,12 @@ import { MoreVertical, ChevronRight, Info } from 'lucide-react';
 
 const API = import.meta.env.VITE_API_URL || "https://sedap-nnap.onrender.com/api";
 
+// ─── Chart layout constants (named, not magic numbers) ────────────────────────
+const CHART_WIDTH      = 420;
+const CHART_BOTTOM_Y   = 110;  // y-coordinate of the baseline axis
+const CHART_TOP_Y      = 10;   // top padding
+const CHART_USABLE_H   = CHART_BOTTOM_Y - CHART_TOP_Y; // 100px
+
 // ─── Formatters ───────────────────────────────────────────────────────────────
 
 const getStatusColor = (status) => {
@@ -58,20 +64,10 @@ const formatDate = (dateStr) => {
 
 const DAYS_SHORT = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-// SVG chart dimensions — must match the viewBox="0 0 420 130"
-const CHART_W      = 420;
-const CHART_BOTTOM = 110; // axis line Y
-const CHART_TOP    = 10;  // top padding
-const CHART_H      = CHART_BOTTOM - CHART_TOP; // 100px usable height
-
-const xPos = (i) => Math.round((i / 6) * CHART_W); // 7 points across full width
+const xPos = (i) => Math.round((i / 6) * CHART_WIDTH);
 const toY  = (val, maxVal) =>
-  maxVal === 0 ? CHART_BOTTOM : CHART_BOTTOM - (val / maxVal) * CHART_H;
+  maxVal === 0 ? CHART_BOTTOM_Y : CHART_BOTTOM_Y - (val / maxVal) * CHART_USABLE_H;
 
-/**
- * Build the three SVG path strings and the peak-income dot position
- * from the raw transactions array, grouped by day of week.
- */
 function buildChartData(transactions) {
   const byDay = Array.from({ length: 7 }, () => ({ income: 0, expense: 0, unknown: 0 }));
 
@@ -86,13 +82,12 @@ function buildChartData(transactions) {
 
   const maxVal = Math.max(
     ...byDay.map((d) => Math.max(d.income, d.expense, d.unknown)),
-    1 // avoid ÷0 when no data
+    1
   );
 
   const buildPath = (key) =>
     byDay.map((d, i) => `${i === 0 ? 'M' : 'L'} ${xPos(i)},${toY(d[key], maxVal)}`).join(' ');
 
-  // Place the highlight dot on the day with the highest income
   const peakIdx = byDay.reduce((best, d, i) => (d.income > byDay[best].income ? i : best), 0);
 
   return {
@@ -105,10 +100,6 @@ function buildChartData(transactions) {
   };
 }
 
-/**
- * Compare last-7-days completed total vs the 7 days before that.
- * Returns a label string and a boolean (positive / negative / null for no data).
- */
 function buildWeekChange(transactions) {
   const now            = Date.now();
   const sevenDaysMs    = 7 * 24 * 60 * 60 * 1000;
@@ -131,28 +122,6 @@ function buildWeekChange(transactions) {
     label:    `${pct >= 0 ? '+' : ''}${pct.toFixed(1)}% than last week`,
     positive: pct >= 0,
   };
-}
-
-/**
- * Extract the last-4 card digits from the first completed transaction's
- * card field, e.g. "MasterCard 4041" → "4041".
- */
-function extractCardLast4(transactions) {
-  const completed = transactions.find((t) => t.status === 'Completed' && t.card);
-  if (!completed?.card) return '••••';
-  const match = completed.card.match(/\d+/);
-  return match ? match[0] : '••••';
-}
-
-/**
- * Compute a card expiry date as current month + 2 years → "MM/YY".
- */
-function computeValidThru() {
-  const d = new Date();
-  d.setFullYear(d.getFullYear() + 2);
-  const mm = String(d.getMonth() + 1).padStart(2, '0');
-  const yy = String(d.getFullYear()).slice(-2);
-  return `${mm}/${yy}`;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -193,9 +162,8 @@ const FinancialDashboard = () => {
     [transactions]
   );
 
-  // Donut chart percentages
   const { incomePercent, expensePercent, unknownPercent } = useMemo(() => {
-    const total         = transactions.length || 1;
+    const total          = transactions.length || 1;
     const completedCount = transactions.filter((t) => t.status === 'Completed').length;
     const canceledCount  = transactions.filter((t) => t.status === 'Canceled').length;
     const pendingCount   = transactions.filter((t) => t.status === 'Pending').length;
@@ -206,30 +174,28 @@ const FinancialDashboard = () => {
     };
   }, [transactions]);
 
-  // Donut SVG (circumference for r=35 ≈ 220)
   const circ = 220;
   const incomeDash  = (incomePercent  / 100) * circ;
   const expenseDash = (expensePercent / 100) * circ;
   const unknownDash = (unknownPercent / 100) * circ;
 
-  // Real card holder name
-  const cardHolder = transactions.find((t) => t.status === 'Completed')?.name || 'Card Holder';
+  // Card holder: name from the most recent Completed transaction, or "—"
+  const cardHolder = useMemo(
+    () => transactions.find((t) => t.status === 'Completed')?.name || '—',
+    [transactions]
+  );
 
-  // ── New: real computed values replacing all hardcoded strings ──────────────
+  // Card number: read directly from the transaction's card field.
+  // The field contains e.g. "MasterCard 4041" — we show it as-is,
+  // masking everything except the last segment the server already provides.
+  // We do NOT fabricate expiry dates — those are not in the data model.
+  const cardDisplay = useMemo(() => {
+    const tx = transactions.find((t) => t.status === 'Completed' && t.card);
+    return tx?.card || null;
+  }, [transactions]);
 
-  /** "±X.X% than last week"  or  "No recent activity" */
   const weekChange = useMemo(() => buildWeekChange(transactions), [transactions]);
-
-  /** Last-4 digits of first completed transaction's card, e.g. "4041" */
-  const cardLast4  = useMemo(() => extractCardLast4(transactions), [transactions]);
-
-  /** Card expiry: current date + 2 years, "MM/YY" */
-  const validThru  = useMemo(() => computeValidThru(), []);
-
-  /** SVG chart data derived from real transactions grouped by day of week */
   const chartData  = useMemo(() => buildChartData(transactions), [transactions]);
-
-  /** Highlight today's label in the day-of-week row */
   const todayIndex = useMemo(() => new Date().getDay(), []);
 
   // ── Handlers ───────────────────────────────────────────────────────────────
@@ -273,7 +239,6 @@ const FinancialDashboard = () => {
   return (
     <div className="p-6">
 
-      {/* Spinner */}
       {loading && (
         <div style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <span className="loading loading-spinner text-success w-12" />
@@ -300,17 +265,20 @@ const FinancialDashboard = () => {
 
               <div className="grid grid-cols-3 gap-6 mb-6">
                 <div>
-                  <p className="text-xs text-base-content/50 mb-1 tracking-wide font-medium">VALID THRU</p>
-                  {/* Derived: current date + 2 years */}
-                  <p className="font-semibold text-base-content text-sm">{validThru}</p>
-                </div>
-                <div>
                   <p className="text-xs text-base-content/50 mb-1 tracking-wide font-medium">CARD HOLDER</p>
                   <p className="font-semibold text-base-content text-sm">{cardHolder}</p>
                 </div>
+                <div>
+                  {/* Card number shown as stored — no fabricated digits */}
+                  <p className="text-xs text-base-content/50 mb-1 tracking-wide font-medium">CARD</p>
+                  <p className="font-semibold text-base-content text-sm">
+                    {cardDisplay ?? <span className="text-base-content/30">No card on file</span>}
+                  </p>
+                </div>
                 <div className="text-right">
-                  {/* Last 4 digits from first completed transaction */}
-                  <p className="font-semibold text-base-content text-sm">**** **** **** {cardLast4}</p>
+                  {/* Expiry not stored in the data model — do not fabricate */}
+                  <p className="text-xs text-base-content/50 mb-1 tracking-wide font-medium">VALID THRU</p>
+                  <p className="font-semibold text-base-content/30 text-sm">—</p>
                 </div>
               </div>
 
@@ -322,13 +290,12 @@ const FinancialDashboard = () => {
               <h3 className="text-lg font-bold text-base-content/50 mb-6">Earning Category</h3>
 
               <div className="grid grid-cols-2 gap-8">
-                {/* Donut + legend */}
                 <div className="flex items-center gap-6">
                   <div className="space-y-5">
                     {[
-                      { color: 'bg-success', label: 'Income',  pct: incomePercent,  cssVar: 'var(--su)' },
-                      { color: 'bg-error',   label: 'Expense', pct: expensePercent, cssVar: 'var(--er)' },
-                      { color: 'bg-base-300',label: 'Unknown', pct: unknownPercent, cssVar: 'var(--b3)' },
+                      { color: 'bg-success', label: 'Income',  pct: incomePercent },
+                      { color: 'bg-error',   label: 'Expense', pct: expensePercent },
+                      { color: 'bg-base-300',label: 'Unknown', pct: unknownPercent },
                     ].map(({ color, label, pct }) => (
                       <div key={label} className="flex items-center gap-3">
                         <div className={`w-3 h-3 rounded-full ${color}`} />
@@ -354,71 +321,25 @@ const FinancialDashboard = () => {
                   </div>
                 </div>
 
-                {/* Real SVG line chart — paths built from transactions by day of week */}
                 <div className="pl-6 border-l border-base-200">
-                  <svg viewBox="0 0 420 130" className="w-full h-36">
-                    {/* Baseline */}
-                    <line x1="0" y1={CHART_BOTTOM} x2={CHART_W} y2={CHART_BOTTOM}
+                  <svg viewBox={`0 0 ${CHART_WIDTH} 130`} className="w-full h-36">
+                    <line x1="0" y1={CHART_BOTTOM_Y} x2={CHART_WIDTH} y2={CHART_BOTTOM_Y}
                       stroke="oklch(var(--b2))" strokeWidth="1" />
-
-                    {/* Income line (green) */}
-                    <path
-                      d={chartData.incomePath}
-                      fill="none"
-                      stroke="oklch(var(--su))"
-                      strokeWidth="2.5"
-                      strokeLinecap="round"
-                    />
-                    {/* Expense line (red) */}
-                    <path
-                      d={chartData.expensePath}
-                      fill="none"
-                      stroke="oklch(var(--er))"
-                      strokeWidth="2.5"
-                      strokeLinecap="round"
-                    />
-                    {/* Unknown / pending line (grey) */}
-                    <path
-                      d={chartData.unknownPath}
-                      fill="none"
-                      stroke="oklch(var(--b3))"
-                      strokeWidth="2.5"
-                      strokeLinecap="round"
-                    />
-
-                    {/* Peak income dot + dashed vertical line */}
+                    <path d={chartData.incomePath} fill="none" stroke="oklch(var(--su))" strokeWidth="2.5" strokeLinecap="round" />
+                    <path d={chartData.expensePath} fill="none" stroke="oklch(var(--er))" strokeWidth="2.5" strokeLinecap="round" />
+                    <path d={chartData.unknownPath} fill="none" stroke="oklch(var(--b3))" strokeWidth="2.5" strokeLinecap="round" />
                     {chartData.hasData && (
                       <>
-                        <circle
-                          cx={chartData.peakX}
-                          cy={chartData.peakY}
-                          r="5"
-                          fill="oklch(var(--su))"
-                        />
-                        <line
-                          x1={chartData.peakX} y1="0"
-                          x2={chartData.peakX} y2={CHART_BOTTOM}
-                          stroke="oklch(var(--b2))"
-                          strokeWidth="1"
-                          strokeDasharray="3 3"
-                        />
+                        <circle cx={chartData.peakX} cy={chartData.peakY} r="5" fill="oklch(var(--su))" />
+                        <line x1={chartData.peakX} y1="0" x2={chartData.peakX} y2={CHART_BOTTOM_Y}
+                          stroke="oklch(var(--b2))" strokeWidth="1" strokeDasharray="3 3" />
                       </>
                     )}
                   </svg>
 
-                  {/* Day labels — today highlighted */}
                   <div className="flex justify-between mt-2 text-xs text-base-content/40 font-medium">
                     {DAYS_SHORT.map((d, i) => (
-                      <span
-                        key={d}
-                        className={
-                          i === todayIndex
-                            ? 'font-semibold text-base-content/70'
-                            : ''
-                        }
-                      >
-                        {d}
-                      </span>
+                      <span key={d} className={i === todayIndex ? 'font-semibold text-base-content/70' : ''}>{d}</span>
                     ))}
                   </div>
                 </div>
@@ -434,15 +355,10 @@ const FinancialDashboard = () => {
                 </div>
                 <div className="flex gap-5">
                   {['Monthly', 'Weekly', 'Today'].map((view) => (
-                    <button
-                      key={view}
-                      onClick={() => setHistoryView(view)}
+                    <button key={view} onClick={() => setHistoryView(view)}
                       className={`pb-1.5 text-sm font-medium transition-colors ${
-                        historyView === view
-                          ? 'text-success border-b-2 border-success'
-                          : 'text-base-content/40 hover:text-base-content/70'
-                      }`}
-                    >
+                        historyView === view ? 'text-success border-b-2 border-success' : 'text-base-content/40 hover:text-base-content/70'
+                      }`}>
                       {view}
                     </button>
                   ))}
@@ -552,7 +468,6 @@ const FinancialDashboard = () => {
               <h2 className="text-4xl font-bold mb-2">{formatBalance(walletBalance)}</h2>
               <p className="text-neutral-content/70 text-sm mb-6 font-medium">Wallet Balance</p>
 
-              {/* Real week-over-week comparison */}
               <div className="flex items-center gap-1.5 mb-6 text-xs">
                 {weekChange.positive === null ? (
                   <span className="text-base-content/50">{weekChange.label}</span>

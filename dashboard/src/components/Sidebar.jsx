@@ -91,11 +91,11 @@ const Sidebar = () => {
 
                             <span className="text-md font-bold">Chat</span>
                         </NavLink>
-                        <NavLink to="/walet" className={linkClass}>
+                        <NavLink to="/wallet" className={linkClass}>
                             <WalletMinimal className="w-5 h-5" />
 
 
-                            <span className="text-md font-bold">Walet</span>
+                            <span className="text-md font-bold">Wallet</span>
                         </NavLink>
                     </ul>
                 </ul>

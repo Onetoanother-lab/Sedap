@@ -16,7 +16,10 @@ function calcPercent(current, previous) {
 
 const Dashboard = () => {
   const [stats, setStats] = useState({
-    total: 0, canceled: 0, delivered: 0, income: 0,
+    // FIX: values now reflect the *current month* so they match the trend %.
+    // Previously, card values were all-time totals while the % compared
+    // only the current month to the previous month — actively misleading.
+    thisTotal: 0, thisCanceled: 0, thisDelivered: 0, thisIncome: 0,
     totalPct: 0, canceledPct: 0, deliveredPct: 0, incomePct: 0,
   });
 
@@ -45,10 +48,10 @@ const Dashboard = () => {
 
         // ── This month ──
         const thisOrders    = orders.filter(inThis);
-        const total         = orders.length;
-        const canceled      = orders.filter((o) => o.status === "canceled").length;
-        const delivered     = orders.filter((o) => o.status === "delivered").length;
-        const income        = orders.reduce((s, o) => s + (o.total || 0), 0);
+        const thisTotal     = thisOrders.length;
+        const thisCanceled  = thisOrders.filter((o) => o.status === "canceled").length;
+        const thisDelivered = thisOrders.filter((o) => o.status === "delivered").length;
+        const thisIncome    = thisOrders.reduce((s, o) => s + (o.total || 0), 0);
 
         // ── Last month ──
         const lastOrders    = orders.filter(inLast);
@@ -57,17 +60,11 @@ const Dashboard = () => {
         const lastDelivered = lastOrders.filter((o) => o.status === "delivered").length;
         const lastIncome    = lastOrders.reduce((s, o) => s + (o.total || 0), 0);
 
-        // ── This month only (for card values) ──
-        const thisTotal     = thisOrders.length;
-        const thisCanceled  = thisOrders.filter((o) => o.status === "canceled").length;
-        const thisDelivered = thisOrders.filter((o) => o.status === "delivered").length;
-        const thisIncome    = thisOrders.reduce((s, o) => s + (o.total || 0), 0);
-
         setStats({
-          total,
-          canceled,
-          delivered,
-          income,
+          thisTotal,
+          thisCanceled,
+          thisDelivered,
+          thisIncome,
           totalPct:     calcPercent(thisTotal,     lastTotal),
           canceledPct:  calcPercent(thisCanceled,  lastCanceled),
           deliveredPct: calcPercent(thisDelivered, lastDelivered),
@@ -77,19 +74,24 @@ const Dashboard = () => {
       .catch(() => {});
   }, []);
 
+  const monthLabel = new Date().toLocaleString("default", { month: "long", year: "numeric" });
+
   return (
     <div className="pt-4">
       <h1 className="text-2xl text-primary font-bold">Dashboard</h1>
+      {/* FIX: subtitle now states the scope so users know these are monthly figures */}
       <p className="text-md font-semibold text-primary mb-10">
-        Your order history will appear here.
+        {monthLabel} — month-to-date summary
       </p>
 
-      {/* Stat Cards — percent now reflects real month-over-month change */}
+      {/* Stat Cards
+          FIX: values and trend % now refer to the same period (this month).
+          FIX: unit prop is only passed to the income card — count cards get no unit. */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-10">
-        <StatCard title="Total Orders"    value={stats.total}     percent={stats.totalPct} />
-        <StatCard title="Total Canceled"  value={stats.canceled}  percent={stats.canceledPct} />
-        <StatCard title="Total Delivered" value={stats.delivered} percent={stats.deliveredPct} />
-        <StatCard title="Income Profit"   value={stats.income}    percent={stats.incomePct} />
+        <StatCard title="Orders This Month"    value={stats.thisTotal}     percent={stats.totalPct} />
+        <StatCard title="Canceled This Month"  value={stats.thisCanceled}  percent={stats.canceledPct} />
+        <StatCard title="Delivered This Month" value={stats.thisDelivered} percent={stats.deliveredPct} />
+        <StatCard title="Income This Month"    value={stats.thisIncome}    percent={stats.incomePct} unit="UZS" />
       </div>
 
       {/* Charts */}
